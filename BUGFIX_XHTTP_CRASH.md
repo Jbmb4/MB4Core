@@ -1,0 +1,33 @@
+# Correção do crash XHTTP no Android 15
+
+## Causa
+
+O `libconscrypt_jni.so` executa `JNI_OnLoad` e procura a classe
+`org.conscrypt.CryptoUpcalls` por JNI. A seleção anterior copiava apenas classes
+alcançadas por referências estáticas no smali. Como `CryptoUpcalls` é alcançada
+por lookup nativo/reflexão, ela não entrava em `classes3.dex`. O resultado era
+`SIGABRT` dentro de `libconscrypt_jni.so` durante `System.loadLibrary`.
+
+## Correção
+
+`stage_xhttp_core.py` agora inclui explicitamente as raízes dinâmicas exigidas
+pelo Conscrypt e interrompe a integração quando a APK de referência não contém
+essas classes. `verify_xhttp_integration.py` também exige o marcador
+`org/conscrypt/CryptoUpcalls` na APK final.
+
+## Regeneração necessária
+
+A `scripts/base.apk` que veio neste pacote ainda foi construída antes da correção.
+Ela precisa ser regenerada a partir da APK de referência decompilada:
+
+```bash
+python3 scripts/integrate_xhttp_base.py \
+  --reference /caminho/referencia_decodificada \
+  --base /caminho/base_decodificada
+
+apktool b /caminho/base_decodificada -o scripts/base.apk
+python3 scripts/verify_xhttp_integration.py
+```
+
+A validação agora falhará enquanto a base antiga continuar sem `CryptoUpcalls`,
+evitando que uma APK quebrada seja publicada novamente.

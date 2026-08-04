@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MB4Core - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="csrf-token" content="<%= it.csrfToken %>">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #121214 0%, #1a1a1d 50%, #252529 100%);
+        }
+        .login-card {
+            background-color: #1a1a1d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .input-field {
+            background-color: #252529;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-primary {
+            background-color: #252529;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-primary:hover {
+            background-color: #2d2d33;
+        }
+        .telegram-btn {
+            background-color: #24A1DE;
+        }
+        .telegram-btn-alt {
+            background-color: #0088cc;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="login-card w-full max-w-[360px] rounded-[24px] p-8 shadow-2xl">
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent"></div>
+                <img src="/static/img/favicon.svg" alt="Logo" class="w-12 h-12 relative z-10 brightness-200">
+                <!-- Fallback if icon not found -->
+                <div class="absolute inset-0 flex items-center justify-center text-white/20 text-4xl">
+                    <i class="fas fa-user-secret"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-white text-2xl font-medium text-center mb-8">DTunnelMod</h1>
+
+        <!-- Alerts -->
+        <div id="error-message" class="hidden bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-lg mb-4 text-center"></div>
+        <div id="success-message" class="hidden bg-green-500/10 border border-green-500/20 text-green-500 text-sm p-3 rounded-lg mb-4 text-center"></div>
+
+        <!-- Form -->
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-gray-400 text-sm mb-2 ml-1">Nome de usuario</label>
+                <input type="text" id="email" name="email" placeholder="username" 
+                    class="input-field w-full rounded-xl py-3 px-4 text-white placeholder-gray-600 outline-none transition-all focus:border-white/20" required>
+            </div>
+            
+            <div>
+                <label class="block text-gray-400 text-sm mb-2 ml-1">Senha</label>
+                <input type="password" id="password" name="password" placeholder="password" 
+                    class="input-field w-full rounded-xl py-3 px-4 text-white placeholder-gray-600 outline-none transition-all focus:border-white/20" required>
+            </div>
+
+            <button type="submit" id="submitButton" 
+                class="btn-primary w-full text-white font-medium py-3 rounded-xl transition-all active:scale-[0.98]">
+                Entrar
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <a href="/register" class="text-white text-sm border-b border-white/40 hover:border-white transition-all">
+                Não tem uma conta?
+            </a>
+        </div>
+
+        <!-- Social Buttons -->
+        <div class="flex justify-center gap-4 mt-8">
+            <a href="#" class="telegram-btn w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl hover:opacity-90 transition-all">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="#" class="telegram-btn-alt w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl hover:opacity-90 transition-all">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+        </div>
+    </div>
+
+    <script src="../static/js/utils.js"></script>
+    <script>
+        const Elements = {
+            loginForm: document.querySelector('#loginForm'),
+            submitButton: document.querySelector('#submitButton'),
+            error: document.querySelector('#error-message'),
+            success: document.querySelector('#success-message'),
+        };
+
+        const showAlert = (type, message) => {
+            Elements[type].textContent = message;
+            Elements[type].classList.remove('hidden');
+            setTimeout(() => {
+                Elements[type].classList.add('hidden');
+            }, 5000);
+        };
+
+        Elements.loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const submitBtn = Elements.submitButton;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const email = event.target.email.value;
+            const password = event.target.password.value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'csrf-token': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                
+                if (result?.error) {
+                    handleError(result.error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Entrar';
+                    return;
+                }
+
+                showAlert('success', 'Login realizado com sucesso!');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } catch (error) {
+                showAlert('error', 'Erro na conexão. Tente novamente.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Entrar';
+            }
+        });
+
+        const handleError = (message) => {
+            const msg = message.toLowerCase();
+            if (msg.includes('password') || msg.includes('user not found')) {
+                showAlert('error', 'Usuário ou senha incorretos');
+            } else {
+                showAlert('error', `Erro: ${message}`);
+            }
+        };
+    </script>
+</body>
+</html>

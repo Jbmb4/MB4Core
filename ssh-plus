@@ -1,0 +1,92 @@
+#!/bin/bash
+# ============================================================
+# Script de Instalacao - DTunnelMod
+# Instala o painel automaticamente com todas as dependencias
+# ============================================================
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo -e "${GREEN}==============================================${NC}"
+echo -e "${GREEN}    INSTALADOR AUTOMATICO - DTunnelMod        ${NC}"
+echo -e "${GREEN}==============================================${NC}"
+echo ""
+
+cd /root 2>/dev/null || cd /tmp || cd $HOME
+
+if [ "$(id -u)" -eq 0 ]; then
+    INSTALL_DIR="/root/Dtmod"
+    PANEL_USER="root"
+else
+    INSTALL_DIR="$HOME/Dtmod"
+    PANEL_USER="$(whoami)"
+fi
+
+echo -e "${CYAN}[1/10]${NC} Atualizando sistema e instalando dependencias basicas..."
+apt update -y && apt upgrade -y
+apt install -y curl git wget build-essential ca-certificates gnupg openjdk-17-jdk-headless python3
+
+echo -e "${CYAN}[2/10]${NC} Instalando Ferramentas de APK (Apktool & Signer)..."
+sudo wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O /usr/local/bin/apktool
+sudo chmod +x /usr/local/bin/apktool
+sudo wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar -O /usr/local/bin/apktool.jar
+sudo chmod +x /usr/local/bin/apktool.jar
+sudo wget https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar -O /usr/local/bin/uber-apk-signer.jar
+sudo chmod +x /usr/local/bin/uber-apk-signer.jar
+
+echo -e "${CYAN}[3/10]${NC} Verificando Node.js..."
+if ! command -v node &> /dev/null; then
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt install -y nodejs
+fi
+
+echo -e "${CYAN}[4/10]${NC} Verificando PNPM..."
+if ! command -v pnpm &> /dev/null; then
+    npm install -g pnpm
+fi
+
+echo -e "${CYAN}[5/10]${NC} Instalando PM2..."
+npm install -g pm2
+
+echo -e "${CYAN}[6/10]${NC} Preparando repositorio..."
+if [ -d "$INSTALL_DIR" ]; then rm -rf "$INSTALL_DIR"; fi
+git clone https://github.com/PedroJbk/Dtmod.git "$INSTALL_DIR"
+cd "$INSTALL_DIR" || exit 1
+
+echo -e "${CYAN}[7/10]${NC} Configurando ambiente..."
+if [ ! -f .env ]; then cp .env.example .env; fi
+
+echo -e "${CYAN}[8/10]${NC} Instalando dependencias do projeto..."
+pnpm install --no-frozen-lockfile
+
+echo -e "${CYAN}[9/10]${NC} Configurando banco de dados..."
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+
+echo -e "${CYAN}[10/10]${NC} Compilando projeto..."
+npx tsc --build
+
+# Firewall
+PORT=$(grep "^PORT=" .env | cut -d'=' -f2 | tr -d ' ' || echo "3000")
+if command -v ufw &> /dev/null; then ufw allow "$PORT"/tcp 2>/dev/null; fi
+
+# Iniciar
+pm2 delete DTunnel 2>/dev/null
+pm2 start ecosystem.config.js --cwd "$INSTALL_DIR"
+pm2 save
+pm2 startup -u "$PANEL_USER" --hp "$HOME" 2>/dev/null
+
+# Atalhos
+chmod +x "$INSTALL_DIR/menuop" "$INSTALL_DIR/pon" "$INSTALL_DIR/poff"
+ln -sf "$INSTALL_DIR/menuop" /usr/local/bin/menuop
+ln -sf "$INSTALL_DIR/pon" /usr/local/bin/pon
+ln -sf "$INSTALL_DIR/poff" /usr/local/bin/poff
+echo "$INSTALL_DIR" > "$INSTALL_DIR/.install_dir"
+
+echo -e "${GREEN}==============================================${NC}"
+echo -e "${GREEN}  INSTALACAO CONCLUIDA COM SUCESSO!            ${NC}"
+echo -e "${GREEN}==============================================${NC}"
+echo -e "${CYAN}Use 'menuop' para gerenciar e gerar seu APK.${NC}"
