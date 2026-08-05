@@ -182,7 +182,7 @@ def generate_apk(new_domain: str, output_name: str = "dtmod-custom.apk") -> Path
 
         unsigned_apk = output_dir / "unsigned.apk"
         print("Reconstruindo APK...")
-        run_command([APKTOOL, "b", str(work_dir), "-o", str(unsigned_apk)])
+        run_command([APKTOOL, "b", "--use-aapt2", str(work_dir), "-o", str(unsigned_apk)])
 
         print("Assinando APK...")
         run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])
