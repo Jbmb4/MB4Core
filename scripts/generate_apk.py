@@ -34,7 +34,6 @@ OLD_DOMAINS = (
 
 RUNTIME_FILES = (
     "smali_classes3/com/dtunnel/xhttp/XHttpLauncher.smali",
-    "smali_classes3/com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy.smali",
     "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali",
 )
 
