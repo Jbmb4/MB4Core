@@ -19,6 +19,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+MAX_USER_ID_LENGTH = 128
+
 APKTOOL = os.environ.get("APKTOOL_BIN", "apktool")
 SIGNER_JAR = Path(os.environ.get("UBER_APK_SIGNER_JAR", "/usr/local/bin/uber-apk-signer.jar"))
 
@@ -45,6 +48,14 @@ def run_command(command: list[str], *, cwd: Path | None = None) -> None:
         if completed.stderr:
             print(completed.stderr, file=sys.stderr)
         raise RuntimeError(f"Comando falhou com código {completed.returncode}")
+
+
+def normalize_user_id(value: str) -> str:
+    """Valida o identificador que será embutido em assets/user_id.txt."""
+    user_id = value.strip()
+    if not user_id or len(user_id) > MAX_USER_ID_LENGTH or any(ord(char) < 0x20 for char in user_id):
+        raise ValueError("Informe um user_id não vazio com até 128 caracteres e sem caracteres de controle.")
+    return user_id
 
 
 def normalize_domain(value: str) -> str:
@@ -89,6 +100,15 @@ def replace_domains(work_dir: Path, new_domain: str) -> int:
             smali_file.write_text(updated, encoding="utf-8")
             replacements += 1
     return replacements
+
+
+def update_user_id(work_dir: Path, user_id: str) -> None:
+    """Substitui o user_id estático da APK pelo usuário que gerou o artefato."""
+    user_id_file = work_dir / "assets" / "user_id.txt"
+    if not user_id_file.is_file():
+        raise RuntimeError("A APK base não contém assets/user_id.txt; não é seguro gerar uma APK sem identidade.")
+    user_id_file.write_text(user_id + "\n", encoding="utf-8")
+    print(f"user_id aplicado em assets/user_id.txt: {user_id}")
 
 
 def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
@@ -146,7 +166,7 @@ def find_signed_apk(output_dir: Path) -> Path:
     return candidates[-1]
 
 
-def generate_apk(new_domain: str, output_name: str = "dtmod-custom.apk") -> Path:
+def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom.apk") -> Path:
     script_dir = Path(__file__).resolve().parent
     panel_dir = script_dir.parent
     apk_path = script_dir / "base.apk"
@@ -171,6 +191,9 @@ def generate_apk(new_domain: str, output_name: str = "dtmod-custom.apk") -> Path
         changed_files = replace_domains(work_dir, new_domain)
         print(f"Domínio aplicado em {changed_files} arquivo(s) Smali.")
 
+        # Identidade do usuário que gerou esta APK; nunca usar valor estático da base.
+        update_user_id(work_dir, user_id)
+
         # Atualizar o dtunnelmod.json com a URL do painel
         update_dtunnelmod_json(work_dir, new_domain)
 
@@ -187,7 +210,9 @@ def generate_apk(new_domain: str, output_name: str = "dtmod-custom.apk") -> Path
         print("Assinando APK...")
         run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])
 
-        final_destination = Path.home() / output_name
+        requested_output = Path(output_name)
+        final_destination = requested_output if requested_output.is_absolute() else Path.home() / requested_output
+        final_destination.parent.mkdir(parents=True, exist_ok=True)
         signed_apk = find_signed_apk(output_dir)
         shutil.move(str(signed_apk), final_destination)
         print(f"Sucesso: APK gerada em {final_destination}")
@@ -198,16 +223,18 @@ def generate_apk(new_domain: str, output_name: str = "dtmod-custom.apk") -> Path
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("Uso: python3 generate_apk.py <dominio-do-painel>")
+    if len(sys.argv) < 3:
+        print("Uso: python3 generate_apk.py <dominio-do-painel> <user_id> [nome-da-apk]")
         print("Exemplos:")
-        print("  python3 generate_apk.py meudominio.com")
-        print("  python3 generate_apk.py meudominio.com:3000")
+        print("  python3 generate_apk.py meudominio.com 2c2d3b3e-1234-4d5e-8f90-123456789abc")
+        print("  python3 generate_apk.py meudominio.com:3000 2c2d3b3e-1234-4d5e-8f90-123456789abc dtunnel-user.apk")
         raise SystemExit(1)
 
     try:
         domain = normalize_domain(sys.argv[1])
-        generate_apk(domain)
+        user_id = normalize_user_id(sys.argv[2])
+        output_name = sys.argv[3] if len(sys.argv) >= 4 else "dtmod-custom.apk"
+        generate_apk(domain, user_id, output_name)
     except Exception as error:
         print(f"Erro: {error}", file=sys.stderr)
         raise SystemExit(1)
