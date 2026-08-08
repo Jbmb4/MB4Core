@@ -131,13 +131,38 @@ while true; do
 
             echo -n "Digite o seu dominio (ex: meu-painel.com): "
             read domain
-            
+
             if [ -z "$domain" ]; then
                 echo -e "${RED}Dominio invalido!${NC}"
             else
-                echo -e "${YELLOW}Iniciando geracao do APK para: $domain${NC}"
-                python3 "$PANEL_DIR/scripts/generate_apk.py" "$domain"
-                
+                # O menu CLI não possui uma sessão web; use o usuário cadastrado
+                # no banco para que a APK receba um user_id válido automaticamente.
+                DATABASE_URL=$(grep "^DATABASE_URL=" "$ENV_FILE" 2>/dev/null | cut -d'=' -f2- | tr -d '\"')
+                DB_PATH="${DATABASE_URL#file:}"
+                case "$DB_PATH" in
+                    /*) ;;
+                    *) DB_PATH="$PANEL_DIR/$DB_PATH" ;;
+                esac
+                USER_ID=$(python3 - "$DB_PATH" <<'PY'
+import sqlite3
+import sys
+
+try:
+    with sqlite3.connect(sys.argv[1]) as db:
+        row = db.execute("SELECT id FROM users ORDER BY created_at LIMIT 1").fetchone()
+    print(row[0] if row else "")
+except Exception:
+    print("")
+PY
+)
+                if [ -z "$USER_ID" ]; then
+                    echo -e "${RED}Não foi possível obter o user_id no banco do painel.${NC}"
+                else
+                    echo -e "${YELLOW}Iniciando geracao do APK para: $domain${NC}"
+                    echo -e "${CYAN}user_id aplicado automaticamente: $USER_ID${NC}"
+                    python3 "$PANEL_DIR/scripts/generate_apk.py" "$domain" "$USER_ID" "/home/ubuntu/dtmod-custom.apk"
+                fi
+
                 if [ -f "/home/ubuntu/dtmod-custom.apk" ]; then
                     mkdir -p "$PANEL_DIR/frontend/public/apk"
                     mv "/home/ubuntu/dtmod-custom.apk" "$PANEL_DIR/frontend/public/apk/dtunnel-ssh.apk"
