@@ -52,7 +52,7 @@ npm install -g pm2
 
 echo -e "${CYAN}[6/10]${NC} Preparando repositorio..."
 if [ -d "$INSTALL_DIR" ]; then rm -rf "$INSTALL_DIR"; fi
-git clone https://github.com/PedroJbk/Dtmod.git "$INSTALL_DIR"
+git clone https://github.com/Lacasx1/MB4Core.git "$INSTALL_DIR"
 cd "$INSTALL_DIR" || exit 1
 
 echo -e "${CYAN}[7/10]${NC} Configurando ambiente..."
