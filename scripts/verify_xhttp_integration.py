@@ -74,12 +74,16 @@ UNWANTED_ZIP_MEMBERS = {
 DEX_MARKERS = (
     b"com/dtunnel/xhttp/XHttpLauncher",
     b"com/dragonssh/xhttpdemo/core/XHttpSshService",
+    b"com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy",
     b"SSH_XHTTP",
     b"org/conscrypt/CryptoUpcalls",
 )
 
 APK_TEXT_MARKERS = (
     b":xhttp",
+    b"xhttp_state_starting",
+    b"xhttp_channel_name_background",
+    b"xhttp_pdnsd_local",
 )
 
 
