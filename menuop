@@ -138,11 +138,18 @@ while true; do
                 # O menu CLI não possui uma sessão web; use o usuário cadastrado
                 # no banco para que a APK receba um user_id válido automaticamente.
                 DATABASE_URL=$(grep "^DATABASE_URL=" "$ENV_FILE" 2>/dev/null | cut -d'=' -f2- | tr -d '\"')
-                DB_PATH="${DATABASE_URL#file:}"
-                case "$DB_PATH" in
-                    /*) ;;
-                    *) DB_PATH="$PANEL_DIR/$DB_PATH" ;;
-                esac
+                DB_PATH=$(python3 - "$PANEL_DIR" "$DATABASE_URL" <<'PY'
+from pathlib import Path
+import sys
+
+panel_dir = Path(sys.argv[1])
+url = sys.argv[2]
+path = Path(url[5:] if url.startswith("file:") else url)
+if not path.is_absolute():
+    path = panel_dir / "prisma" / path
+print(path.resolve())
+PY
+)
                 USER_ID=$(python3 - "$DB_PATH" <<'PY'
 import sqlite3
 import sys
