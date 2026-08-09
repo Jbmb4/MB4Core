@@ -114,7 +114,7 @@ const uploadImage = async (e, element) => {
     });
 
     const data = await response.json();
-    if (data.status == 200) {
+    if (response.ok || data.status == 200) {
         showToastSuccess('Opa! Imagem enviada com sucesso!');
         if (element) element.value = data.url;
         return data.url;

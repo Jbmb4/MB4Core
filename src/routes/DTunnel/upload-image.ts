@@ -85,6 +85,7 @@ export default {
 
     // O gerador de APK recebe a melhor URL disponível. A URL local é retornada como backup.
     return reply.status(200).send({
+      status: 200,
       url: externalUrl || `${getPublicDomain(req)}${localUrl}`,
       local_url: localUrl,
     });

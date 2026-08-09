@@ -78,7 +78,14 @@ export default {
 
       const finalName = `app-${Date.now()}.${format === 'aab' ? 'aab' : 'apk'}`;
       const finalPath = path.join(publicPath, finalName);
-      fs.renameSync(outputPath, finalPath);
+      
+      try {
+        fs.renameSync(outputPath, finalPath);
+      } catch (err) {
+        // Fallback para cópia se rename falhar (ex: sistemas de arquivos diferentes)
+        fs.copyFileSync(outputPath, finalPath);
+        fs.unlinkSync(outputPath);
+      }
 
       // Agendar remoção do arquivo após 10 minutos
       setTimeout(() => fs.rmSync(finalPath, { force: true }), 10 * 60 * 1000);
@@ -91,7 +98,15 @@ export default {
     } catch (error: any) {
       if (fs.existsSync(outputPath)) fs.rmSync(outputPath, { force: true });
       req.log.error({ err: error }, 'Falha ao gerar APK personalizada');
-      return reply.status(500).send({ message: 'Falha ao gerar o aplicativo. Verifique os logs do servidor.' });
+      
+      let errorMessage = 'Falha ao gerar o aplicativo.';
+      if (error.stderr) {
+        errorMessage += ' Erro: ' + error.stderr.split('\n').pop();
+      } else if (error.message) {
+        errorMessage += ' ' + error.message;
+      }
+
+      return reply.status(500).send({ message: errorMessage });
     }
   },
 } as RouteOptions;
