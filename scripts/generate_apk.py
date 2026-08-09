@@ -105,34 +105,65 @@ def update_app_name(work_dir: Path, new_name: str) -> None:
     print(f"Nome do app atualizado para: {new_name}")
 
 def update_app_icon(work_dir: Path, icon_url: str) -> None:
-    if not HAS_PIL:
-        print("Aviso: Pillow (PIL) não instalada. Pulando atualização de ícone.")
-        return
     try:
         response = requests.get(icon_url, timeout=30)
         if response.status_code != 200:
             print(f"Falha ao baixar ícone: {response.status_code}")
             return
         
-        temp_icon = work_dir / "temp_icon.png"
-        temp_icon.write_bytes(response.content)
+        icon_data = response.content
         
-        with Image.open(temp_icon) as img:
-            sizes = {
-                "drawable-mdpi": 48, "drawable-hdpi": 72, "drawable-xhdpi": 96,
-                "drawable-xxhdpi": 144, "drawable-xxxhdpi": 192,
-                "mipmap-mdpi": 48, "mipmap-hdpi": 72, "mipmap-xhdpi": 96,
-                "mipmap-xxhdpi": 144, "mipmap-xxxhdpi": 192,
-            }
-            for folder, size in sizes.items():
-                dest_dir = work_dir / "res" / folder
-                if dest_dir.is_dir():
-                    img.resize((size, size), Image.Resampling.LANCZOS).save(dest_dir / "ic_launcher.png")
-                    round_path = dest_dir / "ic_launcher_round.png"
-                    if round_path.is_file():
-                        img.resize((size, size), Image.Resampling.LANCZOS).save(round_path)
-        temp_icon.unlink()
-        print("Ícones atualizados com sucesso.")
+        # Encontrar todos os arquivos de ícone existentes na pasta res
+        icon_files = list(work_dir.glob("res/**/ic_launcher.png")) + \
+                     list(work_dir.glob("res/**/ic_launcher_round.png"))
+        
+        if not icon_files:
+            # Caso não encontre nas pastas de densidade, tenta na pasta drawable padrão
+            default_icon = work_dir / "res" / "drawable" / "ic_launcher.png"
+            if default_icon.exists():
+                icon_files.append(default_icon)
+
+        if not icon_files:
+            print("Aviso: Nenhum arquivo de ícone ic_launcher.png encontrado para substituir.")
+            return
+
+        if HAS_PIL:
+            temp_icon = work_dir / "temp_icon.png"
+            temp_icon.write_bytes(icon_data)
+            try:
+                with Image.open(temp_icon) as img:
+                    # Mapeamento de tamanhos por pasta
+                    size_map = {
+                        "mdpi": 48, "hdpi": 72, "xhdpi": 96,
+                        "xxhdpi": 144, "xxxhdpi": 192
+                    }
+                    
+                    for icon_path in icon_files:
+                        # Tenta determinar o tamanho ideal baseado no nome da pasta
+                        folder_name = icon_path.parent.name
+                        target_size = 192 # Default
+                        for suffix, size in size_map.items():
+                            if suffix in folder_name:
+                                target_size = size
+                                break
+                        
+                        img.resize((target_size, target_size), Image.Resampling.LANCZOS).save(icon_path)
+                print(f"Ícones redimensionados e atualizados ({len(icon_files)} arquivos).")
+            finally:
+                if temp_icon.exists(): temp_icon.unlink()
+        else:
+            # Sem PIL, apenas substitui os arquivos diretamente (pode ficar sem escala correta, mas funciona)
+            for icon_path in icon_files:
+                icon_path.write_bytes(icon_data)
+            print(f"Ícones substituídos diretamente sem redimensionamento ({len(icon_files)} arquivos).")
+
+        # Se houver ícones adaptativos (XML), precisamos garantir que eles não sobrescrevam nossos PNGs
+        # Em alguns casos, é melhor deletar os XMLs de ícone adaptativo se estivermos forçando um PNG customizado
+        for xml_icon in work_dir.glob("res/drawable*dpi*/ic_launcher.xml"):
+            xml_icon.unlink()
+        for xml_icon in work_dir.glob("res/mipmap*dpi*/ic_launcher.xml"):
+            xml_icon.unlink()
+            
     except Exception as e:
         print(f"Erro ao atualizar ícone: {e}")
 
