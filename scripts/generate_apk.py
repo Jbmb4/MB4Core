@@ -14,6 +14,7 @@ import sys
 import argparse
 import requests
 from pathlib import Path
+from xml.sax.saxutils import escape as xml_escape
 try:
     from PIL import Image
     HAS_PIL = True
@@ -99,75 +100,61 @@ def update_app_name(work_dir: Path, new_name: str) -> None:
     if not strings_xml.is_file():
         return
     content = strings_xml.read_text(encoding="utf-8")
-    # Substituir o valor da string app_name
-    updated = re.sub(r'(<string name="app_name">).*?(</string>)', rf'\1{new_name}\2', content)
-    strings_xml.write_text(updated, encoding="utf-8")
+    safe_name = xml_escape(new_name.strip())
+    updated, count = re.subn(r'(<string name="app_name">).*?(</string>)', rf'\1{safe_name}\2', content, count=1)
+    if count:
+        strings_xml.write_text(updated, encoding="utf-8")
     print(f"Nome do app atualizado para: {new_name}")
 
 def update_app_icon(work_dir: Path, icon_url: str) -> None:
-    try:
-        response = requests.get(icon_url, timeout=30)
-        if response.status_code != 200:
-            print(f"Falha ao baixar ícone: {response.status_code}")
-            return
-        
-        icon_data = response.content
-        
-        # Encontrar todos os arquivos de ícone existentes na pasta res
-        icon_files = list(work_dir.glob("res/**/ic_launcher.png")) + \
-                     list(work_dir.glob("res/**/ic_launcher_round.png"))
-        
-        if not icon_files:
-            # Caso não encontre nas pastas de densidade, tenta na pasta drawable padrão
-            default_icon = work_dir / "res" / "drawable" / "ic_launcher.png"
-            if default_icon.exists():
-                icon_files.append(default_icon)
+    """Baixa o ícone enviado e substitui todos os recursos referenciados pelo launcher."""
+    if not re.fullmatch(r"https?://[^\s]+", icon_url.strip(), flags=re.IGNORECASE):
+        raise ValueError("A URL do ícone deve ser HTTP ou HTTPS.")
 
-        if not icon_files:
-            print("Aviso: Nenhum arquivo de ícone ic_launcher.png encontrado para substituir.")
-            return
+    response = requests.get(icon_url.strip(), timeout=30, allow_redirects=True)
+    response.raise_for_status()
+    if not response.content:
+        raise RuntimeError("O servidor retornou um ícone vazio.")
 
-        if HAS_PIL:
-            temp_icon = work_dir / "temp_icon.png"
-            temp_icon.write_bytes(icon_data)
-            try:
-                with Image.open(temp_icon) as img:
-                    # Mapeamento de tamanhos por pasta
-                    size_map = {
-                        "mdpi": 48, "hdpi": 72, "xhdpi": 96,
-                        "xxhdpi": 144, "xxxhdpi": 192
-                    }
-                    
-                    for icon_path in icon_files:
-                        # Tenta determinar o tamanho ideal baseado no nome da pasta
-                        folder_name = icon_path.parent.name
-                        target_size = 192 # Default
-                        for suffix, size in size_map.items():
-                            if suffix in folder_name:
-                                target_size = size
-                                break
-                        
-                        img.resize((target_size, target_size), Image.Resampling.LANCZOS).save(icon_path)
-                print(f"Ícones redimensionados e atualizados ({len(icon_files)} arquivos).")
-            finally:
-                if temp_icon.exists(): temp_icon.unlink()
-        else:
-            # Sem PIL, apenas substitui os arquivos diretamente (pode ficar sem escala correta, mas funciona)
+    manifest = work_dir / "AndroidManifest.xml"
+    manifest_text = manifest.read_text(encoding="utf-8") if manifest.is_file() else ""
+    resource_names = {"ic_launcher", "ic_launcher_round"}
+    for attr in ("android:icon", "android:roundIcon"):
+        match = re.search(rf'{attr}="@(?:drawable|mipmap)/([^"/]+)"', manifest_text)
+        if match:
+            resource_names.add(match.group(1))
+
+    icon_files = [
+        path for name in resource_names
+        for path in work_dir.glob(f"res/**/{name}.png")
+        if path.is_file()
+    ]
+    if not icon_files:
+        raise RuntimeError("Nenhum recurso de ícone do launcher foi encontrado na APK base.")
+
+    if HAS_PIL:
+        from io import BytesIO
+        with Image.open(BytesIO(response.content)) as source:
+            source.load()
+            image = source.convert("RGBA")
+            size_map = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
             for icon_path in icon_files:
-                icon_path.write_bytes(icon_data)
-            print(f"Ícones substituídos diretamente sem redimensionamento ({len(icon_files)} arquivos).")
+                target_size = next((size for density, size in size_map.items() if density in icon_path.parent.name), 192)
+                image.resize((target_size, target_size), Image.Resampling.LANCZOS).save(icon_path, format="PNG")
+    else:
+        for icon_path in icon_files:
+            icon_path.write_bytes(response.content)
 
-        # Se houver ícones adaptativos (XML), precisamos garantir que eles não sobrescrevam nossos PNGs
-        # Em alguns casos, é melhor deletar os XMLs de ícone adaptativo se estivermos forçando um PNG customizado
-        for xml_icon in work_dir.glob("res/drawable*dpi*/ic_launcher.xml"):
+    # Remover XMLs adaptativos que poderiam continuar apontando para o ícone antigo.
+    for name in resource_names:
+        for xml_icon in work_dir.glob(f"res/**/{name}.xml"):
             xml_icon.unlink()
-        for xml_icon in work_dir.glob("res/mipmap*dpi*/ic_launcher.xml"):
-            xml_icon.unlink()
-            
-    except Exception as e:
-        print(f"Erro ao atualizar ícone: {e}")
+    print(f"Ícone aplicado na APK ({len(icon_files)} recurso(s)).")
 
 def update_manifest_package(work_dir: Path, new_package: str) -> None:
+    if not re.fullmatch(r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", new_package.strip()):
+        raise ValueError("Nome de pacote inválido. Use o formato com.exemplo.aplicativo.")
+    new_package = new_package.strip()
     manifest = work_dir / "AndroidManifest.xml"
     if not manifest.is_file():
         return
@@ -209,6 +196,17 @@ def update_manifest_package(work_dir: Path, new_package: str) -> None:
             except Exception:
                 continue
     
+    # O caminho físico dos arquivos smali também precisa acompanhar o novo namespace.
+    for smali_root in sorted(work_dir.glob("smali*"), key=lambda item: len(item.parts)):
+        if not smali_root.is_dir():
+            continue
+        old_dir = smali_root / old_path
+        if not old_dir.is_dir():
+            continue
+        new_dir = smali_root / new_path
+        new_dir.parent.mkdir(parents=True, exist_ok=True)
+        old_dir.rename(new_dir)
+
     print(f"Renomeação concluída em {count} arquivos.")
 
 def update_version(work_dir: Path, version_name: str | None, version_code: str | None) -> None:

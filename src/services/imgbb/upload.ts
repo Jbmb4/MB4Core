@@ -28,7 +28,7 @@ export class Imgbb {
 
       const response = JSON.parse(req2.body!);
       if (response.success && response.success.code == 200) {
-        return { status: 200, url: response.image.display_url };
+        return { status: 200, url: response.image.url || response.image.display_url };
       }
 
       return { status: 400, message: response.error.message };
