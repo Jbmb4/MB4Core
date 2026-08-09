@@ -179,21 +179,37 @@ def update_manifest_package(work_dir: Path, new_package: str) -> None:
         return
     old_package = match.group(1)
     
-    # Atualizar manifest
+    if old_package == new_package:
+        return
+
+    print(f"Iniciando renomeação global: {old_package} -> {new_package}")
+    
+    # 1. Atualizar Manifest
     content = content.replace(f'package="{old_package}"', f'package="{new_package}"')
+    # Atualizar autoridades de providers e outros campos que usem o pacote
+    content = content.replace(old_package, new_package)
     manifest.write_text(content, encoding="utf-8")
     
-    # Atualizar Smali (muito simplificado, pode falhar em casos complexos)
+    # 2. Preparar caminhos para Smali
     old_path = old_package.replace('.', '/')
     new_path = new_package.replace('.', '/')
     
-    for smali_file in work_dir.glob("smali*/**/*.smali"):
-        s_content = smali_file.read_text(encoding="utf-8")
-        s_updated = s_content.replace(f'L{old_path}/', f'L{new_path}/')
-        if s_updated != s_content:
-            smali_file.write_text(s_updated, encoding="utf-8")
+    # 3. Renomeação em massa em arquivos Smali e XML
+    count = 0
+    for file_path in work_dir.glob("**/*"):
+        if file_path.suffix in ['.smali', '.xml', '.yml']:
+            try:
+                f_content = file_path.read_text(encoding="utf-8")
+                f_updated = f_content.replace(f'L{old_path}/', f'L{new_path}/')
+                f_updated = f_updated.replace(old_package, new_package)
+                
+                if f_updated != f_content:
+                    file_path.write_text(f_updated, encoding="utf-8")
+                    count += 1
+            except Exception:
+                continue
     
-    print(f"Pacote atualizado de {old_package} para {new_package}")
+    print(f"Renomeação concluída em {count} arquivos.")
 
 def update_version(work_dir: Path, version_name: str | None, version_code: str | None) -> None:
     apktool_yml = work_dir / "apktool.yml"
@@ -250,9 +266,8 @@ def generate_apk(args: argparse.Namespace) -> Path:
         if args.icon:
             update_app_icon(work_dir, args.icon)
             
-        # A alteração de pacote foi desativada por instabilidade na base funcional.
-        # if args.package:
-        #     update_manifest_package(work_dir, args.package)
+        if args.package:
+            update_manifest_package(work_dir, args.package)
             
         if args.version_name or args.version_code:
             update_version(work_dir, args.version_name, args.version_code)
