@@ -40,13 +40,22 @@ RUNTIME_FILES = (
 
 def run_command(command: list[str], *, cwd: Path | None = None) -> None:
     print(f"Executando: {shlex.join(command)}")
-    completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
+    # Garantir que /usr/local/bin está no PATH para encontrar apktool/java
+    env = os.environ.copy()
+    if "/usr/local/bin" not in env.get("PATH", ""):
+        env["PATH"] = f"/usr/local/bin:{env.get('PATH', '')}"
+    
+    try:
+        completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, env=env)
+    except FileNotFoundError as e:
+        raise RuntimeError(f"Ferramenta não encontrada: {command[0]}. Certifique-se de que está instalada e no PATH.") from e
+
     if completed.returncode != 0:
-        if completed.stdout:
-            print(completed.stdout)
-        if completed.stderr:
-            print(completed.stderr, file=sys.stderr)
-        raise RuntimeError(f"Comando falhou com código {completed.returncode}")
+        # Se falhou, imprimir o erro detalhado para o stderr para o painel capturar
+        err_msg = completed.stderr.strip() if completed.stderr else completed.stdout.strip()
+        if err_msg:
+            print(err_msg, file=sys.stderr)
+        raise RuntimeError(f"Erro ao executar {command[0]} (código {completed.returncode})")
 
 def normalize_domain(value: str) -> str:
     domain = value.strip()
@@ -312,7 +321,12 @@ def generate_apk(args: argparse.Namespace) -> Path:
         
         # Detectar versão do apktool para lidar com o parâmetro --use-aapt2
         try:
-            version_proc = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True)
+            # Usar o mesmo PATH que o run_command
+            env = os.environ.copy()
+            if "/usr/local/bin" not in env.get("PATH", ""):
+                env["PATH"] = f"/usr/local/bin:{env.get('PATH', '')}"
+            
+            version_proc = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True, env=env)
             version_str = (version_proc.stdout + version_proc.stderr).strip()
             match = re.search(r"(\d+)", version_str)
             major_version = int(match.group(1)) if match else 2

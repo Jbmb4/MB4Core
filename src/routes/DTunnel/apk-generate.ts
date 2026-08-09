@@ -101,7 +101,8 @@ export default {
       
       let errorMessage = 'Falha ao gerar o aplicativo.';
       if (error.stderr) {
-        errorMessage += ' Erro: ' + error.stderr.split('\n').pop();
+        const stderrLines = error.stderr.split('\n').filter((l: string) => l.trim().length > 0);
+        errorMessage += ' Erro: ' + (stderrLines.pop() || error.message);
       } else if (error.message) {
         errorMessage += ' ' + error.message;
       }
