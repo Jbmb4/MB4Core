@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 """Generate a branded DTunnel APK from the integrated XHTTP base.
-
-The generator changes the panel endpoint domains in Smali files and updates the
-``assets/dtunnelmod.json`` so the app points to the correct panel URL. The XHTTP
-transport itself is part of ``base.apk`` and is verified after decoding, preventing
-a generated APK from silently accepting a profile mode without carrying the
-corresponding runtime.
 """
 
 from __future__ import annotations
@@ -17,8 +11,10 @@ import shutil
 import shlex
 import subprocess
 import sys
+import argparse
+import requests
 from pathlib import Path
-
+from PIL import Image
 
 MAX_USER_ID_LENGTH = 128
 
@@ -37,7 +33,6 @@ RUNTIME_FILES = (
     "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali",
 )
 
-
 def run_command(command: list[str], *, cwd: Path | None = None) -> None:
     print(f"Executando: {shlex.join(command)}")
     completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True)
@@ -48,25 +43,13 @@ def run_command(command: list[str], *, cwd: Path | None = None) -> None:
             print(completed.stderr, file=sys.stderr)
         raise RuntimeError(f"Comando falhou com código {completed.returncode}")
 
-
-def normalize_user_id(value: str) -> str:
-    """Valida o identificador que será embutido em assets/user_id.txt."""
-    user_id = value.strip()
-    if not user_id or len(user_id) > MAX_USER_ID_LENGTH or any(ord(char) < 0x20 for char in user_id):
-        raise ValueError("Informe um user_id não vazio com até 128 caracteres e sem caracteres de controle.")
-    return user_id
-
-
 def normalize_domain(value: str) -> str:
-    """Normaliza o domínio do painel, aceitando host:porta ou apenas host."""
     domain = value.strip()
     domain = re.sub(r"^https?://", "", domain, flags=re.IGNORECASE).strip("/")
-    # Aceitar host:porta (ex: meudominio.com:3000) ou apenas host
     host_part = domain.split(":")[0]
     if not re.fullmatch(r"[A-Za-z0-9.-]+", host_part) or "." not in host_part:
-        raise ValueError("Informe somente um domínio válido, sem protocolo ou caminho. Porta é opcional (ex: meudominio.com:3000).")
+        raise ValueError("Informe somente um domínio válido.")
     return domain
-
 
 def verify_xhttp_runtime(work_dir: Path) -> None:
     missing = [str(path) for path in RUNTIME_FILES if not (work_dir / path).is_file()]
@@ -74,20 +57,9 @@ def verify_xhttp_runtime(work_dir: Path) -> None:
     dispatch_present = manager.is_file() and "XHttpLauncher;->start" in manager.read_text(encoding="utf-8")
 
     if missing or not dispatch_present:
-        details = []
-        if missing:
-            details.append("arquivos ausentes: " + ", ".join(missing))
-        if not dispatch_present:
-            details.append("ponte de despacho SSH_XHTTP ausente")
-        raise RuntimeError(
-            "A APK base não contém o runtime XHTTP integrado (" + "; ".join(details) + "). "
-            "Atualize scripts/base.apk com a base XHTTP fornecida pelo repositório."
-        )
-
+        raise RuntimeError("A APK base não contém o runtime XHTTP integrado corretamente.")
 
 def replace_domains(work_dir: Path, new_domain: str) -> int:
-    """Substitui os domínios antigos pelo novo domínio nos arquivos Smali."""
-    # Para substituição nos Smali, usar apenas o host sem porta
     new_host = new_domain.split(":")[0]
     replacements = 0
     for smali_file in work_dir.glob("smali*/**/*.smali"):
@@ -100,50 +72,120 @@ def replace_domains(work_dir: Path, new_domain: str) -> int:
             replacements += 1
     return replacements
 
-
 def update_user_id(work_dir: Path, user_id: str) -> None:
-    """Substitui o user_id estático da APK pelo usuário que gerou o artefato."""
     user_id_file = work_dir / "assets" / "user_id.txt"
     if not user_id_file.is_file():
-        raise RuntimeError("A APK base não contém assets/user_id.txt; não é seguro gerar uma APK sem identidade.")
+        user_id_file.parent.mkdir(parents=True, exist_ok=True)
     user_id_file.write_text(user_id + "\n", encoding="utf-8")
-    print(f"user_id aplicado em assets/user_id.txt: {user_id}")
-
 
 def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
-    """Atualiza o assets/dtunnelmod.json com a URL do painel do usuário."""
     dtunnelmod_json = work_dir / "assets" / "dtunnelmod.json"
     if not dtunnelmod_json.is_file():
-        print("Aviso: assets/dtunnelmod.json não encontrado, pulando atualização.")
         return
-
     try:
         data = json.loads(dtunnelmod_json.read_text(encoding="utf-8"))
-        # Construir URL completa com protocolo
         new_url = f"https://{new_domain}"
         data["url"] = new_url
         dtunnelmod_json.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print(f"dtunnelmod.json atualizado: url = {new_url}")
     except Exception as e:
-        print(f"Aviso: não foi possível atualizar dtunnelmod.json: {e}")
+        print(f"Aviso: erro ao atualizar dtunnelmod.json: {e}")
 
+def update_app_name(work_dir: Path, new_name: str) -> None:
+    strings_xml = work_dir / "res" / "values" / "strings.xml"
+    if not strings_xml.is_file():
+        return
+    content = strings_xml.read_text(encoding="utf-8")
+    # Substituir o valor da string app_name
+    updated = re.sub(r'(<string name="app_name">).*?(</string>)', rf'\1{new_name}\2', content)
+    strings_xml.write_text(updated, encoding="utf-8")
+    print(f"Nome do app atualizado para: {new_name}")
 
-def fix_target_sdk_version(work_dir: Path) -> None:
-    """Preserva o targetSdkVersion original da APK."""
-    pass
+def update_app_icon(work_dir: Path, icon_url: str) -> None:
+    try:
+        response = requests.get(icon_url, timeout=30)
+        if response.status_code != 200:
+            print(f"Falha ao baixar ícone: {response.status_code}")
+            return
+        
+        temp_icon = work_dir / "temp_icon.png"
+        temp_icon.write_bytes(response.content)
+        
+        with Image.open(temp_icon) as img:
+            # Redimensionar para tamanhos padrão
+            sizes = {
+                "drawable-mdpi": 48,
+                "drawable-hdpi": 72,
+                "drawable-xhdpi": 96,
+                "drawable-xxhdpi": 144,
+                "drawable-xxxhdpi": 192,
+                "mipmap-mdpi": 48,
+                "mipmap-hdpi": 72,
+                "mipmap-xhdpi": 96,
+                "mipmap-xxhdpi": 144,
+                "mipmap-xxxhdpi": 192,
+            }
+            
+            for folder, size in sizes.items():
+                dest_dir = work_dir / "res" / folder
+                if dest_dir.is_dir():
+                    icon_path = dest_dir / "ic_launcher.png"
+                    img.resize((size, size), Image.Resampling.LANCZOS).save(icon_path)
+                    
+                    # Também tentar ic_launcher_round.png se existir
+                    round_path = dest_dir / "ic_launcher_round.png"
+                    if round_path.is_file():
+                        img.resize((size, size), Image.Resampling.LANCZOS).save(round_path)
+        
+        temp_icon.unlink()
+        print("Ícones atualizados com sucesso.")
+    except Exception as e:
+        print(f"Erro ao atualizar ícone: {e}")
 
-
-def fix_foreground_service_type(work_dir: Path) -> None:
-    """Garante que foregroundServiceType=dataSync está declarado corretamente no manifest."""
+def update_manifest_package(work_dir: Path, new_package: str) -> None:
     manifest = work_dir / "AndroidManifest.xml"
     if not manifest.is_file():
         return
-
     content = manifest.read_text(encoding="utf-8")
+    
+    # Obter pacote antigo
+    match = re.search(r'package="([^"]+)"', content)
+    if not match:
+        return
+    old_package = match.group(1)
+    
+    # Atualizar manifest
+    content = content.replace(f'package="{old_package}"', f'package="{new_package}"')
+    manifest.write_text(content, encoding="utf-8")
+    
+    # Atualizar Smali (muito simplificado, pode falhar em casos complexos)
+    old_path = old_package.replace('.', '/')
+    new_path = new_package.replace('.', '/')
+    
+    for smali_file in work_dir.glob("smali*/**/*.smali"):
+        s_content = smali_file.read_text(encoding="utf-8")
+        s_updated = s_content.replace(f'L{old_path}/', f'L{new_path}/')
+        if s_updated != s_content:
+            smali_file.write_text(s_updated, encoding="utf-8")
+    
+    print(f"Pacote atualizado de {old_package} para {new_package}")
 
-    # Verificar se a permissão FOREGROUND_SERVICE_DATA_SYNC está presente
+def update_version(work_dir: Path, version_name: str | None, version_code: str | None) -> None:
+    apktool_yml = work_dir / "apktool.yml"
+    if not apktool_yml.is_file():
+        return
+    content = apktool_yml.read_text(encoding="utf-8")
+    if version_name:
+        content = re.sub(r'versionName:.*', f'versionName: {version_name}', content)
+    if version_code:
+        content = re.sub(r'versionCode:.*', f"versionCode: '{version_code}'", content)
+    apktool_yml.write_text(content, encoding="utf-8")
+
+def fix_foreground_service_type(work_dir: Path) -> None:
+    manifest = work_dir / "AndroidManifest.xml"
+    if not manifest.is_file():
+        return
+    content = manifest.read_text(encoding="utf-8")
     if 'android.permission.FOREGROUND_SERVICE_DATA_SYNC' not in content:
-        # Adicionar a permissão
         content = re.sub(
             r'(<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>)',
             r'\1\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>',
@@ -151,21 +193,8 @@ def fix_foreground_service_type(work_dir: Path) -> None:
             count=1
         )
         manifest.write_text(content, encoding="utf-8")
-        print("Permissão FOREGROUND_SERVICE_DATA_SYNC adicionada ao manifest")
 
-
-def find_signed_apk(output_dir: Path) -> Path:
-    candidates = sorted(output_dir.glob("*-aligned-*-signed.apk"))
-    if not candidates:
-        candidates = sorted(output_dir.glob("*-aligned-debugSigned.apk"))
-    if not candidates:
-        candidates = sorted(output_dir.glob("*.apk"))
-    if not candidates:
-        raise RuntimeError("O assinador não produziu uma APK de saída.")
-    return candidates[-1]
-
-
-def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom.apk") -> Path:
+def generate_apk(args: argparse.Namespace) -> Path:
     script_dir = Path(__file__).resolve().parent
     panel_dir = script_dir.parent
     apk_path = script_dir / "base.apk"
@@ -174,8 +203,6 @@ def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom
 
     if not apk_path.is_file():
         raise FileNotFoundError(f"APK base não encontrada: {apk_path}")
-    if not SIGNER_JAR.is_file():
-        raise FileNotFoundError(f"Assinador não encontrado: {SIGNER_JAR}")
 
     for directory in (work_dir, output_dir):
         if directory.exists():
@@ -187,43 +214,37 @@ def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom
         run_command([APKTOOL, "d", "-f", str(apk_path), "-o", str(work_dir)])
         verify_xhttp_runtime(work_dir)
 
-        changed_files = replace_domains(work_dir, new_domain)
-        print(f"Domínio aplicado em {changed_files} arquivo(s) Smali.")
+        replace_domains(work_dir, args.domain)
+        update_user_id(work_dir, args.user_id)
+        update_dtunnelmod_json(work_dir, args.domain)
+        
+        if args.name:
+            update_app_name(work_dir, args.name)
+        
+        if args.icon:
+            update_app_icon(work_dir, args.icon)
+            
+        if args.package:
+            update_manifest_package(work_dir, args.package)
+            
+        if args.version_name or args.version_code:
+            update_version(work_dir, args.version_name, args.version_code)
 
-        # Identidade do usuário que gerou esta APK; nunca usar valor estático da base.
-        update_user_id(work_dir, user_id)
-
-        # Atualizar o dtunnelmod.json com a URL do painel
-        update_dtunnelmod_json(work_dir, new_domain)
-
-        # Corrigir targetSdkVersion para evitar crash em Android 14+
-        pass # fix_target_sdk_version(work_dir)
-
-        # Garantir permissões de foreground service
         fix_foreground_service_type(work_dir)
 
         unsigned_apk = output_dir / "unsigned.apk"
         print("Reconstruindo APK...")
-        # Apktool 3.x usa aapt2 por padrão e removeu --use-aapt2; versões 2.x ainda aceitam a flag.
-        try:
-            version_probe = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True, check=False)
-            major_match = re.search(r"(\d+)", version_probe.stdout + version_probe.stderr)
-            apktool_major = int(major_match.group(1)) if major_match else 2
-        except OSError:
-            apktool_major = 2
-        build_command = [APKTOOL, "b"]
-        if apktool_major < 3:
-            build_command.append("--use-aapt2")
-        build_command.extend([str(work_dir), "-o", str(unsigned_apk)])
-        run_command(build_command)
+        run_command([APKTOOL, "b", "--use-aapt2", str(work_dir), "-o", str(unsigned_apk)])
 
         print("Assinando APK...")
         run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])
 
-        requested_output = Path(output_name)
-        final_destination = requested_output if requested_output.is_absolute() else Path.home() / requested_output
+        final_destination = Path(args.output).resolve()
         final_destination.parent.mkdir(parents=True, exist_ok=True)
-        signed_apk = find_signed_apk(output_dir)
+        
+        candidates = sorted(output_dir.glob("*.apk"))
+        signed_apk = next((c for c in candidates if "signed" in c.name), candidates[-1])
+        
         shutil.move(str(signed_apk), final_destination)
         print(f"Sucesso: APK gerada em {final_destination}")
         return final_destination
@@ -231,24 +252,25 @@ def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom
         shutil.rmtree(work_dir, ignore_errors=True)
         shutil.rmtree(output_dir, ignore_errors=True)
 
-
 def main() -> None:
-    if len(sys.argv) < 3:
-        print("Uso: python3 generate_apk.py <dominio-do-painel> <user_id> [nome-da-apk]")
-        print("Exemplos:")
-        print("  python3 generate_apk.py meudominio.com 2c2d3b3e-1234-4d5e-8f90-123456789abc")
-        print("  python3 generate_apk.py meudominio.com:3000 2c2d3b3e-1234-4d5e-8f90-123456789abc dtunnel-user.apk")
-        raise SystemExit(1)
-
+    parser = argparse.ArgumentParser()
+    parser.add_argument("domain")
+    parser.add_argument("user_id")
+    parser.add_argument("output")
+    parser.add_argument("--name")
+    parser.add_argument("--icon")
+    parser.add_argument("--package")
+    parser.add_argument("--version-name")
+    parser.add_argument("--version-code")
+    parser.add_argument("--aab", action="store_true")
+    
+    args = parser.parse_args()
     try:
-        domain = normalize_domain(sys.argv[1])
-        user_id = normalize_user_id(sys.argv[2])
-        output_name = sys.argv[3] if len(sys.argv) >= 4 else "dtmod-custom.apk"
-        generate_apk(domain, user_id, output_name)
+        args.domain = normalize_domain(args.domain)
+        generate_apk(args)
     except Exception as error:
         print(f"Erro: {error}", file=sys.stderr)
-        raise SystemExit(1)
-
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

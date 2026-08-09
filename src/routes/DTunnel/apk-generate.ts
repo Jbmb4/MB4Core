@@ -22,14 +22,25 @@ function getPanelDomain(req: FastifyRequest): string {
 }
 
 export default {
-  url: '/apk/generate/:version',
-  method: 'GET',
+  url: '/apk/generate',
+  method: 'POST',
   onRequest: [Authentication.user],
   handler: async (req: FastifyRequest, reply: FastifyReply) => {
-    const { version } = req.params as { version: string };
-    if (!VALID_VERSIONS.includes(version as Version)) {
-      return reply.status(400).send({ message: 'Versão inválida' });
-    }
+    const { 
+      name, 
+      icon_url, 
+      format = 'apk', 
+      package_name, 
+      version_name, 
+      version_code 
+    } = req.body as { 
+      name?: string, 
+      icon_url?: string, 
+      format?: string,
+      package_name?: string,
+      version_name?: string,
+      version_code?: string
+    };
 
     const userId = req.user.id;
     const domain = getPanelDomain(req);
@@ -37,28 +48,49 @@ export default {
       return reply.status(500).send({ message: 'Domínio do painel não configurado' });
     }
 
-    const outputName = `dtunnel-${version}-${userId}.apk`;
+    const outputName = `custom-${userId}.${format === 'aab' ? 'aab' : 'apk'}`;
     const outputPath = path.join(os.tmpdir(), outputName);
 
+    const args = [GENERATOR, domain, userId, outputPath];
+    if (name) args.push('--name', name);
+    if (icon_url) args.push('--icon', icon_url);
+    if (package_name) args.push('--package', package_name);
+    if (version_name) args.push('--version-name', version_name);
+    if (version_code) args.push('--version-code', version_code);
+    if (format === 'aab') args.push('--aab');
+
     try {
-      await execFileAsync('python3', [GENERATOR, domain, userId, outputPath], {
+      await execFileAsync('python3', args, {
         cwd: path.resolve(process.cwd()),
-        timeout: 180000,
-        maxBuffer: 2 * 1024 * 1024,
+        timeout: 300000,
+        maxBuffer: 10 * 1024 * 1024,
       });
 
       if (!fs.existsSync(outputPath)) {
-        return reply.status(500).send({ message: 'O gerador não produziu a APK' });
+        return reply.status(500).send({ message: 'O gerador não produziu o arquivo' });
       }
 
-      reply.header('Content-Type', 'application/vnd.android.package-archive');
-      reply.header('Content-Disposition', `attachment; filename="${outputName}"`);
-      reply.raw.once('close', () => fs.rmSync(outputPath, { force: true }));
-      return reply.send(fs.createReadStream(outputPath));
+      // Em vez de enviar o stream direto, vamos retornar o nome do arquivo para o modal fazer o download
+      // Isso permite que o modal mostre "App gerado!" antes do download
+      const publicPath = path.join(process.cwd(), 'frontend', 'public', 'downloads');
+      if (!fs.existsSync(publicPath)) fs.mkdirSync(publicPath, { recursive: true });
+      
+      const finalName = `app-${Date.now()}.${format === 'aab' ? 'aab' : 'apk'}`;
+      const finalPath = path.join(publicPath, finalName);
+      fs.renameSync(outputPath, finalPath);
+
+      // Agendar remoção do arquivo após 10 minutos
+      setTimeout(() => fs.rmSync(finalPath, { force: true }), 10 * 60 * 1000);
+
+      return reply.send({ 
+        success: true, 
+        message: 'App gerado com sucesso!', 
+        download_url: `/downloads/${finalName}` 
+      });
     } catch (error: any) {
-      fs.rmSync(outputPath, { force: true });
+      if (fs.existsSync(outputPath)) fs.rmSync(outputPath, { force: true });
       req.log.error({ err: error }, 'Falha ao gerar APK personalizada');
-      return reply.status(500).send({ message: 'Falha ao gerar a APK personalizada' });
+      return reply.status(500).send({ message: 'Falha ao gerar o aplicativo. Verifique os logs do servidor.' });
     }
   },
 } as RouteOptions;

@@ -83,14 +83,52 @@ def normalize_apktool_metadata(base: Path) -> None:
 def patch_service_manager(base: Path) -> None:
     manager = base / "smali/com/ssh/service/SshVpnServiceManager.smali"
     require(manager)
-    existing = manager.read_text(encoding="utf-8")
-    # Reuse a dispatcher already embedded in newer MB4Core bases.
-    if "Lcom/dtunnel/xhttp/XHttpLauncher;->start" in existing:
+    content = manager.read_text(encoding="utf-8")
+    if "Lcom/dtunnel/xhttp/XHttpLauncher;->start" in content:
         return
-    marker = """    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\n
-\n    .line 19\n    const-string v8, \"SSH_DIRECT\""""
-    replacement = """    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\n\n    # SSH_XHTTP is handled by the embedded XHTTP runtime instead of the legacy SSH transport.\n    const-string v8, \"SSH_XHTTP\"\n\n    invoke-static {v7, v8}, Lpb/j;->a(Ljava/lang/Object;Ljava/lang/Object;)Z\n\n    move-result v8\n\n    if-eqz v8, :cond_xhttp_continue\n\n    invoke-static {v0, v1}, Lcom/dtunnel/xhttp/XHttpLauncher;->start(Landroid/content/Context;Lg4/e;)V\n\n    return-void\n\n    :cond_xhttp_continue\n    .line 19\n    const-string v8, \"SSH_DIRECT\""""
-    replace_once(manager, marker, replacement, "SSH_XHTTP dispatcher")
+
+    # Procura pelo ponto onde SSH_DIRECT é verificado
+    pattern = r'(iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;.*?\.line 19\s+const-string v8, "SSH_DIRECT")'
+    replacement = r'''    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;
+
+    # SSH_XHTTP is handled by the embedded XHTTP runtime instead of the legacy SSH transport.
+    const-string v8, "SSH_XHTTP"
+
+    invoke-static {v7, v8}, Lpb/j;->a(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result v8
+
+    if-eqz v8, :cond_xhttp_continue
+
+    invoke-static {v0, v1}, Lcom/dtunnel/xhttp/XHttpLauncher;->start(Landroid/content/Context;Lg4/e;)V
+
+    return-void
+
+    :cond_xhttp_continue
+    .line 19
+    const-string v8, "SSH_DIRECT"'''
+
+    # Usar regex para ser mais flexível com espaços e quebras de linha
+    new_content = re.sub(
+        r'iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\s+\.line 19\s+const-string v8, "SSH_DIRECT"',
+        replacement,
+        content,
+        count=1
+    )
+
+    if new_content == content:
+        # Tenta uma versão sem o .line 19 caso o R8 tenha mudado
+        new_content = re.sub(
+            r'iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\s+const-string v8, "SSH_DIRECT"',
+            replacement,
+            content,
+            count=1
+        )
+
+    if new_content == content:
+        raise RuntimeError("Could not patch SSH_XHTTP dispatcher: marker not found in SshVpnServiceManager.smali")
+
+    manager.write_text(new_content, encoding="utf-8")
 
 
 def patch_manifest(base: Path) -> None:
