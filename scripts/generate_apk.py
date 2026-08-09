@@ -204,7 +204,18 @@ def generate_apk(new_domain: str, user_id: str, output_name: str = "dtmod-custom
 
         unsigned_apk = output_dir / "unsigned.apk"
         print("Reconstruindo APK...")
-        run_command([APKTOOL, "b", "--use-aapt2", str(work_dir), "-o", str(unsigned_apk)])
+        # Apktool 3.x usa aapt2 por padrão e removeu --use-aapt2; versões 2.x ainda aceitam a flag.
+        try:
+            version_probe = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True, check=False)
+            major_match = re.search(r"(\d+)", version_probe.stdout + version_probe.stderr)
+            apktool_major = int(major_match.group(1)) if major_match else 2
+        except OSError:
+            apktool_major = 2
+        build_command = [APKTOOL, "b"]
+        if apktool_major < 3:
+            build_command.append("--use-aapt2")
+        build_command.extend([str(work_dir), "-o", str(unsigned_apk)])
+        run_command(build_command)
 
         print("Assinando APK...")
         run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])

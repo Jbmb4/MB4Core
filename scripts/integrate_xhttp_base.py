@@ -83,7 +83,12 @@ def normalize_apktool_metadata(base: Path) -> None:
 def patch_service_manager(base: Path) -> None:
     manager = base / "smali/com/ssh/service/SshVpnServiceManager.smali"
     require(manager)
-    marker = """    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\n\n    .line 19\n    const-string v8, \"SSH_DIRECT\""""
+    existing = manager.read_text(encoding="utf-8")
+    # Reuse a dispatcher already embedded in newer MB4Core bases.
+    if "Lcom/dtunnel/xhttp/XHttpLauncher;->start" in existing:
+        return
+    marker = """    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\n
+\n    .line 19\n    const-string v8, \"SSH_DIRECT\""""
     replacement = """    iget-object v7, v1, Lg4/e;->D:Ljava/lang/String;\n\n    # SSH_XHTTP is handled by the embedded XHTTP runtime instead of the legacy SSH transport.\n    const-string v8, \"SSH_XHTTP\"\n\n    invoke-static {v7, v8}, Lpb/j;->a(Ljava/lang/Object;Ljava/lang/Object;)Z\n\n    move-result v8\n\n    if-eqz v8, :cond_xhttp_continue\n\n    invoke-static {v0, v1}, Lcom/dtunnel/xhttp/XHttpLauncher;->start(Landroid/content/Context;Lg4/e;)V\n\n    return-void\n\n    :cond_xhttp_continue\n    .line 19\n    const-string v8, \"SSH_DIRECT\""""
     replace_once(manager, marker, replacement, "SSH_XHTTP dispatcher")
 
