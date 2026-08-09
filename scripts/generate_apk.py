@@ -181,9 +181,13 @@ def update_app_icon(work_dir: Path, icon_value: str) -> None:
             source.load()
             image = source.convert("RGBA")
             size_map = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
+            
+            # Compatibilidade com versões antigas do Pillow (antes da v9.1.0)
+            resample_filter = getattr(Image, "Resampling", Image).LANCZOS
+            
             for icon_path in icon_files:
                 target_size = next((size for density, size in size_map.items() if density in icon_path.parent.name), 192)
-                image.resize((target_size, target_size), Image.Resampling.LANCZOS).save(icon_path, format="PNG")
+                image.resize((target_size, target_size), resample=resample_filter).save(icon_path, format="PNG")
     else:
         for icon_path in icon_files:
             icon_path.write_bytes(icon_data)
