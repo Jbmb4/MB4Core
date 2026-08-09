@@ -205,7 +205,7 @@ PY
                 sleep 1
                 
                 # 2. Verificar que não há processo preso na porta
-                CURRENT_PID=$(lsof -ti: "$new_port" 2>/dev/null | head -1)
+                CURRENT_PID=$(lsof -nP -t -iTCP:"$new_port" -sTCP:LISTEN 2>/dev/null | head -1)
                 if [ -n "$CURRENT_PID" ]; then
                     echo -e "${YELLOW}Finalizando processo preso na porta $new_port (PID: $CURRENT_PID)...${NC}"
                     kill -9 "$CURRENT_PID" 2>/dev/null
@@ -246,13 +246,14 @@ PY
                 cd "$PANEL_DIR"
                 pm2 start ecosystem.config.js --cwd "$PANEL_DIR"
                 pm2 save
-                sleep 2
-                
-                # 6. Verificar se o painel está rodando na porta correta
+                sleep 3
+
+                # 6. Verificar o processo e a porta realmente em escuta
                 ACTUAL_PORT=$(grep "^PORT=" "$ENV_FILE" | cut -d'=' -f2 | tr -d ' ')
-                RUNNING_STATUS=$(pm2 show DTunnel 2>/dev/null | grep -i "status")
+                RUNNING_STATUS=$(pm2 show DTunnel 2>/dev/null | grep -i "status" || true)
+                LISTENING_PID=$(lsof -nP -t -iTCP:"$new_port" -sTCP:LISTEN 2>/dev/null | head -1)
                 
-                if pm2 show DTunnel >/dev/null 2>&1; then
+                if pm2 show DTunnel >/dev/null 2>&1 && [ -n "$LISTENING_PID" ]; then
                     echo -e "${GREEN}==============================================${NC}"
                     echo -e "${GREEN}  Porta alterada com sucesso para: $new_port    ${NC}"
                     echo -e "${GREEN}==============================================${NC}"
