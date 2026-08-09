@@ -14,7 +14,11 @@ import sys
 import argparse
 import requests
 from pathlib import Path
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 
 MAX_USER_ID_LENGTH = 128
 
@@ -101,6 +105,9 @@ def update_app_name(work_dir: Path, new_name: str) -> None:
     print(f"Nome do app atualizado para: {new_name}")
 
 def update_app_icon(work_dir: Path, icon_url: str) -> None:
+    if not HAS_PIL:
+        print("Aviso: Pillow (PIL) não instalada. Pulando atualização de ícone.")
+        return
     try:
         response = requests.get(icon_url, timeout=30)
         if response.status_code != 200:
@@ -111,31 +118,19 @@ def update_app_icon(work_dir: Path, icon_url: str) -> None:
         temp_icon.write_bytes(response.content)
         
         with Image.open(temp_icon) as img:
-            # Redimensionar para tamanhos padrão
             sizes = {
-                "drawable-mdpi": 48,
-                "drawable-hdpi": 72,
-                "drawable-xhdpi": 96,
-                "drawable-xxhdpi": 144,
-                "drawable-xxxhdpi": 192,
-                "mipmap-mdpi": 48,
-                "mipmap-hdpi": 72,
-                "mipmap-xhdpi": 96,
-                "mipmap-xxhdpi": 144,
-                "mipmap-xxxhdpi": 192,
+                "drawable-mdpi": 48, "drawable-hdpi": 72, "drawable-xhdpi": 96,
+                "drawable-xxhdpi": 144, "drawable-xxxhdpi": 192,
+                "mipmap-mdpi": 48, "mipmap-hdpi": 72, "mipmap-xhdpi": 96,
+                "mipmap-xxhdpi": 144, "mipmap-xxxhdpi": 192,
             }
-            
             for folder, size in sizes.items():
                 dest_dir = work_dir / "res" / folder
                 if dest_dir.is_dir():
-                    icon_path = dest_dir / "ic_launcher.png"
-                    img.resize((size, size), Image.Resampling.LANCZOS).save(icon_path)
-                    
-                    # Também tentar ic_launcher_round.png se existir
+                    img.resize((size, size), Image.Resampling.LANCZOS).save(dest_dir / "ic_launcher.png")
                     round_path = dest_dir / "ic_launcher_round.png"
                     if round_path.is_file():
                         img.resize((size, size), Image.Resampling.LANCZOS).save(round_path)
-        
         temp_icon.unlink()
         print("Ícones atualizados com sucesso.")
     except Exception as e:
