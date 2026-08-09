@@ -106,15 +106,49 @@ def update_app_name(work_dir: Path, new_name: str) -> None:
         strings_xml.write_text(updated, encoding="utf-8")
     print(f"Nome do app atualizado para: {new_name}")
 
-def update_app_icon(work_dir: Path, icon_url: str) -> None:
-    """Baixa o ícone enviado e substitui todos os recursos referenciados pelo launcher."""
+def download_icon(icon_url: str) -> bytes:
+    """Baixa o ícone com retries e User-Agent de navegador, validando que é uma imagem válida."""
     if not re.fullmatch(r"https?://[^\s]+", icon_url.strip(), flags=re.IGNORECASE):
         raise ValueError("A URL do ícone deve ser HTTP ou HTTPS.")
 
-    response = requests.get(icon_url.strip(), timeout=30, allow_redirects=True)
-    response.raise_for_status()
-    if not response.content:
-        raise RuntimeError("O servidor retornou um ícone vazio.")
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
+    last_error = None
+    for attempt in range(3):
+        try:
+            response = requests.get(icon_url.strip(), timeout=30, allow_redirects=True, headers=headers)
+            response.raise_for_status()
+            data = response.content
+            if not data:
+                raise RuntimeError("O servidor retornou um ícone vazio.")
+            # Validar assinatura do arquivo de imagem
+            if not data.startswith((b"\x89PNG", b"\xff\xd8\xff", b"RIFF", b"GIF8")):
+                raise RuntimeError("A URL não retornou uma imagem válida.")
+            return data
+        except Exception as error:
+            last_error = error
+            print(f"Tentativa {attempt + 1} falhou: {error}")
+    raise RuntimeError(f"Não foi possível baixar o ícone: {last_error}")
+
+def parse_icon_urls(icon_value: str) -> list[str]:
+    """Separa URLs alternativas (formato 'url1|url2') enviadas pelo painel."""
+    urls = [part.strip() for part in icon_value.split("|") if part.strip()]
+    if not urls:
+        raise ValueError("Nenhuma URL de ícone foi informada.")
+    return urls
+
+def update_app_icon(work_dir: Path, icon_value: str) -> None:
+    """Baixa o ícone (com URLs alternativas) e substitui todos os recursos referenciados pelo launcher."""
+    icon_data = None
+    last_error = None
+    for url in parse_icon_urls(icon_value):
+        try:
+            icon_data = download_icon(url)
+            break
+        except Exception as error:
+            last_error = error
+            print(f"URL '{url}' falhou: {error}")
+    if icon_data is None:
+        raise RuntimeError(f"Todas as URLs do ícone falharam: {last_error}")
 
     manifest = work_dir / "AndroidManifest.xml"
     manifest_text = manifest.read_text(encoding="utf-8") if manifest.is_file() else ""
@@ -134,7 +168,7 @@ def update_app_icon(work_dir: Path, icon_url: str) -> None:
 
     if HAS_PIL:
         from io import BytesIO
-        with Image.open(BytesIO(response.content)) as source:
+        with Image.open(BytesIO(icon_data)) as source:
             source.load()
             image = source.convert("RGBA")
             size_map = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
@@ -143,7 +177,7 @@ def update_app_icon(work_dir: Path, icon_url: str) -> None:
                 image.resize((target_size, target_size), Image.Resampling.LANCZOS).save(icon_path, format="PNG")
     else:
         for icon_path in icon_files:
-            icon_path.write_bytes(response.content)
+            icon_path.write_bytes(icon_data)
 
     # Remover XMLs adaptativos que poderiam continuar apontando para o ícone antigo.
     for name in resource_names:
@@ -262,6 +296,7 @@ def generate_apk(args: argparse.Namespace) -> Path:
             update_app_name(work_dir, args.name)
         
         if args.icon:
+            print(f"Aplicando ícone customizado: {args.icon[:80]}")
             update_app_icon(work_dir, args.icon)
             
         if args.package:

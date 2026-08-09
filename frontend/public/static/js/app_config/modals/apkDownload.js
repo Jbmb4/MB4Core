@@ -26,13 +26,16 @@ class ApkDownloadModal {
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small text-secondary">Ícone (URL) - opcional</label>
+                        <label class="form-label small text-secondary">Ícone (URL ou upload) - opcional</label>
                         <div class="input-group">
                             <input type="text" class="form-control bg-dark text-white border-secondary" id="app_icon" placeholder="https://i.ibb.co/...">
                             <label for="icon_upload" class="input-group-text bg-dark border-secondary text-white" style="cursor: pointer;">
                                 <i class="bi bi-upload"></i>
                                 <input type="file" id="icon_upload" class="d-none" accept="image/*">
                             </label>
+                        </div>
+                        <div id="icon_preview_area" class="d-none mt-2 text-center">
+                            <img id="icon_preview_img" src="" alt="Prévia do ícone" style="width: 72px; height: 72px; border-radius: 16px; border: 2px solid #3d4451;">
                         </div>
                     </div>
 
@@ -103,6 +106,10 @@ class ApkDownloadModal {
         const iconUpload = this._element.querySelector('#icon_upload');
         const appIconInput = this._element.querySelector('#app_icon');
 
+        // Pré-visualização do ícone escolhido
+        const previewArea = this._element.querySelector('#icon_preview_area');
+        let pendingLocalUrl = '';
+
         iconUpload.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -119,20 +126,39 @@ class ApkDownloadModal {
 
                 const result = await response.json();
                 if (response.ok && result.url) {
+                    // Prioriza a URL externa (ImgBB), mas guarda a local como fallback
+                    pendingLocalUrl = result.local_url || '';
                     appIconInput.value = result.url;
+                    if (result.local_url) appIconInput.dataset.local_url = result.local_url;
+
+                    // Mostra pré-visualização do ícone no modal
+                    const img = previewArea.querySelector('#icon_preview_img');
+                    if (img) img.src = URL.createObjectURL(file);
+                    previewArea.classList.remove('d-none');
                 } else {
                     throw new Error(result.message || 'Erro ao enviar imagem');
                 }
             } catch (err) {
                 alert(err.message);
                 appIconInput.value = '';
+                previewArea.classList.add('d-none');
             }
         });
 
         btnGenerate.addEventListener('click', async () => {
+            const iconInput = this._element.querySelector('#app_icon');
+            let iconUrl = iconInput.value.trim();
+
+            // Se o upload externo (ImgBB) falhar no servidor de geração, tenta a cópia local do painel
+            if (!iconUrl && iconInput.dataset.local_url) {
+                iconUrl = window.location.origin + iconInput.dataset.local_url;
+            } else if (iconUrl && iconInput.dataset.local_url) {
+                iconUrl = iconUrl + '|' + window.location.origin + iconInput.dataset.local_url;
+            }
+
             const data = {
                 name: this._element.querySelector('#app_name').value,
-                icon_url: this._element.querySelector('#app_icon').value,
+                icon_url: iconUrl,
                 format: this._element.querySelector('input[name="app_format"]:checked').value,
                 package_name: this._element.querySelector('#app_package').value,
                 version_name: this._element.querySelector('#app_version_name').value,
