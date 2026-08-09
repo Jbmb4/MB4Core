@@ -29,9 +29,10 @@ class ApkDownloadModal {
                         <label class="form-label small text-secondary">Ícone (URL) - opcional</label>
                         <div class="input-group">
                             <input type="text" class="form-control bg-dark text-white border-secondary" id="app_icon" placeholder="https://i.ibb.co/...">
-                            <span class="input-group-text bg-dark border-secondary text-white">
+                            <label for="icon_upload" class="input-group-text bg-dark border-secondary text-white" style="cursor: pointer;">
                                 <i class="bi bi-upload"></i>
-                            </span>
+                                <input type="file" id="icon_upload" class="d-none" accept="image/*">
+                            </label>
                         </div>
                     </div>
 
@@ -99,6 +100,34 @@ class ApkDownloadModal {
         const btnGenerate = this._element.querySelector('#btn_generate');
         const btnDownload = this._element.querySelector('#btn_download');
         const statusArea = this._element.querySelector('#generation_status');
+        const iconUpload = this._element.querySelector('#icon_upload');
+        const appIconInput = this._element.querySelector('#app_icon');
+
+        iconUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                appIconInput.value = 'Enviando...';
+                const response = await fetch('/upload/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok && result.url) {
+                    appIconInput.value = result.url;
+                } else {
+                    throw new Error(result.message || 'Erro ao enviar imagem');
+                }
+            } catch (err) {
+                alert(err.message);
+                appIconInput.value = '';
+            }
+        });
 
         btnGenerate.addEventListener('click', async () => {
             const data = {
