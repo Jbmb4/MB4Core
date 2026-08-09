@@ -229,7 +229,21 @@ def generate_apk(args: argparse.Namespace) -> Path:
 
         unsigned_apk = output_dir / "unsigned.apk"
         print("Reconstruindo APK...")
-        run_command([APKTOOL, "b", "--use-aapt2", str(work_dir), "-o", str(unsigned_apk)])
+        
+        # Detectar versão do apktool para lidar com o parâmetro --use-aapt2
+        try:
+            version_proc = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True)
+            version_str = version_proc.stdout.strip() or version_proc.stderr.strip()
+            major_version = int(re.search(r"(\d+)", version_str).group(1))
+        except Exception:
+            major_version = 2 # Default para o comportamento antigo
+
+        build_cmd = [APKTOOL, "b"]
+        if major_version < 3:
+            build_cmd.append("--use-aapt2")
+        
+        build_cmd.extend([str(work_dir), "-o", str(unsigned_apk)])
+        run_command(build_cmd)
 
         print("Assinando APK...")
         run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])
