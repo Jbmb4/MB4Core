@@ -60,21 +60,22 @@ export default {
     if (format === 'aab') args.push('--aab');
 
     try {
+      // Garantir que o diretório de saída existe
+      const publicPath = path.resolve(process.cwd(), 'frontend', 'public', 'downloads');
+      if (!fs.existsSync(publicPath)) fs.mkdirSync(publicPath, { recursive: true });
+      try { fs.chmodSync(publicPath, 0o777); } catch(e) {}
+
       await execFileAsync('python3', args, {
-        cwd: path.resolve(process.cwd()),
+        cwd: process.cwd(),
         timeout: 300000,
         maxBuffer: 10 * 1024 * 1024,
+        env: { ...process.env, PATH: `${process.env.PATH}:/usr/local/bin` }
       });
 
       if (!fs.existsSync(outputPath)) {
-        return reply.status(500).send({ message: 'O gerador não produziu o arquivo' });
+        throw new Error('O gerador Python não produziu o arquivo de saída.');
       }
 
-      // Em vez de enviar o stream direto, vamos retornar o nome do arquivo para o modal fazer o download
-      // Isso permite que o modal mostre "App gerado!" antes do download
-      const publicPath = path.join(process.cwd(), 'frontend', 'public', 'downloads');
-      if (!fs.existsSync(publicPath)) fs.mkdirSync(publicPath, { recursive: true });
-      
       const finalName = `app-${Date.now()}.${format === 'aab' ? 'aab' : 'apk'}`;
       const finalPath = path.join(publicPath, finalName);
       fs.renameSync(outputPath, finalPath);

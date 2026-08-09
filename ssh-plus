@@ -95,7 +95,8 @@ if command -v ufw &> /dev/null; then ufw allow "$PORT"/tcp 2>/dev/null; fi
 
 # Iniciar
 pm2 delete DTunnel 2>/dev/null
-mkdir -p frontend/public/downloads && chmod 777 frontend/public/downloads
+mkdir -p frontend/public/downloads frontend/public/upload_icons frontend/public/apk
+chmod -R 777 frontend/public/downloads frontend/public/upload_icons frontend/public/apk
 pm2 start ecosystem.config.js --cwd "$INSTALL_DIR"
 pm2 save
 pm2 startup -u "$PANEL_USER" --hp "$HOME" 2>/dev/null

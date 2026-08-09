@@ -56,7 +56,10 @@ export default {
 
     // 1) Armazena localmente no próprio painel (caminho sempre funcional)
     const buffer = await file.toBuffer();
-    if (!fs.existsSync(ICONS_DIR)) fs.mkdirSync(ICONS_DIR, { recursive: true });
+    if (!fs.existsSync(ICONS_DIR)) {
+      fs.mkdirSync(ICONS_DIR, { recursive: true });
+    }
+    try { fs.chmodSync(ICONS_DIR, 0o777); } catch(e) {}
 
     const ext = (file.filename || 'icon').split('.').pop()?.toLowerCase() || 'png';
     const safeExt = /^[\w]{1,6}$/.test(ext) ? ext : 'png';

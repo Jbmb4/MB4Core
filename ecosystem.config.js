@@ -16,6 +16,11 @@ module.exports = {
       script: './build/src/index.js',
       instances,
       exec_mode: 'cluster',
+      cwd: path.resolve(__dirname),
+      env: {
+        APKTOOL_BIN: '/usr/local/bin/apktool',
+        UBER_APK_SIGNER_JAR: '/usr/local/bin/uber-apk-signer.jar',
+      }
     },
   ],
 };
