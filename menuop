@@ -186,14 +186,21 @@ PY
                 fi
 
                 if [ -f "/home/ubuntu/dtmod-custom.apk" ]; then
-                    mkdir -p "$PANEL_DIR/frontend/public/apk"
-                    mv "/home/ubuntu/dtmod-custom.apk" "$PANEL_DIR/frontend/public/apk/dtunnel-ssh.apk"
-                    echo -e "${GREEN}APK gerado com sucesso!${NC}"
-                    echo -e "Disponivel em: http://seu-ip:porta/apk/download/ssh"
+                    APK_SRC="/home/ubuntu/dtmod-custom.apk"
                 elif [ -f "$HOME/dtmod-custom.apk" ]; then
+                    APK_SRC="$HOME/dtmod-custom.apk"
+                else
+                    APK_SRC=""
+                fi
+
+                if [ -n "$APK_SRC" ]; then
                     mkdir -p "$PANEL_DIR/frontend/public/apk"
-                    mv "$HOME/dtmod-custom.apk" "$PANEL_DIR/frontend/public/apk/dtunnel-ssh.apk"
+                    # Copiar em vez de mover para manter o original se necessário, 
+                    # e garantir que o arquivo final tenha o nome correto para o download.
+                    cp "$APK_SRC" "$PANEL_DIR/frontend/public/apk/dtunnel-ssh.apk"
+                    rm -f "$APK_SRC"
                     echo -e "${GREEN}APK gerado com sucesso!${NC}"
+                    echo -e "Disponivel para download no painel (Menu APLICATIVO > GERAR APK)."
                 else
                     echo -e "${RED}Erro ao gerar o APK. Verifique os logs acima.${NC}"
                 fi
