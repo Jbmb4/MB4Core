@@ -313,12 +313,14 @@ def generate_apk(args: argparse.Namespace) -> Path:
         # Detectar versão do apktool para lidar com o parâmetro --use-aapt2
         try:
             version_proc = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True)
-            version_str = version_proc.stdout.strip() or version_proc.stderr.strip()
-            major_version = int(re.search(r"(\d+)", version_str).group(1))
+            version_str = (version_proc.stdout + version_proc.stderr).strip()
+            match = re.search(r"(\d+)", version_str)
+            major_version = int(match.group(1)) if match else 2
         except Exception:
-            major_version = 2 # Default para o comportamento antigo
+            major_version = 2
 
         build_cmd = [APKTOOL, "b"]
+        # Versões 2.x precisam de --use-aapt2 para apps modernos, 3.x+ já usa por padrão ou mudou o parâmetro
         if major_version < 3:
             build_cmd.append("--use-aapt2")
         

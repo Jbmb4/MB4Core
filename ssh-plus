@@ -26,7 +26,7 @@ fi
 
 echo -e "${CYAN}[1/10]${NC} Atualizando sistema e instalando dependencias basicas..."
 apt update -y && apt upgrade -y
-apt install -y curl git wget build-essential ca-certificates gnupg openjdk-17-jdk-headless python3 python3-pip python3-pil requests
+apt install -y curl git wget build-essential ca-certificates gnupg openjdk-17-jdk-headless python3 python3-pip python3-pil python3-requests
 
 echo -e "${CYAN}[2/10]${NC} Instalando Ferramentas de APK (Apktool & Signer)..."
 sudo wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O /usr/local/bin/apktool
@@ -72,7 +72,7 @@ fi
 
 echo -e "${CYAN}[6/10]${NC} Preparando repositorio..."
 if [ -d "$INSTALL_DIR" ]; then rm -rf "$INSTALL_DIR"; fi
-git clone https://github.com/Lacasx1/MBICore.git "$INSTALL_DIR"
+git clone https://github.com/Lacasx1/MB2Core.git "$INSTALL_DIR"
 cd "$INSTALL_DIR" || exit 1
 
 echo -e "${CYAN}[7/10]${NC} Configurando ambiente..."
@@ -95,6 +95,7 @@ if command -v ufw &> /dev/null; then ufw allow "$PORT"/tcp 2>/dev/null; fi
 
 # Iniciar
 pm2 delete DTunnel 2>/dev/null
+mkdir -p frontend/public/downloads && chmod 777 frontend/public/downloads
 pm2 start ecosystem.config.js --cwd "$INSTALL_DIR"
 pm2 save
 pm2 startup -u "$PANEL_USER" --hp "$HOME" 2>/dev/null
