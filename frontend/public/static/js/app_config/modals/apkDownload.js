@@ -52,10 +52,6 @@ class ApkDownloadModal {
                             <i class="bi bi-caret-right-fill me-1"></i> Avançado (pacote e versão)
                         </a>
                         <div class="collapse mt-2" id="advancedOptions">
-                            <div class="mb-2">
-                                <label class="form-label x-small text-secondary">Pacote</label>
-                                <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" id="app_package" placeholder="com.dtunnel.pro">
-                            </div>
                             <div class="row">
                                 <div class="col-6">
                                     <label class="form-label x-small text-secondary">Versão Nome</label>
@@ -134,7 +130,6 @@ class ApkDownloadModal {
                 name: this._element.querySelector('#app_name').value,
                 icon_url: this._element.querySelector('#app_icon').value,
                 format: this._element.querySelector('input[name="app_format"]:checked').value,
-                package_name: this._element.querySelector('#app_package').value,
                 version_name: this._element.querySelector('#app_version_name').value,
                 version_code: this._element.querySelector('#app_version_code').value,
             };

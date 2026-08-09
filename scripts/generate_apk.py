@@ -219,8 +219,9 @@ def generate_apk(args: argparse.Namespace) -> Path:
         if args.icon:
             update_app_icon(work_dir, args.icon)
             
-        if args.package:
-            update_manifest_package(work_dir, args.package)
+        # A alteração de pacote foi desativada por instabilidade na base funcional.
+        # if args.package:
+        #     update_manifest_package(work_dir, args.package)
             
         if args.version_name or args.version_code:
             update_version(work_dir, args.version_name, args.version_code)
