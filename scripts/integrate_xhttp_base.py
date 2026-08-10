@@ -91,10 +91,12 @@ def patch_service_manager(base: Path) -> None:
             pos = content.find(marker)
             if pos < 0:
                 raise RuntimeError("Could not patch SSH_XHTTP mode registry in existing base")
-            end = content.find("\n", pos)
-            end = content.find("\n", end + 1)
-            entry = ('    const-string v2, "SSH_XHTTP"\n\n'
-                     '    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n')
+            invoke_pos = content.find('    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;', pos)
+            if invoke_pos < 0:
+                raise RuntimeError("Could not find SSH_PROXY registry call")
+            end = content.find("\n", invoke_pos)
+            entry = ('\n    const-string v2, "SSH_XHTTP"\n\n'
+                     '    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;')
             content = content[:end + 1] + entry + content[end + 1:]
             manager.write_text(content, encoding="utf-8")
         mode_constants = base / "smali_classes2/q4/j.smali"
