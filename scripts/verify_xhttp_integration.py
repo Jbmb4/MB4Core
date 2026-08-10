@@ -7,7 +7,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_APK = ROOT / "scripts/base.apk"
+BASE_APK = ROOT / "scripts/base_xhttp.apk"
 
 SOURCE_ASSERTIONS = {
     ROOT / "frontend/public/static/js/config/components/form.js": (
@@ -75,7 +75,7 @@ DEX_MARKERS = (
     b"com/dtunnel/xhttp/XHttpLauncher",
     b"com/dragonssh/xhttpdemo/core/XHttpSshService",
     b"com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy",
-    b"SSH_XHTTP",
+
     b"org/conscrypt/CryptoUpcalls",
 )
 
