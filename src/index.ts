@@ -5,7 +5,7 @@ import prisma from './config/prisma-client';
 prisma.$connect();
 
 const host = '0.0.0.0';
-const port = process.env.PORT || 3000;
+const port = Number.parseInt(process.env.PORT ?? '3000', 10);
 
 fastify.listen({ host, port }, () => {
   // console.clear();
