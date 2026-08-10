@@ -326,6 +326,18 @@ def patch_resources(reference: Path, base: Path) -> None:
     remap_r_fields(runtime_root / "R$string.smali", string_ids)
 
 
+def patch_notification_action(base: Path) -> None:
+    """Avoid NotificationCompat overloads that call unavailable IconCompat APIs."""
+    service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
+    require(service)
+    text = service.read_text(encoding="utf-8")
+    old = '''    sget v2, Lcom/dragonssh/xhttpdemo/core/R$drawable;->ic_power_settings_new_black_24dp:I\n\n    sget v3, Lcom/dragonssh/xhttpdemo/core/R$string;->stop:I\n\n    .line 130\n    invoke-virtual {p0, v3}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;\n\n    move-result-object v3\n\n    .line 129\n    invoke-virtual {p1, v2, v3, v1}, Landroidx/core/app/NotificationCompat$Builder;->addAction(ILjava/lang/CharSequence;Landroid/app/PendingIntent;)Landroidx/core/app/NotificationCompat$Builder;\n\n    move-result-object p1'''
+    new = '''    new-instance v2, Landroidx/core/app/NotificationCompat$Action;\n\n    const/4 v3, 0x0\n\n    sget v4, Lcom/dragonssh/xhttpdemo/core/R$string;->stop:I\n\n    .line 130\n    invoke-virtual {p0, v4}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;\n\n    move-result-object v4\n\n    invoke-direct {v2, v3, v4, v1}, Landroidx/core/app/NotificationCompat$Action;-><init>(Landroidx/core/graphics/drawable/IconCompat;Ljava/lang/CharSequence;Landroid/app/PendingIntent;)V\n\n    .line 129\n    invoke-virtual {p1, v2}, Landroidx/core/app/NotificationCompat$Builder;->addAction(Landroidx/core/app/NotificationCompat$Action;)Landroidx/core/app/NotificationCompat$Builder;\n\n    move-result-object p1'''
+    if old not in text:
+        raise RuntimeError("NotificationCompat action block not found")
+    service.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+
 def copy_native_libraries(reference: Path, base: Path) -> None:
     for abi in ("arm64-v8a", "armeabi-v7a"):
         source = reference / "lib" / abi / "libconscrypt_jni.so"
@@ -368,6 +380,7 @@ def main() -> None:
     patch_service_manager(args.base)
     patch_manifest(args.base)
     patch_resources(args.reference, args.base)
+    patch_notification_action(args.base)
     copy_native_libraries(args.reference, args.base)
     write_notice(args.base)
     print("XHTTP runtime integration staged successfully")
