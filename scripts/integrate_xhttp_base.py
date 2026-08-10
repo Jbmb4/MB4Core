@@ -332,7 +332,8 @@ def patch_notification_action(base: Path) -> None:
     require(service)
     text = service.read_text(encoding="utf-8")
     old = '''    sget v2, Lcom/dragonssh/xhttpdemo/core/R$drawable;->ic_power_settings_new_black_24dp:I\n\n    sget v3, Lcom/dragonssh/xhttpdemo/core/R$string;->stop:I\n\n    .line 130\n    invoke-virtual {p0, v3}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;\n\n    move-result-object v3\n\n    .line 129\n    invoke-virtual {p1, v2, v3, v1}, Landroidx/core/app/NotificationCompat$Builder;->addAction(ILjava/lang/CharSequence;Landroid/app/PendingIntent;)Landroidx/core/app/NotificationCompat$Builder;\n\n    move-result-object p1'''
-    new = '''    new-instance v2, Landroidx/core/app/NotificationCompat$Action;\n\n    const/4 v3, 0x0\n\n    sget v4, Lcom/dragonssh/xhttpdemo/core/R$string;->stop:I\n\n    .line 130\n    invoke-virtual {p0, v4}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;\n\n    move-result-object v4\n\n    invoke-direct {v2, v3, v4, v1}, Landroidx/core/app/NotificationCompat$Action;-><init>(Landroidx/core/graphics/drawable/IconCompat;Ljava/lang/CharSequence;Landroid/app/PendingIntent;)V\n\n    .line 129\n    invoke-virtual {p1, v2}, Landroidx/core/app/NotificationCompat$Builder;->addAction(Landroidx/core/app/NotificationCompat$Action;)Landroidx/core/app/NotificationCompat$Builder;\n\n    move-result-object p1'''
+    new = '''    # A notificação permanece sem ação opcional para compatibilidade com AndroidX legado.'''
+
     if old not in text:
         raise RuntimeError("NotificationCompat action block not found")
     service.write_text(text.replace(old, new, 1), encoding="utf-8")

@@ -46,7 +46,7 @@ SOURCE_ASSERTIONS = {
         'registry_entry = \'    const-string v2, "SSH_XHTTP"',
         "mode_constants",
         "patch_notification_action",
-        "NotificationCompat$Action",
+        "AndroidX legado",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
         "channel_name_background",
