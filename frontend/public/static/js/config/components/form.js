@@ -134,7 +134,6 @@ class ConfigFormSshXhttp extends ConfigForm {
         this.sni = new ConfigSni(config?.config_payload?.sni || '', true);
         this.xhttpHost = new ConfigXhttpHost(config?.proxy?.host || '');
         this.xhttpPath = new ConfigXhttpPath(config?.config_payload?.payload || '/ssh');
-        this.useTlsXhttp = new ConfigUseTlsXhttp(config?.use_tls_xhttp !== false);
         this.dns1 = new ConfigDns1(config?.dns_server?.dns1 || '8.8.8.8');
         this.dns2 = new ConfigDns2(config?.dns_server?.dns2 || '8.8.4.4');
         this.username = new ConfigUsername(config?.auth?.username || '');
@@ -157,7 +156,6 @@ class ConfigFormSshXhttp extends ConfigForm {
         config.dns_server = { dns1: this.dns1.getValue(), dns2: this.dns2.getValue() };
         config.auth = { username: this.username.getValue(), password: this.password.getValue() };
         config.tls_version = this.tlsVersion.getSelected().value;
-        config.use_tls_xhttp = this.useTlsXhttp.getValue();
         config.udp_ports = this.udpPort.getValue().split(',').map(p => parseInt(p));
         return config;
     }
@@ -167,8 +165,7 @@ class ConfigFormSshXhttp extends ConfigForm {
         element.insertBefore(this.createDivWithClass(this.server.render(), this.serverPort.render()), element.childNodes[3]);
         element.insertBefore(this.createDivWithClass(this.sni.render(), this.tlsVersion.render()), element.childNodes[4]);
         element.insertBefore(this.createDivWithClass(this.xhttpHost.render(), this.xhttpPath.render()), element.childNodes[5]);
-        element.insertBefore(this.useTlsXhttp.render(), element.childNodes[6]);
-        element.insertBefore(this.createDivWithClass(this.username.render(), this.password.render()), element.childNodes[7]);
+        element.insertBefore(this.createDivWithClass(this.username.render(), this.password.render()), element.childNodes[6]);
         element.insertBefore(this.createDivWithClass(this.dns1.render(), this.dns2.render()), element.childNodes[7]);
         element.insertBefore(this.udpPort.render(), element.childNodes[8]);
         return element;

@@ -80,7 +80,6 @@ export const AppConfigSchema = z.object({
   // NONE is valid only for SSH_XHTTP and is translated by the embedded XHTTP runtime
   // to a plaintext HTTP stream. Existing TLS modes continue using the TLS values.
   tls_version: z.enum(['TLSv1.3', 'TLSv1.2', 'TLSv1.1', 'NONE']).optional().nullable(),
-  use_tls_xhttp: z.boolean().optional().nullable(),
   udp_ports: z.array(z.number()).optional().nullable(),
   url_check_user: z.string(),
 });
@@ -122,7 +121,6 @@ export const AppConfigSelect = {
   sorter: true,
   status: true,
   tls_version: true,
-  use_tls_xhttp: true,
   updated_at: true,
   created_at: true,
   udp_ports: true,
@@ -161,7 +159,6 @@ export const getDateCreateAppConfig = (appconfig: z.infer<typeof AppConfigSchema
     hy_down_mbps: appconfig.hy_down_mbps ? appconfig.hy_down_mbps : 150,
     hy_version: appconfig.hy_version ? appconfig.hy_version : 1,
     tls_version: appconfig.tls_version,
-    use_tls_xhttp: appconfig.use_tls_xhttp ?? true,
     udp_ports: appconfig.udp_ports?.join(',') ?? '7300',
     url_check_user: appconfig.url_check_user,
   };
