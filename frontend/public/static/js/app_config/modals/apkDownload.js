@@ -51,6 +51,17 @@ class ApkDownloadModal {
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label small text-secondary">Versão Base</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="base_version" id="base_standard" value="standard" checked>
+                            <label class="btn btn-outline-primary" for="base_standard">Padrão</label>
+                            
+                            <input type="radio" class="btn-check" name="base_version" id="base_xhttp" value="xhttp">
+                            <label class="btn btn-outline-primary" for="base_xhttp">XHTTP</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
                         <a class="text-secondary text-decoration-none small d-flex align-items-center" data-bs-toggle="collapse" href="#advancedOptions" role="button">
                             <i class="bi bi-caret-right-fill me-1"></i> Avançado (pacote e versão)
                         </a>
@@ -163,6 +174,7 @@ class ApkDownloadModal {
                 package_name: this._element.querySelector('#app_package').value,
                 version_name: this._element.querySelector('#app_version_name').value,
                 version_code: this._element.querySelector('#app_version_code').value,
+                base_version: this._element.querySelector('input[name="base_version"]:checked').value,
             };
 
             try {

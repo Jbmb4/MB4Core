@@ -284,7 +284,8 @@ def fix_foreground_service_type(work_dir: Path) -> None:
 def generate_apk(args: argparse.Namespace) -> Path:
     script_dir = Path(__file__).resolve().parent
     panel_dir = script_dir.parent
-    apk_path = script_dir / "base.apk"
+    base_filename = "base_xhttp.apk" if getattr(args, "xhttp", False) else "base.apk"
+    apk_path = script_dir / base_filename
     work_dir = panel_dir / "apk_work"
     output_dir = panel_dir / "apk_output"
 
@@ -297,9 +298,10 @@ def generate_apk(args: argparse.Namespace) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        print("Decompilando APK base...")
+        print(f"Decompilando APK base ({base_filename})...")
         run_command([APKTOOL, "d", "-f", str(apk_path), "-o", str(work_dir)])
-        verify_xhttp_runtime(work_dir)
+        if getattr(args, "xhttp", False):
+            verify_xhttp_runtime(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)
@@ -372,6 +374,7 @@ def main() -> None:
     parser.add_argument("--version-name")
     parser.add_argument("--version-code")
     parser.add_argument("--aab", action="store_true")
+    parser.add_argument("--xhttp", action="store_true")
     
     args = parser.parse_args()
     try:

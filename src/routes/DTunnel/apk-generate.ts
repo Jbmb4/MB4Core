@@ -32,14 +32,16 @@ export default {
       format = 'apk', 
       package_name, 
       version_name, 
-      version_code 
+      version_code,
+      base_version
     } = req.body as { 
       name?: string, 
       icon_url?: string, 
       format?: string,
       package_name?: string,
       version_name?: string,
-      version_code?: string
+      version_code?: string,
+      base_version?: string
     };
 
     const userId = req.user.id;
@@ -58,6 +60,7 @@ export default {
     if (version_name) args.push('--version-name', version_name);
     if (version_code) args.push('--version-code', version_code);
     if (format === 'aab') args.push('--aab');
+    if (base_version === 'xhttp') args.push('--xhttp');
 
     try {
       // Garantir que o diretório de saída existe
