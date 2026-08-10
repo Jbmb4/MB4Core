@@ -69,7 +69,7 @@ export default {
         cwd: process.cwd(),
         timeout: 300000,
         maxBuffer: 10 * 1024 * 1024,
-        env: { ...process.env, PATH: `${process.env.PATH}:/usr/local/bin` }
+        env: { ...process.env, PATH: `${process.env.PATH ?? ''}:/usr/local/bin` } as NodeJS.ProcessEnv
       });
 
       if (!fs.existsSync(outputPath)) {
