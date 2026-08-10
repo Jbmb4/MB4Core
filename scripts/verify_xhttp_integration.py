@@ -43,6 +43,8 @@ SOURCE_ASSERTIONS = {
         "copy_runtime_strings",
         "copy_runtime_drawables",
         "libsystem.so",
+        'registry_entry = \'    const-string v2, "SSH_XHTTP"',
+        "mode_constants",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
         "channel_name_background",

@@ -128,6 +128,25 @@ def patch_service_manager(base: Path) -> None:
     if new_content == content:
         raise RuntimeError("Could not patch SSH_XHTTP dispatcher: marker not found in SshVpnServiceManager.smali")
 
+    # Register the mode before dispatch; otherwise the host rejects the profile.
+    registry_marker = '    const-string v2, "SSH_PROXY"\n    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n'
+    registry_entry = '    const-string v2, "SSH_XHTTP"\n    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n'
+    if 'const-string v2, "SSH_XHTTP"' not in new_content:
+        if registry_marker not in new_content:
+            raise RuntimeError("Could not patch SSH_XHTTP mode registry: marker not found")
+        new_content = new_content.replace(registry_marker, registry_marker + registry_entry, 1)
+
+    mode_constants = base / "smali_classes2/q4/j.smali"
+    if mode_constants.is_file():
+        constants = mode_constants.read_text(encoding="utf-8")
+        if '"SSH_XHTTP"' not in constants:
+            constants = constants.replace(
+                '    .field public static final d:Ljava/lang/String; = "SSH_DNSTT"\n',
+                '    .field public static final d:Ljava/lang/String; = "SSH_DNSTT"\n    .field public static final l:Ljava/lang/String; = "SSH_XHTTP"\n',
+                1,
+            )
+            mode_constants.write_text(constants, encoding="utf-8")
+
     manager.write_text(new_content, encoding="utf-8")
 
 
