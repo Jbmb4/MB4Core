@@ -85,6 +85,27 @@ def patch_service_manager(base: Path) -> None:
     require(manager)
     content = manager.read_text(encoding="utf-8")
     if "Lcom/dtunnel/xhttp/XHttpLauncher;->start" in content:
+        # Bases já integradas ainda podem estar sem o registro nativo do modo.
+        if 'const-string v2, "SSH_XHTTP"' not in content:
+            marker = '    const-string v2, "SSH_PROXY"'
+            pos = content.find(marker)
+            if pos < 0:
+                raise RuntimeError("Could not patch SSH_XHTTP mode registry in existing base")
+            end = content.find("\n", pos)
+            end = content.find("\n", end + 1)
+            entry = ('    const-string v2, "SSH_XHTTP"\n\n'
+                     '    invoke-interface {v1, v2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n')
+            content = content[:end + 1] + entry + content[end + 1:]
+            manager.write_text(content, encoding="utf-8")
+        mode_constants = base / "smali_classes2/q4/j.smali"
+        if mode_constants.is_file() and '"SSH_XHTTP"' not in mode_constants.read_text(encoding="utf-8"):
+            constants = mode_constants.read_text(encoding="utf-8")
+            constants = constants.replace(
+                '.field public static final d:Ljava/lang/String; = "SSH_DNSTT"\n',
+                '.field public static final d:Ljava/lang/String; = "SSH_DNSTT"\n.field public static final l:Ljava/lang/String; = "SSH_XHTTP"\n',
+                1,
+            )
+            mode_constants.write_text(constants, encoding="utf-8")
         return
 
     # Procura pelo ponto onde SSH_DIRECT é verificado

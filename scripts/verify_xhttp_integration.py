@@ -79,6 +79,7 @@ DEX_MARKERS = (
     b"com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy",
 
     b"org/conscrypt/CryptoUpcalls",
+    b"SSH_XHTTP",
 )
 
 APK_TEXT_MARKERS = (
