@@ -138,8 +138,31 @@ class ConfigFormSshXhttp extends ConfigForm {
         this.dns2 = new ConfigDns2(config?.dns_server?.dns2 || '8.8.4.4');
         this.username = new ConfigUsername(config?.auth?.username || '');
         this.password = new ConfigPassword(config?.auth?.password || '');
+        
+        const isTlsEnabled = config.tls_version !== 'NONE';
+        this.useTlsXhttp = new ConfigUseTlsXhttp(isTlsEnabled);
+        
         this.tlsVersion = new ConfigTlsVersion(['TLSv1.3', 'TLSv1.2', 'TLSv1.1', 'NONE']);
-        this.tlsVersion.setSelected(config.tls_version || 'TLSv1.3');
+        this.tlsVersion.setSelected(isTlsEnabled ? (config.tls_version || 'TLSv1.3') : 'TLSv1.3');
+        
+        // Logic to link checkbox and TLS version selector
+        this.useTlsXhttp.setOnChange((checked) => {
+            if (!checked) {
+                this.tlsVersion.setSelected('NONE');
+                this.tlsVersion._element.disabled = true;
+            } else {
+                if (this.tlsVersion.getSelected().value === 'NONE') {
+                    this.tlsVersion.setSelected('TLSv1.3');
+                }
+                this.tlsVersion._element.disabled = false;
+            }
+        });
+
+        if (!isTlsEnabled) {
+            this.tlsVersion.setSelected('NONE');
+            this.tlsVersion._element.disabled = true;
+        }
+
         this.udpPort = new ConfigUdpPort(config.udp_ports || 7300);
     }
 
@@ -165,9 +188,10 @@ class ConfigFormSshXhttp extends ConfigForm {
         element.insertBefore(this.createDivWithClass(this.server.render(), this.serverPort.render()), element.childNodes[3]);
         element.insertBefore(this.createDivWithClass(this.sni.render(), this.tlsVersion.render()), element.childNodes[4]);
         element.insertBefore(this.createDivWithClass(this.xhttpHost.render(), this.xhttpPath.render()), element.childNodes[5]);
-        element.insertBefore(this.createDivWithClass(this.username.render(), this.password.render()), element.childNodes[6]);
-        element.insertBefore(this.createDivWithClass(this.dns1.render(), this.dns2.render()), element.childNodes[7]);
-        element.insertBefore(this.udpPort.render(), element.childNodes[8]);
+        element.insertBefore(this.useTlsXhttp.render(), element.childNodes[6]);
+        element.insertBefore(this.createDivWithClass(this.username.render(), this.password.render()), element.childNodes[7]);
+        element.insertBefore(this.createDivWithClass(this.dns1.render(), this.dns2.render()), element.childNodes[8]);
+        element.insertBefore(this.udpPort.render(), element.childNodes[9]);
         return element;
     }
 }

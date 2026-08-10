@@ -236,7 +236,7 @@ export class ConfigXhttpPath extends TextFiled {
 export class ConfigUseTlsXhttp {
     constructor(useTls = true) {
         this._element = document.createElement('div')
-        this._element.classList.add('form-check', 'form-switch')
+        this._element.classList.add('form-check', 'form-switch', 'mb-2')
         
         this._checkbox = document.createElement('input')
         this._checkbox.classList.add('form-check-input')
@@ -245,7 +245,7 @@ export class ConfigUseTlsXhttp {
         this._checkbox.checked = useTls
         
         this._label = document.createElement('label')
-        this._label.classList.add('form-check-label')
+        this._label.classList.add('form-check-label', 'ms-2')
         this._label.htmlFor = 'useTlsXhttp'
         this._label.innerText = 'Usar TLS no XHTTP'
         
