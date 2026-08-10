@@ -38,7 +38,7 @@ SOURCE_ASSERTIONS = {
         "missing_dynamic",
     ),
     ROOT / "scripts/integrate_xhttp_base.py": (
-        'android:process=\":xhttp\"',
+        "main-process XHTTP services",
         "xhttp_pdnsd_local",
         "copy_runtime_strings",
         "copy_runtime_drawables",
@@ -83,7 +83,6 @@ DEX_MARKERS = (
 )
 
 APK_TEXT_MARKERS = (
-    b":xhttp",
     b"xhttp_state_starting",
     b"xhttp_channel_name_background",
     b"xhttp_pdnsd_local",

@@ -185,29 +185,18 @@ def patch_manifest(base: Path) -> None:
             raise RuntimeError("Could not find foreground-service permission marker")
         text = text.replace(marker, marker + "\n    " + permission, 1)
 
-    components = """        <receiver android:exported=\"false\" android:name=\"com.dragonssh.xhttpdemo.core.MainReceiver\" android:process=\":xhttp\"/>\n        <service android:exported=\"false\" android:foregroundServiceType=\"dataSync\" android:name=\"com.dragonssh.xhttpdemo.core.XHttpSshService\" android:process=\":xhttp\" android:stopWithTask=\"false\"/>\n        <service android:enabled=\"true\" android:exported=\"false\" android:name=\"com.dragonssh.xhttpdemo.core.tunnel.vpn.TunnelVpnService\" android:permission=\"android.permission.BIND_VPN_SERVICE\" android:process=\":xhttp\">\n            <intent-filter>\n                <action android:name=\"android.net.VpnService\"/>\n            </intent-filter>\n        </service>\n"""
+    # main-process XHTTP services: matches the functional reference app and avoids secondary-process startup crashes.
+    components = """        <receiver android:exported=\"false\" android:name=\"com.dragonssh.xhttpdemo.core.MainReceiver\"/>\n        <service android:exported=\"false\" android:foregroundServiceType=\"dataSync\" android:name=\"com.dragonssh.xhttpdemo.core.XHttpSshService\" android:stopWithTask=\"false\"/>\n        <service android:enabled=\"true\" android:exported=\"false\" android:name=\"com.dragonssh.xhttpdemo.core.tunnel.vpn.TunnelVpnService\" android:permission=\"android.permission.BIND_VPN_SERVICE\">\n            <intent-filter>\n                <action android:name=\"android.net.VpnService\"/>\n            </intent-filter>\n        </service>\n"""
     if "com.dragonssh.xhttpdemo.core.XHttpSshService" not in text:
         marker = "    </application>"
         if marker not in text:
             raise RuntimeError("Could not find application closing tag")
         text = text.replace(marker, components + marker, 1)
     else:
-        # Upgrade a base created by an older integration in place.
-        text = re.sub(
-            r'(<receiver\s+android:exported="false"\s+android:name="com\.dragonssh\.xhttpdemo\.core\.MainReceiver")(\s*/>)',
-            r'\1 android:process=":xhttp"\2',
-            text,
-        )
-        text = re.sub(
-            r'(<service\s+android:exported="false"\s+android:foregroundServiceType="dataSync"\s+android:name="com\.dragonssh\.xhttpdemo\.core\.XHttpSshService")(\s+android:stopWithTask="false"\s*/>)',
-            r'\1 android:process=":xhttp"\2',
-            text,
-        )
-        text = re.sub(
-            r'(<service\s+android:enabled="true"\s+android:exported="false"\s+android:name="com\.dragonssh\.xhttpdemo\.core\.tunnel\.vpn\.TunnelVpnService"\s+android:permission="android\.permission\.BIND_VPN_SERVICE")(>)',
-            r'\1 android:process=":xhttp"\2',
-            text,
-        )
+        # Normalize older integrations to the reference app's main-process services.
+        text = re.sub(r'(android:name="com\.dragonssh\.xhttpdemo\.core\.MainReceiver")\s+android:process=":xhttp"', r'\1', text)
+        text = re.sub(r'(android:name="com\.dragonssh\.xhttpdemo\.core\.XHttpSshService")\s+android:process=":xhttp"', r'\1', text)
+        text = re.sub(r'(android:name="com\.dragonssh\.xhttpdemo\.core\.tunnel\.vpn\.TunnelVpnService")\s+android:process=":xhttp"', r'\1', text)
 
     manifest.write_text(text, encoding="utf-8")
 
