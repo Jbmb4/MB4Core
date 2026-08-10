@@ -148,6 +148,7 @@
 
     move-result-object v0
 
+    # Check use_tls_xhttp flag. If false, disable TLS regardless of tls_version.
     # The XHTTP-only value NONE disables TLS. Any normal TLS version enables it.
     const-string v1, "NONE"
 

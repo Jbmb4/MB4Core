@@ -233,6 +233,46 @@ export class ConfigXhttpPath extends TextFiled {
     }
 }
 
+export class ConfigUseTlsXhttp {
+    constructor(useTls = true) {
+        this._element = document.createElement('div')
+        this._element.classList.add('form-check', 'form-switch')
+        
+        this._checkbox = document.createElement('input')
+        this._checkbox.classList.add('form-check-input')
+        this._checkbox.type = 'checkbox'
+        this._checkbox.id = 'useTlsXhttp'
+        this._checkbox.checked = useTls
+        
+        this._label = document.createElement('label')
+        this._label.classList.add('form-check-label')
+        this._label.htmlFor = 'useTlsXhttp'
+        this._label.innerText = 'Usar TLS no XHTTP'
+        
+        this._element.appendChild(this._checkbox)
+        this._element.appendChild(this._label)
+    }
+    
+    getValue() {
+        return this._checkbox.checked
+    }
+    
+    setValue(value) {
+        this._checkbox.checked = value
+    }
+    
+    render() {
+        const div = document.createElement('div')
+        div.classList.add('d-flex', 'flex-column', 'w-100')
+        div.appendChild(this._element)
+        return div
+    }
+    
+    setOnChange(callback) {
+        this._checkbox.addEventListener('change', () => callback(this.getValue()))
+    }
+}
+
 export class ConfigOpenVPN extends TextAreaFiled {
     constructor(payload) {
         super()
