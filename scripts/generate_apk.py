@@ -23,8 +23,9 @@ except ImportError:
 
 MAX_USER_ID_LENGTH = 128
 
-APKTOOL = os.environ.get("APKTOOL_BIN", "apktool")
-SIGNER_JAR = Path(os.environ.get("UBER_APK_SIGNER_JAR", "/usr/local/bin/uber-apk-signer.jar"))
+APKTOOL = os.environ.get("APKTOOL_BIN") or shutil.which("apktool") or next((p for p in ("/usr/local/bin/apktool", "/home/ubuntu/tools/apktool") if Path(p).is_file()), "apktool")
+_signer_env = os.environ.get("UBER_APK_SIGNER_JAR")
+SIGNER_JAR = Path(_signer_env) if _signer_env else next((Path(p) for p in ("/usr/local/bin/uber-apk-signer.jar", "/home/ubuntu/tools/uber-apk-signer.jar") if Path(p).is_file()), Path("/usr/local/bin/uber-apk-signer.jar"))
 
 OLD_DOMAINS = (
     "device.dtunnel.com.br",
