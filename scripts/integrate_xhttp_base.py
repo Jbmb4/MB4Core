@@ -84,6 +84,34 @@ def patch_service_manager(base: Path) -> None:
     manager = base / "smali/com/ssh/service/SshVpnServiceManager.smali"
     require(manager)
     content = manager.read_text(encoding="utf-8")
+
+    # Corrige bases geradas por integrações anteriores que iniciavam o runtime
+    # XHTTP para qualquer perfil, quebrando SSH_DIRECT, SSH_PROXY e SSL_*.
+    bad_dispatch = '''    invoke-static {v0, v1}, Lcom/dtunnel/xhttp/XHttpLauncher;->start(Landroid/content/Context;Lg4/e;)V
+
+    return-void
+
+    .line 19
+    const-string v8, "SSH_DIRECT"'''
+    guarded_dispatch = '''    const-string v8, "SSH_XHTTP"
+
+    invoke-static {v7, v8}, Lpb/j;->a(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    move-result v8
+
+    if-eqz v8, :cond_xhttp_continue
+
+    invoke-static {v0, v1}, Lcom/dtunnel/xhttp/XHttpLauncher;->start(Landroid/content/Context;Lg4/e;)V
+
+    return-void
+
+    :cond_xhttp_continue
+    .line 19
+    const-string v8, "SSH_DIRECT"'''
+    if bad_dispatch in content:
+        content = content.replace(bad_dispatch, guarded_dispatch, 1)
+        manager.write_text(content, encoding="utf-8")
+
     if "Lcom/dtunnel/xhttp/XHttpLauncher;->start" in content:
         # Bases já integradas ainda podem estar sem o registro nativo do modo.
         if 'const-string v2, "SSH_XHTTP"' not in content:

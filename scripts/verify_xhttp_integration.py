@@ -47,6 +47,9 @@ SOURCE_ASSERTIONS = {
         "mode_constants",
         "patch_notification_action",
         "AndroidX legado",
+        "bad_dispatch",
+        "guarded_dispatch",
+        "SSH_XHTTP",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
         "channel_name_background",
