@@ -31,3 +31,16 @@ python3 scripts/verify_xhttp_integration.py
 
 A validação agora falhará enquanto a base antiga continuar sem `CryptoUpcalls`,
 evitando que uma APK quebrada seja publicada novamente.
+
+## Correção definitiva do `Resources$NotFoundException`
+
+A falha observada no dispositivo vinha de `R$string.smali`: os campos do runtime eram declarados como `.field public static` (sem `final`), enquanto o remapeador aceitava apenas `.field public static final`. Assim, `state_starting` e `stop` mantinham IDs da APK de referência (`0x7f0f00f1`/`0x7f0f00f8`) que não existiam na tabela de recursos da base integrada. O remapeador agora aceita ambas as formas e a `scripts/base_xhttp.apk` foi regenerada a partir da base limpa, com os campos apontando para `xhttp_state_starting` e `xhttp_stop` reais.
+
+Validação realizada:
+
+```text
+state_starting -> 0x7f0f0085 (xhttp_state_starting)
+stop           -> 0x7f0f0080 (xhttp_stop)
+```
+
+Isso elimina o crash em `XHttpSshService.onStartCommand` antes da criação da notificação foreground.

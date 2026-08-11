@@ -22,7 +22,7 @@ REFERENCE_URL = "https://git.dr2.site/penguinehis/SocksRevive-XHTTP-DEMO"
 PUBLIC_RE = re.compile(
     r'<public\s+type="(?P<type>[^"]+)"\s+name="(?P<name>[^"]+)"\s+id="(?P<id>0x[0-9a-fA-F]+)"\s*/>'
 )
-FIELD_RE = re.compile(r"(\.field public static final (?P<name>[A-Za-z0-9_$]+):I = )0x[0-9a-fA-F]+")
+FIELD_RE = re.compile(r"(\.field public static(?: final)? (?P<name>[A-Za-z0-9_$]+):I = )0x[0-9a-fA-F]+")
 
 
 def require(path: Path) -> None:
