@@ -354,6 +354,39 @@ def patch_resources(reference: Path, base: Path) -> None:
     remap_r_fields(runtime_root / "R$string.smali", string_ids)
 
 
+def patch_startup_text(base: Path) -> None:
+    """Keep service startup independent from host-app string resource IDs."""
+    service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
+    require(service)
+    text = service.read_text(encoding="utf-8")
+    startup_old = '''    .line 50
+    sget p2, Lcom/dragonssh/xhttpdemo/core/R$string;->state_starting:I
+
+    .line 51
+    invoke-virtual {p0, p2}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;
+
+    move-result-object p2'''
+    startup_new = '''    .line 50
+    const-string p2, "Conectando"'''
+    if startup_old in text:
+        text = text.replace(startup_old, startup_new, 1)
+    elif 'const-string p2, "Conectando"' not in text:
+        raise RuntimeError("XHTTP startup string block not found")
+
+    title_old = '''    sget v4, Lcom/dragonssh/xhttpdemo/core/R$string;->app_name:I
+
+    .line 123
+    invoke-virtual {p0, v4}, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->getString(I)Ljava/lang/String;
+
+    move-result-object v4'''
+    title_new = '''    const-string v4, "SSH XHTTP"'''
+    if title_old in text:
+        text = text.replace(title_old, title_new, 1)
+    elif 'const-string v4, "SSH XHTTP"' not in text:
+        raise RuntimeError("XHTTP notification title block not found")
+    service.write_text(text, encoding="utf-8")
+
+
 def patch_notification_action(base: Path) -> None:
     """Avoid NotificationCompat overloads that call unavailable IconCompat APIs."""
     service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
@@ -409,6 +442,7 @@ def main() -> None:
     patch_service_manager(args.base)
     patch_manifest(args.base)
     patch_resources(args.reference, args.base)
+    patch_startup_text(args.base)
     patch_notification_action(args.base)
     copy_native_libraries(args.reference, args.base)
     write_notice(args.base)
