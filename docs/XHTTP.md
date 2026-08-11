@@ -17,6 +17,12 @@ O painel mantém compatibilidade com a resposta de configuração existente: o *
 
 > O servidor deve aceitar uma requisição `GET` de longa duração no caminho da sessão e requisições `POST` sequenciais para o uplink. Um proxy HTTP comum não implementa esse protocolo sozinho.
 
+## Cabeçalho de sessão do proxy
+
+A base XHTTP gera um identificador aleatório por túnel e o envia tanto no `GET` persistente quanto em cada `POST` do uplink através do cabeçalho **`X-Session-ID`**. O mesmo identificador também continua presente no caminho da sessão, preservando a compatibilidade com proxies que usam o caminho para correlacionar o fluxo.
+
+> Configure o proxy para aceitar o nome ASCII `X-Session-ID`. Embora possa aparecer na interface como “X-Sessão-ID”, nomes de cabeçalhos HTTP devem usar caracteres ASCII; o caractere `ã` não é um nome de cabeçalho interoperável.
+
 ## Regenerar a base XHTTP
 
 A base já integrada é `scripts/base.apk`. Para repetir a integração a partir de uma APK de referência decompilada, use os scripts de forma estática:

@@ -15,6 +15,9 @@
 .method public static start(Landroid/content/Context;Lg4/e;)V
     .locals 10
 
+    # Notify the host UI before handing control to the embedded runtime.
+    invoke-static {p0}, Lcom/dtunnel/xhttp/XHttpPanelState;->starting(Landroid/content/Context;)V
+
     # Persist the profile fields consumed by the embedded GPLv3 XHTTP service.
     const-string v0, "xhttp_demo_private"
 

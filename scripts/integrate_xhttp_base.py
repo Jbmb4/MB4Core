@@ -55,9 +55,164 @@ def stage_runtime(reference: Path, base: Path) -> None:
 
 
 def install_launcher(base: Path) -> None:
-    target = base / "smali_classes3/com/dtunnel/xhttp/XHttpLauncher.smali"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(SCRIPT_DIR / "xhttp-smali/XHttpLauncher.smali", target)
+    target_dir = base / "smali_classes3/com/dtunnel/xhttp"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("XHttpLauncher.smali", "XHttpPanelState.smali"):
+        shutil.copy2(SCRIPT_DIR / "xhttp-smali" / name, target_dir / name)
+
+
+def patch_panel_status_bridge(base: Path) -> None:
+    """Forward embedded XHTTP states to the host application's UI event bus."""
+    service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
+    require(service)
+    content = service.read_text(encoding="utf-8")
+    bridge = "Lcom/dtunnel/xhttp/XHttpPanelState;->update(Landroid/content/Context;Ljava/lang/String;)V"
+    if bridge in content:
+        return
+    marker = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
+    .locals 0
+
+    .line 140'''
+    replacement = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
+    .locals 0
+
+    invoke-static {p0, p1}, Lcom/dtunnel/xhttp/XHttpPanelState;->update(Landroid/content/Context;Ljava/lang/String;)V
+
+    .line 140'''
+    if marker not in content:
+        raise RuntimeError("XHTTP state callback marker not found")
+    service.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
+
+
+def patch_xhttp_session_header(base: Path) -> None:
+    """Send the proxy-required X-Session-ID on the XHTTP downlink and uplink."""
+    proxy = base / "smali_classes3/com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy.smali"
+    uplink = base / "smali_classes3/com/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream.smali"
+    require(proxy)
+    require(uplink)
+
+    proxy_text = proxy.read_text(encoding="utf-8")
+    if 'const-string v2, "X-Session-ID"' not in proxy_text:
+        field_marker = '.field private volatile bridge:Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpBridgeSocket;\n'
+        if field_marker not in proxy_text:
+            raise RuntimeError("XHTTP session field marker not found")
+        proxy_text = proxy_text.replace(
+            field_marker,
+            field_marker + '\n.field private volatile sessionId:Ljava/lang/String;\n',
+            1,
+        )
+        session_marker = '''    move-result-object p4
+
+    .line 94'''
+        if session_marker not in proxy_text:
+            raise RuntimeError("XHTTP generated session marker not found")
+        proxy_text = proxy_text.replace(
+            session_marker,
+            '''    move-result-object p4
+
+    iput-object p4, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
+    .line 94''',
+            1,
+        )
+        get_marker = '''    invoke-virtual {v0, v2, v1}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v0
+
+    const-string v2, "User-Agent"'''
+        if get_marker not in proxy_text:
+            raise RuntimeError("XHTTP GET header marker not found")
+        proxy_text = proxy_text.replace(
+            get_marker,
+            '''    invoke-virtual {v0, v2, v1}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v0
+
+    const-string v2, "X-Session-ID"
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
+    invoke-virtual {v0, v2, v1}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v0
+
+    const-string v2, "User-Agent"''',
+            1,
+        )
+        constructor_marker = '''    new-instance p1, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;
+
+    invoke-direct {p1, p3, p4, v1}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;-><init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;)V'''
+        if constructor_marker not in proxy_text:
+            raise RuntimeError("XHTTP uplink constructor marker not found")
+        proxy_text = proxy_text.replace(
+            constructor_marker,
+            '''    new-instance p1, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;
+
+    iget-object v3, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
+    invoke-direct {p1, p3, p4, v1, v3}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;-><init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;Ljava/lang/String;)V''',
+            1,
+        )
+        proxy.write_text(proxy_text, encoding="utf-8")
+
+    uplink_text = uplink.read_text(encoding="utf-8")
+    if '->sessionId:Ljava/lang/String;' not in uplink_text:
+        field_marker = '.field private final hostHeader:Ljava/lang/String;\n'
+        if field_marker not in uplink_text:
+            raise RuntimeError("XHTTP uplink session field marker not found")
+        uplink_text = uplink_text.replace(
+            field_marker,
+            field_marker + '\n.field private final sessionId:Ljava/lang/String;\n',
+            1,
+        )
+        constructor_marker = '.method constructor <init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;)V'
+        if constructor_marker not in uplink_text:
+            raise RuntimeError("XHTTP uplink constructor signature not found")
+        uplink_text = uplink_text.replace(
+            constructor_marker,
+            '.method constructor <init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;Ljava/lang/String;)V',
+            1,
+        )
+        assignment_marker = '''    iput-object p3, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->hostHeader:Ljava/lang/String;
+
+    .line 322'''
+        if assignment_marker not in uplink_text:
+            raise RuntimeError("XHTTP uplink session assignment marker not found")
+        uplink_text = uplink_text.replace(
+            assignment_marker,
+            '''    iput-object p3, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->hostHeader:Ljava/lang/String;
+
+    iput-object p4, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->sessionId:Ljava/lang/String;
+
+    .line 322''',
+            1,
+        )
+        post_marker = '''    invoke-virtual {v1, v5, v6}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v1
+
+    invoke-static {}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->-$$Nest$sfgetOCTET()Lokhttp3/MediaType;'''
+        if post_marker not in uplink_text:
+            raise RuntimeError("XHTTP POST header marker not found")
+        uplink_text = uplink_text.replace(
+            post_marker,
+            '''    invoke-virtual {v1, v5, v6}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v1
+
+    const-string v5, "X-Session-ID"
+
+    iget-object v6, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->sessionId:Ljava/lang/String;
+
+    invoke-virtual {v1, v5, v6}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v1
+
+    invoke-static {}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->-$$Nest$sfgetOCTET()Lokhttp3/MediaType;''',
+            1,
+        )
+        uplink.write_text(uplink_text, encoding="utf-8")
+
 
 
 def install_obfuscated_dependency_aliases(reference: Path, base: Path) -> None:
@@ -317,7 +472,32 @@ def ensure_public_resources(base: Path, names: list[tuple[str, str]]) -> dict[tu
     return resources
 
 
+def remove_stale_runtime_resources(base: Path) -> None:
+    """Remove resources left by older integrations before writing canonical XHTTP files."""
+    values_dir = base / "res/values"
+    if values_dir.is_dir():
+        for resource_file in values_dir.glob("*.xml"):
+            if resource_file.name == "xhttp_runtime_strings.xml":
+                continue
+            tree = ET.parse(resource_file)
+            root = tree.getroot()
+            removed = False
+            for child in list(root):
+                if child.tag == "string" and child.attrib.get("name", "").startswith("xhttp_"):
+                    root.remove(child)
+                    removed = True
+            if removed:
+                ET.indent(tree, space="    ")
+                tree.write(resource_file, encoding="utf-8", xml_declaration=True)
+
+    canonical_dir = base / "res/drawable-anydpi-v21"
+    for resource_file in (base / "res").glob("drawable*/xhttp_*.xml"):
+        if resource_file.parent != canonical_dir:
+            resource_file.unlink()
+
+
 def copy_runtime_strings(base: Path) -> dict[str, str]:
+    remove_stale_runtime_resources(base)
     source = RESOURCE_DIR / "strings.xml"
     require(source)
     tree = ET.parse(source)
@@ -491,6 +671,7 @@ def main() -> None:
     require(args.base)
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
+    patch_xhttp_session_header(args.base)
     install_obfuscated_dependency_aliases(args.reference, args.base)
     
     # Fix Conscrypt NPE crash in OkHttp
@@ -498,6 +679,7 @@ def main() -> None:
     fix_conscrypt_npe(args.base / "smali_classes3")
     
     install_launcher(args.base)
+    patch_panel_status_bridge(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)
     patch_resources(args.reference, args.base)

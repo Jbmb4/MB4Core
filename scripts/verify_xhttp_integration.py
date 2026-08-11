@@ -31,6 +31,12 @@ SOURCE_ASSERTIONS = {
         "XHttpSshService",
         "SharedPreferences$Editor;->commit()Z",
         "catch_xhttp_service_start",
+        "XHttpPanelState;->starting",
+    ),
+    ROOT / "scripts/xhttp-smali/XHttpPanelState.smali": (
+        "Le4/g;->q:Le4/g;",
+        "Le4/g;->o:Le4/g;",
+        "Le4/g;->p:Le4/g;",
     ),
     ROOT / "scripts/stage_xhttp_core.py": (
         "DYNAMIC_ROOTS",
@@ -49,6 +55,9 @@ SOURCE_ASSERTIONS = {
         "AndroidX legado",
         "bad_dispatch",
         "guarded_dispatch",
+        "patch_xhttp_session_header",
+        "X-Session-ID",
+        "XHttpPanelState",
         "SSH_XHTTP",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
@@ -85,6 +94,8 @@ DEX_MARKERS = (
 
     b"org/conscrypt/CryptoUpcalls",
     b"SSH_XHTTP",
+    b"X-Session-ID",
+    b"com/dtunnel/xhttp/XHttpPanelState",
 )
 
 APK_TEXT_MARKERS = (
