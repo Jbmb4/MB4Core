@@ -373,6 +373,14 @@ def patch_startup_text(base: Path) -> None:
     elif 'const-string p2, "Conectando"' not in text:
         raise RuntimeError("XHTTP startup string block not found")
 
+    icon_old = '''    sget v4, Lcom/dragonssh/xhttpdemo/core/R$drawable;->ic_cloud_black_24dp:I'''
+    icon_new = '''    # Use a platform notification icon; this avoids host resource-table mismatches.
+    const v4, 0x1080001'''
+    if icon_old in text:
+        text = text.replace(icon_old, icon_new, 1)
+    elif 'const v4, 0x1080001' not in text:
+        raise RuntimeError("XHTTP notification icon block not found")
+
     title_old = '''    sget v4, Lcom/dragonssh/xhttpdemo/core/R$string;->app_name:I
 
     .line 123
