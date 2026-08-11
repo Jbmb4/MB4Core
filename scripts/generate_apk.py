@@ -74,6 +74,31 @@ def verify_xhttp_runtime(work_dir: Path) -> None:
     if missing or not dispatch_present:
         raise RuntimeError("A APK base não contém o runtime XHTTP integrado corretamente.")
 
+    # O runtime usa os nomes antigos nos campos R$string, mas esses campos
+    # precisam apontar para os IDs dos recursos xhttp_* da base hospedeira.
+    public_xml = work_dir / "res/values/public.xml"
+    runtime_r_string = work_dir / "smali_classes3/com/dragonssh/xhttpdemo/core/R$string.smali"
+    if not public_xml.is_file() or not runtime_r_string.is_file():
+        raise RuntimeError("A APK base XHTTP não contém a tabela de recursos do runtime.")
+
+    public_text = public_xml.read_text(encoding="utf-8")
+    r_text = runtime_r_string.read_text(encoding="utf-8")
+    expected = {}
+    for name in ("state_starting", "stop"):
+        resource_match = re.search(
+            rf'<public type="string" name="xhttp_{name}" id="(0x[0-9a-fA-F]+)"',
+            public_text,
+        )
+        field_match = re.search(
+            rf'\.field public static(?: final)? {name}:I = (0x[0-9a-fA-F]+)',
+            r_text,
+        )
+        if not resource_match or not field_match or resource_match.group(1).lower() != field_match.group(1).lower():
+            expected[name] = (resource_match.group(1) if resource_match else "ausente", field_match.group(1) if field_match else "ausente")
+    if expected:
+        details = ", ".join(f"{name}: recurso={values[0]}, campo={values[1]}" for name, values in expected.items())
+        raise RuntimeError(f"IDs de recursos XHTTP inconsistentes; regenere a base-xhttp.apk ({details}).")
+
 def replace_domains(work_dir: Path, new_domain: str) -> int:
     new_host = new_domain.split(":")[0]
     replacements = 0
