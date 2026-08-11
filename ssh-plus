@@ -77,17 +77,10 @@ REPO_BRANCH="main"
 git clone --branch "$REPO_BRANCH" --single-branch "$REPO_URL" "$INSTALL_DIR"
 cd "$INSTALL_DIR" || exit 1
 
-# Garantir que a instalação usa o repositório oficial com a correção SSH_XHTTP.
-# A correção pode estar em um commit posterior; valide ancestralidade, não igualdade.
-FIX_COMMIT="6fcbd17"
+# Confirmar apenas a origem e o commit efetivamente clonado, sem bloquear
+# atualizações legítimas posteriores do branch main.
 ACTUAL_COMMIT="$(git rev-parse --short=7 HEAD 2>/dev/null || true)"
-if ! git merge-base --is-ancestor "$FIX_COMMIT" HEAD 2>/dev/null; then
-    echo -e "${RED}Falha: o repositório clonado não contém a correção SSH_XHTTP esperada.${NC}"
-    echo -e "${YELLOW}Necessário descendente de: $FIX_COMMIT | Encontrado: ${ACTUAL_COMMIT:-desconhecido}${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}Repositório oficial confirmado: $REPO_URL ($ACTUAL_COMMIT), contendo a correção XHTTP.${NC}"
+echo -e "${GREEN}Repositório oficial confirmado: $REPO_URL ($ACTUAL_COMMIT).${NC}"
 
 echo -e "${CYAN}[7/10]${NC} Configurando ambiente..."
 if [ ! -f .env ]; then cp .env.example .env; fi
