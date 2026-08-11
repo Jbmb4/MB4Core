@@ -57,31 +57,154 @@ def stage_runtime(reference: Path, base: Path) -> None:
 def install_launcher(base: Path) -> None:
     target_dir = base / "smali_classes3/com/dtunnel/xhttp"
     target_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("XHttpLauncher.smali", "XHttpPanelState.smali"):
+    for name in (
+        "XHttpLauncher.smali",
+        "XHttpPanelState.smali",
+        "XHttpHostBridge.smali",
+        "XHttpStopReceiver.smali",
+    ):
         shutil.copy2(SCRIPT_DIR / "xhttp-smali" / name, target_dir / name)
 
 
 def patch_panel_status_bridge(base: Path) -> None:
-    """Forward embedded XHTTP states to the host application's UI event bus."""
+    """Bridge XHTTP state and runtime logs into the host UI and Registro."""
     service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
     require(service)
     content = service.read_text(encoding="utf-8")
-    bridge = "Lcom/dtunnel/xhttp/XHttpPanelState;->update(Landroid/content/Context;Ljava/lang/String;)V"
-    if bridge in content:
-        return
-    marker = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
+    bridge = "Lcom/dtunnel/xhttp/XHttpHostBridge;->state(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V"
+    if bridge not in content:
+        marker = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
     .locals 0
 
     .line 140'''
-    replacement = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
+        replacement = '''.method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V
     .locals 0
 
-    invoke-static {p0, p1}, Lcom/dtunnel/xhttp/XHttpPanelState;->update(Landroid/content/Context;Ljava/lang/String;)V
+    invoke-static {p0, p1, p2}, Lcom/dtunnel/xhttp/XHttpHostBridge;->state(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)V
 
     .line 140'''
-    if marker not in content:
-        raise RuntimeError("XHTTP state callback marker not found")
-    service.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
+        if marker not in content:
+            raise RuntimeError("XHTTP state callback marker not found")
+        content = content.replace(marker, replacement, 1)
+
+    log_interface = ".implements Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$LogListener;"
+    state_interface = ".implements Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$StateListener;"
+    if log_interface not in content:
+        if state_interface not in content:
+            raise RuntimeError("XHTTP state-listener interface marker not found")
+        content = content.replace(state_interface, state_interface + "\n" + log_interface, 1)
+
+    host_receiver_field = ".field private hostStopReceiver:Landroid/content/BroadcastReceiver;"
+    if host_receiver_field not in content:
+        field_marker = ".field private receiverRegistered:Z\n"
+        if field_marker not in content:
+            raise RuntimeError("XHTTP receiverRegistered field marker not found")
+        content = content.replace(
+            field_marker,
+            field_marker + "\n" + host_receiver_field + "\n.field private hostStopReceiverRegistered:Z\n",
+            1,
+        )
+
+    add_state = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->addStateListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$StateListener;)V"
+    add_log = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->addLogListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$LogListener;)V"
+    if add_log not in content:
+        if add_state not in content:
+            raise RuntimeError("XHTTP addStateListener marker not found")
+        content = content.replace(add_state, add_state + "\n\n    " + add_log, 1)
+
+    host_registration = "Lcom/dtunnel/xhttp/XHttpStopReceiver;"
+    if host_registration not in content:
+        on_create_header = ".method public onCreate()V\n    .locals 0"
+        if on_create_header not in content:
+            raise RuntimeError("XHTTP onCreate locals marker not found")
+        content = content.replace(on_create_header, ".method public onCreate()V\n    .locals 3", 1)
+        registration_marker = add_log
+        if registration_marker not in content:
+            raise RuntimeError("XHTTP addLogListener marker not found")
+        registration = '''invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->addLogListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$LogListener;)V
+
+    new-instance v0, Lcom/dtunnel/xhttp/XHttpStopReceiver;
+
+    invoke-direct {v0}, Lcom/dtunnel/xhttp/XHttpStopReceiver;-><init>()V
+
+    iput-object v0, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiver:Landroid/content/BroadcastReceiver;
+
+    new-instance v0, Landroid/content/IntentFilter;
+
+    const-string v1, "DT_ACTION_SERVICE"
+
+    invoke-direct {v0, v1}, Landroid/content/IntentFilter;-><init>(Ljava/lang/String;)V
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiver:Landroid/content/BroadcastReceiver;
+
+    const/4 v2, 0x4
+
+    invoke-static {p0, v1, v0, v2}, Lb0/b;->d(Landroid/content/Context;Landroid/content/BroadcastReceiver;Landroid/content/IntentFilter;I)V
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiverRegistered:Z'''
+        content = content.replace(registration_marker, registration, 1)
+
+    remove_state = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->removeStateListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$StateListener;)V"
+    remove_log = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->removeLogListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$LogListener;)V"
+    if remove_log not in content:
+        if remove_state not in content:
+            raise RuntimeError("XHTTP removeStateListener marker not found")
+        host_unregistration = '''iget-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiverRegistered:Z
+
+    if-eqz v0, :xhttp_host_stop_receiver_done
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiver:Landroid/content/BroadcastReceiver;
+
+    if-eqz v1, :xhttp_host_stop_receiver_done
+
+    invoke-virtual {p0, v1}, Landroid/content/Context;->unregisterReceiver(Landroid/content/BroadcastReceiver;)V
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiverRegistered:Z
+
+    :xhttp_host_stop_receiver_done
+    invoke-static {p0}, Lcom/dtunnel/xhttp/XHttpHostBridge;->stopped(Landroid/content/Context;)V'''
+        content = content.replace(
+            remove_state,
+            host_unregistration + "\n\n    " + remove_state + "\n\n    " + remove_log,
+            1,
+        )
+
+    new_log_marker = ".method public newLog(Lcom/dragonssh/xhttpdemo/core/logger/LogItem;)V"
+    if new_log_marker not in content:
+        method_marker = ".method public updateState(Ljava/lang/String;Ljava/lang/String;ILcom/dragonssh/xhttpdemo/core/logger/ConnectionStatus;Landroid/content/Intent;)V"
+        methods = '''.method public newLog(Lcom/dragonssh/xhttpdemo/core/logger/LogItem;)V
+    .locals 1
+
+    if-eqz p1, :cond_0
+
+    invoke-virtual {p1, p0}, Lcom/dragonssh/xhttpdemo/core/logger/LogItem;->getString(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/dtunnel/xhttp/XHttpHostBridge;->logText(Ljava/lang/String;)V
+
+    :cond_0
+    return-void
+.end method
+
+
+.method public onClear()V
+    .locals 0
+
+    return-void
+.end method
+
+
+'''
+        if method_marker not in content:
+            raise RuntimeError("XHTTP updateState method marker not found")
+        content = content.replace(method_marker, methods + method_marker, 1)
+
+    service.write_text(content, encoding="utf-8")
 
 
 def patch_xhttp_session_header(base: Path) -> None:

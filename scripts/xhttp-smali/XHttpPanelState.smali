@@ -69,6 +69,21 @@
     return-void
 
     :cond_stopped
+    const-string v0, "PARANDO"
+
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_disconnected
+
+    sget-object v0, Le4/g;->x:Le4/g;
+
+    invoke-static {p0, v0}, Lcom/dtunnel/xhttp/XHttpPanelState;->publish(Landroid/content/Context;Le4/g;)V
+
+    return-void
+
+    :cond_disconnected
     const-string v0, "DESCONECTADO"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

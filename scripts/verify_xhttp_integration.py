@@ -31,7 +31,18 @@ SOURCE_ASSERTIONS = {
         "XHttpSshService",
         "SharedPreferences$Editor;->commit()Z",
         "catch_xhttp_service_start",
-        "XHttpPanelState;->starting",
+        "XHttpHostBridge;->starting",
+    ),
+    ROOT / "scripts/xhttp-smali/XHttpHostBridge.smali": (
+        "LBL_CONNECTING",
+        "LBL_AUTHENTICATING",
+        "LBL_AUTHENTICATION_SUCCESS",
+        "LBL_DISCONNECTED",
+        "logText",
+    ),
+    ROOT / "scripts/xhttp-smali/XHttpStopReceiver.smali": (
+        "TunnelManagerHelper;->stopXHttpSsh",
+        "PARANDO",
     ),
     ROOT / "scripts/xhttp-smali/XHttpPanelState.smali": (
         "Le4/g;->q:Le4/g;",
@@ -58,6 +69,9 @@ SOURCE_ASSERTIONS = {
         "patch_xhttp_session_header",
         "X-Session-ID",
         "XHttpPanelState",
+        "XHttpHostBridge",
+        "XHttpStopReceiver",
+        "hostStopReceiverRegistered",
         "SSH_XHTTP",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
@@ -96,6 +110,8 @@ DEX_MARKERS = (
     b"SSH_XHTTP",
     b"X-Session-ID",
     b"com/dtunnel/xhttp/XHttpPanelState",
+    b"com/dtunnel/xhttp/XHttpHostBridge",
+    b"com/dtunnel/xhttp/XHttpStopReceiver",
 )
 
 APK_TEXT_MARKERS = (
