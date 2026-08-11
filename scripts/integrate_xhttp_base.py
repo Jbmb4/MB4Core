@@ -60,7 +60,7 @@ def install_launcher(base: Path) -> None:
     shutil.copy2(SCRIPT_DIR / "xhttp-smali/XHttpLauncher.smali", target)
 
 
-def install_obfuscated_dependency_aliases(base: Path) -> None:
+def install_obfuscated_dependency_aliases(reference: Path, base: Path) -> None:
     """Provide the obfuscated Okio/OkHttp namespaces used by XHTTP builds.
 
     Some reference/runtime variants resolve these packages as ``oiko`` and
@@ -81,6 +81,28 @@ def install_obfuscated_dependency_aliases(base: Path) -> None:
             text = text.replace(f"L{source_name}/", f"L{alias_name}/")
             text = text.replace(f"L{source_name}$", f"L{alias_name}$")
             dst.write_text(text, encoding="utf-8")
+
+    # The reference's obfuscated runtime resolves this exact namespace and
+    # includes Kotlin synthetic classes whose names start with a hyphen.
+    reference_okio = reference / "smali_classes2/okio"
+    if reference_okio.is_dir():
+        alias_root = root / "okiio"
+        for src in reference_okio.rglob("*.smali"):
+            rel = src.relative_to(reference_okio)
+            dst = alias_root / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            text = src.read_text(encoding="utf-8")
+            text = text.replace("Lokio/", "Lokiio/")
+            text = text.replace("Lokio$", "Lokiio$")
+            dst.write_text(text, encoding="utf-8")
+
+        # Make the embedded okhttp3 implementation consume the same isolated
+        # namespace, matching the device stack trace (okiio.Buffer).
+        for src in (root / "okhttp3").rglob("*.smali"):
+            text = src.read_text(encoding="utf-8")
+            text = text.replace("Lokio/", "Lokiio/")
+            text = text.replace("Lokio$", "Lokiio$")
+            src.write_text(text, encoding="utf-8")
 
 
 def normalize_apktool_metadata(base: Path) -> None:
@@ -469,7 +491,7 @@ def main() -> None:
     require(args.base)
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
-    install_obfuscated_dependency_aliases(args.base)
+    install_obfuscated_dependency_aliases(args.reference, args.base)
     install_launcher(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)
