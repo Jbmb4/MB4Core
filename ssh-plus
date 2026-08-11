@@ -72,8 +72,21 @@ fi
 
 echo -e "${CYAN}[6/10]${NC} Preparando repositorio..."
 if [ -d "$INSTALL_DIR" ]; then rm -rf "$INSTALL_DIR"; fi
-git clone https://github.com/Lacasx1/MB2Core.git "$INSTALL_DIR"
+REPO_URL="https://github.com/Jbmb4/MB4Core.git"
+REPO_BRANCH="main"
+git clone --branch "$REPO_BRANCH" --single-branch "$REPO_URL" "$INSTALL_DIR"
 cd "$INSTALL_DIR" || exit 1
+
+# Garantir que a instalação usa o repositório oficial com a correção SSH_XHTTP.
+EXPECTED_COMMIT="6fcbd17"
+ACTUAL_COMMIT="$(git rev-parse --short=7 HEAD 2>/dev/null || true)"
+if [ "$ACTUAL_COMMIT" != "$EXPECTED_COMMIT" ]; then
+    echo -e "${RED}Falha: o repositório clonado não contém a correção SSH_XHTTP esperada.${NC}"
+    echo -e "${YELLOW}Esperado: $EXPECTED_COMMIT | Encontrado: ${ACTUAL_COMMIT:-desconhecido}${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Repositório oficial confirmado: $REPO_URL ($ACTUAL_COMMIT).${NC}"
 
 echo -e "${CYAN}[7/10]${NC} Configurando ambiente..."
 if [ ! -f .env ]; then cp .env.example .env; fi
