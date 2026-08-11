@@ -1,0 +1,25 @@
+{
+    "content":[
+        {
+            "id":1,
+            "name":"category 01 offline",
+            "status":"ACTIVE",
+            "sorter":1,
+            "color":"#80E122FF"
+        },
+        {
+            "id":2,
+            "name":"category 02 offline",
+            "status":"ACTIVE",
+            "sorter":2,
+            "color":"#80178FFF"
+        },
+        {
+            "id":3,
+            "name":"category 03 offline",
+            "status":"ACTIVE",
+            "sorter":999,
+            "color":"#FF9F0000"
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView android:id="@id/main_root" android:padding="20.0dip" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="fill_parent" android:fillViewport="true"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium" android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/app_name" />
+        <TextView android:textAppearance="@style/TextAppearance.Material3.BodyMedium" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:text="@string/home_subtitle" />
+        <com.google.android.material.button.MaterialButton android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" android:id="@id/start_stop" android:layout_width="fill_parent" android:layout_height="64.0dip" android:layout_marginTop="32.0dip" android:text="@string/start" app:cornerRadius="14.0dip" />
+        <TextView android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textStyle="bold" android:gravity="center" android:id="@id/status" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" android:text="@string/status_disconnected" />
+        <TextView android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textStyle="bold" android:gravity="center" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="28.0dip" android:text="@string/connection_method" />
+        <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" app:cardCornerRadius="14.0dip" app:strokeWidth="1.0dip">
+            <TextView android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" android:padding="18.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/xhttp_ssh" />
+        </com.google.android.material.card.MaterialCardView>
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="16.0dip">
+            <com.google.android.material.button.MaterialButton android:id="@id/open_settings" android:layout_width="0.0dip" android:layout_height="wrap_content" android:text="@string/settings" android:layout_weight="1.0" style="@style/Widget.Material3.Button.OutlinedButton" />
+            <com.google.android.material.button.MaterialButton android:id="@id/open_vpn_settings" android:layout_width="0.0dip" android:layout_height="wrap_content" android:text="@string/vpn_udpgw" android:layout_weight="1.0" android:layout_marginStart="8.0dip" style="@style/Widget.Material3.Button.OutlinedButton" />
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton android:id="@id/open_logs" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip" android:text="@string/logs" style="@style/Widget.Material3.Button.OutlinedButton" />
+        <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" android:layout_marginBottom="12.0dip" app:cardCornerRadius="14.0dip">
+            <LinearLayout android:orientation="vertical" android:padding="18.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textAppearance="@style/TextAppearance.Material3.TitleMedium" android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/current_configuration" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="18.0dip" android:text="@string/server" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_server" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="—" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/username" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_username" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="—" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/sni" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_sni" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="—" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/xhttp_host" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_xhttp_host" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="—" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/xhttp_path" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_xhttp_path" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="—" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/tls_mode" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_tls_mode" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/tls_mode_automatic" />
+                <TextView android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="14.0dip" android:text="@string/xhttp_tls" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodyLarge" android:id="@id/summary_xhttp_tls" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/enabled" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,1656 @@
+.class public final Lp7/g;
+.super Ljava/lang/Object;
+.source "r8-map-id-ca80bf141badcbb625a386dd64b17c1d43f0cd15421b9266126ce1fca2e9f28b"
+
+# interfaces
+.implements Lp7/c;
+
+
+# static fields
+.field public static final h:Lp7/f;
+
+
+# instance fields
+.field public final a:Ljava/util/HashMap;
+
+.field public final b:Ljava/util/HashMap;
+
+.field public final c:Ljava/util/HashMap;
+
+.field public final d:Ljava/util/HashSet;
+
+.field public final e:Lp7/l;
+
+.field public final f:Ljava/util/concurrent/atomic/AtomicReference;
+
+.field public final g:Ln8/e;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .locals 2
+
+    .line 1
+    new-instance v0, Lp7/f;
+
+    .line 3
+    const/4 v1, 0x0
+
+    .line 4
+    invoke-direct {v0, v1}, Lp7/f;-><init>(I)V
+
+    .line 7
+    sput-object v0, Lp7/g;->h:Lp7/f;
+
+    .line 9
+    return-void
+.end method
+
+.method public constructor <init>(Ljava/util/ArrayList;Ljava/util/ArrayList;Ln8/e;)V
+    .locals 7
+
+    .line 1
+    sget-object v0, Lq7/j;->l:Lq7/j;
+
+    .line 3
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 6
+    new-instance v0, Ljava/util/HashMap;
+
+    .line 8
+    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
+
+    .line 11
+    iput-object v0, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 13
+    new-instance v0, Ljava/util/HashMap;
+
+    .line 15
+    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
+
+    .line 18
+    iput-object v0, p0, Lp7/g;->b:Ljava/util/HashMap;
+
+    .line 20
+    new-instance v0, Ljava/util/HashMap;
+
+    .line 22
+    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
+
+    .line 25
+    iput-object v0, p0, Lp7/g;->c:Ljava/util/HashMap;
+
+    .line 27
+    new-instance v0, Ljava/util/HashSet;
+
+    .line 29
+    invoke-direct {v0}, Ljava/util/HashSet;-><init>()V
+
+    .line 32
+    iput-object v0, p0, Lp7/g;->d:Ljava/util/HashSet;
+
+    .line 34
+    new-instance v0, Ljava/util/concurrent/atomic/AtomicReference;
+
+    .line 36
+    invoke-direct {v0}, Ljava/util/concurrent/atomic/AtomicReference;-><init>()V
+
+    .line 39
+    iput-object v0, p0, Lp7/g;->f:Ljava/util/concurrent/atomic/AtomicReference;
+
+    .line 41
+    new-instance v0, Lp7/l;
+
+    .line 43
+    invoke-direct {v0}, Lp7/l;-><init>()V
+
+    .line 46
+    iput-object v0, p0, Lp7/g;->e:Lp7/l;
+
+    .line 48
+    iput-object p3, p0, Lp7/g;->g:Ln8/e;
+
+    .line 50
+    new-instance p3, Ljava/util/ArrayList;
+
+    .line 52
+    invoke-direct {p3}, Ljava/util/ArrayList;-><init>()V
+
+    .line 55
+    const-class v1, Lp7/l;
+
+    .line 57
+    const-class v2, Lm8/c;
+
+    .line 59
+    const-class v3, Lm8/b;
+
+    .line 61
+    filled-new-array {v2, v3}, [Ljava/lang/Class;
+
+    .line 64
+    move-result-object v2
+
+    .line 65
+    invoke-static {v0, v1, v2}, Lp7/b;->c(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Class;)Lp7/b;
+
+    .line 68
+    move-result-object v0
+
+    .line 69
+    invoke-virtual {p3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 72
+    const-class v0, Lp7/g;
+
+    .line 74
+    const/4 v1, 0x0
+
+    .line 75
+    new-array v2, v1, [Ljava/lang/Class;
+
+    .line 77
+    invoke-static {p0, v0, v2}, Lp7/b;->c(Ljava/lang/Object;Ljava/lang/Class;[Ljava/lang/Class;)Lp7/b;
+
+    .line 80
+    move-result-object v0
+
+    .line 81
+    invoke-virtual {p3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 84
+    invoke-virtual {p2}, Ljava/util/ArrayList;->size()I
+
+    .line 87
+    move-result v0
+
+    .line 88
+    move v2, v1
+
+    .line 89
+    :cond_0
+    :goto_0
+    if-ge v2, v0, :cond_1
+
+    .line 91
+    invoke-virtual {p2, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    .line 94
+    move-result-object v3
+
+    .line 95
+    add-int/lit8 v2, v2, 0x1
+
+    .line 97
+    check-cast v3, Lp7/b;
+
+    .line 99
+    if-eqz v3, :cond_0
+
+    .line 101
+    invoke-virtual {p3, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 104
+    goto :goto_0
+
+    .line 105
+    :cond_1
+    new-instance p2, Ljava/util/ArrayList;
+
+    .line 107
+    invoke-direct {p2}, Ljava/util/ArrayList;-><init>()V
+
+    .line 110
+    invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
+
+    .line 113
+    move-result v0
+
+    .line 114
+    move v2, v1
+
+    .line 115
+    :goto_1
+    if-ge v2, v0, :cond_2
+
+    .line 117
+    invoke-virtual {p1, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    .line 120
+    move-result-object v3
+
+    .line 121
+    add-int/lit8 v2, v2, 0x1
+
+    .line 123
+    invoke-virtual {p2, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 126
+    goto :goto_1
+
+    .line 127
+    :cond_2
+    new-instance p1, Ljava/util/ArrayList;
+
+    .line 129
+    invoke-direct {p1}, Ljava/util/ArrayList;-><init>()V
+
+    .line 132
+    monitor-enter p0
+
+    .line 133
+    :try_start_0
+    invoke-virtual {p2}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
+
+    .line 136
+    move-result-object p2
+
+    .line 137
+    :cond_3
+    :goto_2
+    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 140
+    move-result v0
+
+    .line 141
+    if-eqz v0, :cond_4
+
+    .line 143
+    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 146
+    move-result-object v0
+
+    .line 147
+    check-cast v0, Lp8/b;
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 149
+    :try_start_1
+    invoke-interface {v0}, Lp8/b;->get()Ljava/lang/Object;
+
+    .line 152
+    move-result-object v0
+
+    .line 153
+    check-cast v0, Lcom/google/firebase/components/ComponentRegistrar;
+
+    .line 155
+    if-eqz v0, :cond_3
+
+    .line 157
+    iget-object v2, p0, Lp7/g;->g:Ln8/e;
+
+    .line 159
+    invoke-virtual {v2, v0}, Ln8/e;->x(Lcom/google/firebase/components/ComponentRegistrar;)Ljava/util/List;
+
+    .line 162
+    move-result-object v0
+
+    .line 163
+    invoke-virtual {p3, v0}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+
+    .line 166
+    invoke-interface {p2}, Ljava/util/Iterator;->remove()V
+    :try_end_1
+    .catch Lp7/m; {:try_start_1 .. :try_end_1} :catch_0
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 169
+    goto :goto_2
+
+    .line 170
+    :catchall_0
+    move-exception p1
+
+    .line 171
+    goto/16 :goto_8
+
+    .line 173
+    :catch_0
+    move-exception v0
+
+    .line 174
+    :try_start_2
+    invoke-interface {p2}, Ljava/util/Iterator;->remove()V
+
+    .line 177
+    const-string v2, "ComponentDiscovery"
+
+    .line 179
+    const-string v3, "Invalid component registrar."
+
+    .line 181
+    invoke-static {v2, v3, v0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+
+    .line 184
+    goto :goto_2
+
+    .line 185
+    :cond_4
+    invoke-virtual {p3}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
+
+    .line 188
+    move-result-object p2
+
+    .line 189
+    :cond_5
+    :goto_3
+    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 192
+    move-result v0
+
+    .line 193
+    if-eqz v0, :cond_8
+
+    .line 195
+    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 198
+    move-result-object v0
+
+    .line 199
+    check-cast v0, Lp7/b;
+
+    .line 201
+    iget-object v0, v0, Lp7/b;->b:Ljava/util/Set;
+
+    .line 203
+    invoke-interface {v0}, Ljava/util/Set;->toArray()[Ljava/lang/Object;
+
+    .line 206
+    move-result-object v0
+
+    .line 207
+    array-length v2, v0
+
+    .line 208
+    move v3, v1
+
+    .line 209
+    :goto_4
+    if-ge v3, v2, :cond_5
+
+    .line 211
+    aget-object v4, v0, v3
+
+    .line 213
+    invoke-virtual {v4}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    .line 216
+    move-result-object v5
+
+    .line 217
+    const-string v6, "kotlinx.coroutines.CoroutineDispatcher"
+
+    .line 219
+    invoke-virtual {v5, v6}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    .line 222
+    move-result v5
+
+    .line 223
+    if-eqz v5, :cond_7
+
+    .line 225
+    iget-object v5, p0, Lp7/g;->d:Ljava/util/HashSet;
+
+    .line 227
+    invoke-virtual {v4}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    .line 230
+    move-result-object v6
+
+    .line 231
+    invoke-virtual {v5, v6}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+
+    .line 234
+    move-result v5
+
+    .line 235
+    if-eqz v5, :cond_6
+
+    .line 237
+    invoke-interface {p2}, Ljava/util/Iterator;->remove()V
+
+    .line 240
+    goto :goto_3
+
+    .line 241
+    :cond_6
+    iget-object v5, p0, Lp7/g;->d:Ljava/util/HashSet;
+
+    .line 243
+    invoke-virtual {v4}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    .line 246
+    move-result-object v4
+
+    .line 247
+    invoke-virtual {v5, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    .line 250
+    :cond_7
+    add-int/lit8 v3, v3, 0x1
+
+    .line 252
+    goto :goto_4
+
+    .line 253
+    :cond_8
+    iget-object p2, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 255
+    invoke-virtual {p2}, Ljava/util/HashMap;->isEmpty()Z
+
+    .line 258
+    move-result p2
+
+    .line 259
+    if-eqz p2, :cond_9
+
+    .line 261
+    invoke-static {p3}, Lcom/google/protobuf/c2;->f(Ljava/util/ArrayList;)V
+
+    .line 264
+    goto :goto_5
+
+    .line 265
+    :cond_9
+    new-instance p2, Ljava/util/ArrayList;
+
+    .line 267
+    iget-object v0, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 269
+    invoke-virtual {v0}, Ljava/util/HashMap;->keySet()Ljava/util/Set;
+
+    .line 272
+    move-result-object v0
+
+    .line 273
+    invoke-direct {p2, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+
+    .line 276
+    invoke-virtual {p2, p3}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+
+    .line 279
+    invoke-static {p2}, Lcom/google/protobuf/c2;->f(Ljava/util/ArrayList;)V
+
+    .line 282
+    :goto_5
+    invoke-virtual {p3}, Ljava/util/ArrayList;->size()I
+
+    .line 285
+    move-result p2
+
+    .line 286
+    move v0, v1
+
+    .line 287
+    :goto_6
+    if-ge v0, p2, :cond_a
+
+    .line 289
+    invoke-virtual {p3, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    .line 292
+    move-result-object v2
+
+    .line 293
+    add-int/lit8 v0, v0, 0x1
+
+    .line 295
+    check-cast v2, Lp7/b;
+
+    .line 297
+    new-instance v3, Lp7/n;
+
+    .line 299
+    new-instance v4, Lk7/c;
+
+    .line 301
+    const/4 v5, 0x2
+
+    .line 302
+    invoke-direct {v4, p0, v5, v2}, Lk7/c;-><init>(Ljava/lang/Object;ILjava/lang/Object;)V
+
+    .line 305
+    invoke-direct {v3, v4}, Lp7/n;-><init>(Lp8/b;)V
+
+    .line 308
+    iget-object v4, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 310
+    invoke-virtual {v4, v2, v3}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 313
+    goto :goto_6
+
+    .line 314
+    :cond_a
+    invoke-virtual {p0, p3}, Lp7/g;->j(Ljava/util/ArrayList;)Ljava/util/ArrayList;
+
+    .line 317
+    move-result-object p2
+
+    .line 318
+    invoke-virtual {p1, p2}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+
+    .line 321
+    invoke-virtual {p0}, Lp7/g;->k()Ljava/util/ArrayList;
+
+    .line 324
+    move-result-object p2
+
+    .line 325
+    invoke-virtual {p1, p2}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
+
+    .line 328
+    invoke-virtual {p0}, Lp7/g;->i()V
+
+    .line 331
+    monitor-exit p0
+    :try_end_2
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    .line 332
+    invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
+
+    .line 335
+    move-result p2
+
+    .line 336
+    :goto_7
+    if-ge v1, p2, :cond_b
+
+    .line 338
+    invoke-virtual {p1, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    .line 341
+    move-result-object p3
+
+    .line 342
+    add-int/lit8 v1, v1, 0x1
+
+    .line 344
+    check-cast p3, Ljava/lang/Runnable;
+
+    .line 346
+    invoke-interface {p3}, Ljava/lang/Runnable;->run()V
+
+    .line 349
+    goto :goto_7
+
+    .line 350
+    :cond_b
+    iget-object p1, p0, Lp7/g;->f:Ljava/util/concurrent/atomic/AtomicReference;
+
+    .line 352
+    invoke-virtual {p1}, Ljava/util/concurrent/atomic/AtomicReference;->get()Ljava/lang/Object;
+
+    .line 355
+    move-result-object p1
+
+    .line 356
+    check-cast p1, Ljava/lang/Boolean;
+
+    .line 358
+    if-eqz p1, :cond_c
+
+    .line 360
+    iget-object p2, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 362
+    invoke-virtual {p1}, Ljava/lang/Boolean;->booleanValue()Z
+
+    .line 365
+    move-result p1
+
+    .line 366
+    invoke-virtual {p0, p2, p1}, Lp7/g;->h(Ljava/util/HashMap;Z)V
+
+    .line 369
+    :cond_c
+    return-void
+
+    .line 370
+    :goto_8
+    :try_start_3
+    monitor-exit p0
+    :try_end_3
+    .catchall {:try_start_3 .. :try_end_3} :catchall_0
+
+    .line 371
+    throw p1
+.end method
+
+
+# virtual methods
+.method public final declared-synchronized c(Lp7/r;)Lp8/b;
+    .locals 1
+
+    .line 1
+    monitor-enter p0
+
+    .line 2
+    :try_start_0
+    iget-object v0, p0, Lp7/g;->c:Ljava/util/HashMap;
+
+    .line 4
+    invoke-virtual {v0, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 7
+    move-result-object p1
+
+    .line 8
+    check-cast p1, Lp7/o;
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 10
+    if-eqz p1, :cond_0
+
+    .line 12
+    monitor-exit p0
+
+    .line 13
+    return-object p1
+
+    .line 14
+    :cond_0
+    :try_start_1
+    sget-object p1, Lp7/g;->h:Lp7/f;
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 16
+    monitor-exit p0
+
+    .line 17
+    return-object p1
+
+    .line 18
+    :catchall_0
+    move-exception p1
+
+    .line 19
+    :try_start_2
+    monitor-exit p0
+    :try_end_2
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    .line 20
+    throw p1
+.end method
+
+.method public final e(Lp7/r;)Lp7/p;
+    .locals 2
+
+    .line 1
+    invoke-virtual {p0, p1}, Lp7/g;->g(Lp7/r;)Lp8/b;
+
+    .line 4
+    move-result-object p1
+
+    .line 5
+    if-nez p1, :cond_0
+
+    .line 7
+    new-instance p1, Lp7/p;
+
+    .line 9
+    sget-object v0, Lp7/p;->c:Lc7/m;
+
+    .line 11
+    sget-object v1, Lp7/p;->d:Lp7/f;
+
+    .line 13
+    invoke-direct {p1, v0, v1}, Lp7/p;-><init>(Lc7/m;Lp8/b;)V
+
+    .line 16
+    return-object p1
+
+    .line 17
+    :cond_0
+    instance-of v0, p1, Lp7/p;
+
+    .line 19
+    if-eqz v0, :cond_1
+
+    .line 21
+    check-cast p1, Lp7/p;
+
+    .line 23
+    return-object p1
+
+    .line 24
+    :cond_1
+    new-instance v0, Lp7/p;
+
+    .line 26
+    const/4 v1, 0x0
+
+    .line 27
+    invoke-direct {v0, v1, p1}, Lp7/p;-><init>(Lc7/m;Lp8/b;)V
+
+    .line 30
+    return-object v0
+.end method
+
+.method public final declared-synchronized g(Lp7/r;)Lp8/b;
+    .locals 1
+
+    .line 1
+    monitor-enter p0
+
+    .line 2
+    :try_start_0
+    const-string v0, "Null interface requested."
+
+    .line 4
+    invoke-static {v0, p1}, Lcom/bumptech/glide/c;->b(Ljava/lang/String;Ljava/lang/Object;)V
+
+    .line 7
+    iget-object v0, p0, Lp7/g;->b:Ljava/util/HashMap;
+
+    .line 9
+    invoke-virtual {v0, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 12
+    move-result-object p1
+
+    .line 13
+    check-cast p1, Lp8/b;
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 15
+    monitor-exit p0
+
+    .line 16
+    return-object p1
+
+    .line 17
+    :catchall_0
+    move-exception p1
+
+    .line 18
+    :try_start_1
+    monitor-exit p0
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 19
+    throw p1
+.end method
+
+.method public final h(Ljava/util/HashMap;Z)V
+    .locals 3
+
+    .line 1
+    invoke-virtual {p1}, Ljava/util/HashMap;->entrySet()Ljava/util/Set;
+
+    .line 4
+    move-result-object p1
+
+    .line 5
+    invoke-interface {p1}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 8
+    move-result-object p1
+
+    .line 9
+    :cond_0
+    :goto_0
+    invoke-interface {p1}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 12
+    move-result v0
+
+    .line 13
+    if-eqz v0, :cond_2
+
+    .line 15
+    invoke-interface {p1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 18
+    move-result-object v0
+
+    .line 19
+    check-cast v0, Ljava/util/Map$Entry;
+
+    .line 21
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    .line 24
+    move-result-object v1
+
+    .line 25
+    check-cast v1, Lp7/b;
+
+    .line 27
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    .line 30
+    move-result-object v0
+
+    .line 31
+    check-cast v0, Lp8/b;
+
+    .line 33
+    iget v1, v1, Lp7/b;->d:I
+
+    .line 35
+    const/4 v2, 0x1
+
+    .line 36
+    if-ne v1, v2, :cond_1
+
+    .line 38
+    goto :goto_1
+
+    .line 39
+    :cond_1
+    const/4 v2, 0x2
+
+    .line 40
+    if-ne v1, v2, :cond_0
+
+    .line 42
+    if-eqz p2, :cond_0
+
+    .line 44
+    :goto_1
+    invoke-interface {v0}, Lp8/b;->get()Ljava/lang/Object;
+
+    .line 47
+    goto :goto_0
+
+    .line 48
+    :cond_2
+    iget-object p1, p0, Lp7/g;->e:Lp7/l;
+
+    .line 50
+    monitor-enter p1
+
+    .line 51
+    :try_start_0
+    iget-object p2, p1, Lp7/l;->b:Ljava/util/ArrayDeque;
+
+    .line 53
+    const/4 v0, 0x0
+
+    .line 54
+    if-eqz p2, :cond_3
+
+    .line 56
+    iput-object v0, p1, Lp7/l;->b:Ljava/util/ArrayDeque;
+
+    .line 58
+    goto :goto_2
+
+    .line 59
+    :catchall_0
+    move-exception p2
+
+    .line 60
+    goto :goto_4
+
+    .line 61
+    :cond_3
+    move-object p2, v0
+
+    .line 62
+    :goto_2
+    monitor-exit p1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 63
+    if-eqz p2, :cond_5
+
+    .line 65
+    invoke-interface {p2}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+
+    .line 68
+    move-result-object p1
+
+    .line 69
+    invoke-interface {p1}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 72
+    move-result p2
+
+    .line 73
+    if-nez p2, :cond_4
+
+    .line 75
+    goto :goto_3
+
+    .line 76
+    :cond_4
+    invoke-interface {p1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 79
+    move-result-object p1
+
+    .line 80
+    invoke-virtual {p1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    .line 83
+    new-instance p1, Ljava/lang/ClassCastException;
+
+    .line 85
+    invoke-direct {p1}, Ljava/lang/ClassCastException;-><init>()V
+
+    .line 88
+    throw p1
+
+    .line 89
+    :cond_5
+    :goto_3
+    return-void
+
+    .line 90
+    :goto_4
+    :try_start_1
+    monitor-exit p1
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 91
+    throw p2
+.end method
+
+.method public final i()V
+    .locals 10
+
+    .line 1
+    iget-object v0, p0, Lp7/g;->b:Ljava/util/HashMap;
+
+    .line 3
+    iget-object v1, p0, Lp7/g;->c:Ljava/util/HashMap;
+
+    .line 5
+    iget-object v2, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 7
+    invoke-virtual {v2}, Ljava/util/HashMap;->keySet()Ljava/util/Set;
+
+    .line 10
+    move-result-object v2
+
+    .line 11
+    invoke-interface {v2}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 14
+    move-result-object v2
+
+    .line 15
+    :cond_0
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 18
+    move-result v3
+
+    .line 19
+    if-eqz v3, :cond_6
+
+    .line 21
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 24
+    move-result-object v3
+
+    .line 25
+    check-cast v3, Lp7/b;
+
+    .line 27
+    iget-object v4, v3, Lp7/b;->c:Ljava/util/Set;
+
+    .line 29
+    invoke-interface {v4}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 32
+    move-result-object v4
+
+    .line 33
+    :cond_1
+    :goto_0
+    invoke-interface {v4}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 36
+    move-result v5
+
+    .line 37
+    if-eqz v5, :cond_0
+
+    .line 39
+    invoke-interface {v4}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 42
+    move-result-object v5
+
+    .line 43
+    check-cast v5, Lp7/j;
+
+    .line 45
+    iget v6, v5, Lp7/j;->b:I
+
+    .line 47
+    const/4 v7, 0x1
+
+    .line 48
+    const/4 v8, 0x2
+
+    .line 49
+    if-ne v6, v8, :cond_2
+
+    .line 51
+    move v6, v7
+
+    .line 52
+    goto :goto_1
+
+    .line 53
+    :cond_2
+    const/4 v6, 0x0
+
+    .line 54
+    :goto_1
+    iget-object v9, v5, Lp7/j;->a:Lp7/r;
+
+    .line 56
+    if-eqz v6, :cond_3
+
+    .line 58
+    invoke-virtual {v1, v9}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+
+    .line 61
+    move-result v6
+
+    .line 62
+    if-nez v6, :cond_3
+
+    .line 64
+    sget-object v5, Ljava/util/Collections;->EMPTY_SET:Ljava/util/Set;
+
+    .line 66
+    new-instance v6, Lp7/o;
+
+    .line 68
+    invoke-direct {v6}, Ljava/lang/Object;-><init>()V
+
+    .line 71
+    const/4 v7, 0x0
+
+    .line 72
+    iput-object v7, v6, Lp7/o;->b:Ljava/util/Set;
+
+    .line 74
+    new-instance v7, Ljava/util/concurrent/ConcurrentHashMap;
+
+    .line 76
+    invoke-direct {v7}, Ljava/util/concurrent/ConcurrentHashMap;-><init>()V
+
+    .line 79
+    invoke-static {v7}, Ljava/util/Collections;->newSetFromMap(Ljava/util/Map;)Ljava/util/Set;
+
+    .line 82
+    move-result-object v7
+
+    .line 83
+    iput-object v7, v6, Lp7/o;->a:Ljava/util/Set;
+
+    .line 85
+    iget-object v7, v6, Lp7/o;->a:Ljava/util/Set;
+
+    .line 87
+    invoke-interface {v7, v5}, Ljava/util/Set;->addAll(Ljava/util/Collection;)Z
+
+    .line 90
+    invoke-virtual {v1, v9, v6}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 93
+    goto :goto_0
+
+    .line 94
+    :cond_3
+    invoke-virtual {v0, v9}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+
+    .line 97
+    move-result v6
+
+    .line 98
+    if-nez v6, :cond_1
+
+    .line 100
+    iget v5, v5, Lp7/j;->b:I
+
+    .line 102
+    if-eq v5, v7, :cond_5
+
+    .line 104
+    if-ne v5, v8, :cond_4
+
+    .line 106
+    goto :goto_0
+
+    .line 107
+    :cond_4
+    new-instance v5, Lp7/p;
+
+    .line 109
+    sget-object v6, Lp7/p;->c:Lc7/m;
+
+    .line 111
+    sget-object v7, Lp7/p;->d:Lp7/f;
+
+    .line 113
+    invoke-direct {v5, v6, v7}, Lp7/p;-><init>(Lc7/m;Lp8/b;)V
+
+    .line 116
+    invoke-virtual {v0, v9, v5}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 119
+    goto :goto_0
+
+    .line 120
+    :cond_5
+    new-instance v0, Lp7/k;
+
+    .line 122
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    .line 124
+    const-string v2, "Unsatisfied dependency for component "
+
+    .line 126
+    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+
+    .line 129
+    invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    .line 132
+    const-string v2, ": "
+
+    .line 134
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 137
+    invoke-virtual {v1, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    .line 140
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    .line 143
+    move-result-object v1
+
+    .line 144
+    invoke-direct {v0, v1}, Ljava/lang/RuntimeException;-><init>(Ljava/lang/String;)V
+
+    .line 147
+    throw v0
+
+    .line 148
+    :cond_6
+    return-void
+.end method
+
+.method public final j(Ljava/util/ArrayList;)Ljava/util/ArrayList;
+    .locals 8
+
+    .line 1
+    new-instance v0, Ljava/util/ArrayList;
+
+    .line 3
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    .line 6
+    invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
+
+    .line 9
+    move-result v1
+
+    .line 10
+    const/4 v2, 0x0
+
+    .line 11
+    :cond_0
+    if-ge v2, v1, :cond_2
+
+    .line 13
+    invoke-virtual {p1, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    .line 16
+    move-result-object v3
+
+    .line 17
+    add-int/lit8 v2, v2, 0x1
+
+    .line 19
+    check-cast v3, Lp7/b;
+
+    .line 21
+    iget v4, v3, Lp7/b;->e:I
+
+    .line 23
+    if-nez v4, :cond_0
+
+    .line 25
+    iget-object v4, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 27
+    invoke-virtual {v4, v3}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 30
+    move-result-object v4
+
+    .line 31
+    check-cast v4, Lp8/b;
+
+    .line 33
+    iget-object v3, v3, Lp7/b;->b:Ljava/util/Set;
+
+    .line 35
+    invoke-interface {v3}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 38
+    move-result-object v3
+
+    .line 39
+    :goto_0
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 42
+    move-result v5
+
+    .line 43
+    if-eqz v5, :cond_0
+
+    .line 45
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 48
+    move-result-object v5
+
+    .line 49
+    check-cast v5, Lp7/r;
+
+    .line 51
+    iget-object v6, p0, Lp7/g;->b:Ljava/util/HashMap;
+
+    .line 53
+    invoke-virtual {v6, v5}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+
+    .line 56
+    move-result v7
+
+    .line 57
+    if-nez v7, :cond_1
+
+    .line 59
+    invoke-virtual {v6, v5, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 62
+    goto :goto_0
+
+    .line 63
+    :cond_1
+    invoke-virtual {v6, v5}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 66
+    move-result-object v5
+
+    .line 67
+    check-cast v5, Lp8/b;
+
+    .line 69
+    check-cast v5, Lp7/p;
+
+    .line 71
+    new-instance v6, Lc0/j;
+
+    .line 73
+    const/16 v7, 0xa
+
+    .line 75
+    invoke-direct {v6, v5, v7, v4}, Lc0/j;-><init>(Ljava/lang/Object;ILjava/lang/Object;)V
+
+    .line 78
+    invoke-virtual {v0, v6}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 81
+    goto :goto_0
+
+    .line 82
+    :cond_2
+    return-object v0
+.end method
+
+.method public final k()Ljava/util/ArrayList;
+    .locals 8
+
+    .line 1
+    iget-object v0, p0, Lp7/g;->c:Ljava/util/HashMap;
+
+    .line 3
+    new-instance v1, Ljava/util/ArrayList;
+
+    .line 5
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+
+    .line 8
+    new-instance v2, Ljava/util/HashMap;
+
+    .line 10
+    invoke-direct {v2}, Ljava/util/HashMap;-><init>()V
+
+    .line 13
+    iget-object v3, p0, Lp7/g;->a:Ljava/util/HashMap;
+
+    .line 15
+    invoke-virtual {v3}, Ljava/util/HashMap;->entrySet()Ljava/util/Set;
+
+    .line 18
+    move-result-object v3
+
+    .line 19
+    invoke-interface {v3}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 22
+    move-result-object v3
+
+    .line 23
+    :cond_0
+    :goto_0
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 26
+    move-result v4
+
+    .line 27
+    if-eqz v4, :cond_3
+
+    .line 29
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 32
+    move-result-object v4
+
+    .line 33
+    check-cast v4, Ljava/util/Map$Entry;
+
+    .line 35
+    invoke-interface {v4}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    .line 38
+    move-result-object v5
+
+    .line 39
+    check-cast v5, Lp7/b;
+
+    .line 41
+    iget v6, v5, Lp7/b;->e:I
+
+    .line 43
+    if-nez v6, :cond_1
+
+    .line 45
+    goto :goto_0
+
+    .line 46
+    :cond_1
+    invoke-interface {v4}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    .line 49
+    move-result-object v4
+
+    .line 50
+    check-cast v4, Lp8/b;
+
+    .line 52
+    iget-object v5, v5, Lp7/b;->b:Ljava/util/Set;
+
+    .line 54
+    invoke-interface {v5}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 57
+    move-result-object v5
+
+    .line 58
+    :goto_1
+    invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 61
+    move-result v6
+
+    .line 62
+    if-eqz v6, :cond_0
+
+    .line 64
+    invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 67
+    move-result-object v6
+
+    .line 68
+    check-cast v6, Lp7/r;
+
+    .line 70
+    invoke-virtual {v2, v6}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+
+    .line 73
+    move-result v7
+
+    .line 74
+    if-nez v7, :cond_2
+
+    .line 76
+    new-instance v7, Ljava/util/HashSet;
+
+    .line 78
+    invoke-direct {v7}, Ljava/util/HashSet;-><init>()V
+
+    .line 81
+    invoke-virtual {v2, v6, v7}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 84
+    :cond_2
+    invoke-virtual {v2, v6}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 87
+    move-result-object v6
+
+    .line 88
+    check-cast v6, Ljava/util/Set;
+
+    .line 90
+    invoke-interface {v6, v4}, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+
+    .line 93
+    goto :goto_1
+
+    .line 94
+    :cond_3
+    invoke-virtual {v2}, Ljava/util/HashMap;->entrySet()Ljava/util/Set;
+
+    .line 97
+    move-result-object v2
+
+    .line 98
+    invoke-interface {v2}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 101
+    move-result-object v2
+
+    .line 102
+    :cond_4
+    :goto_2
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 105
+    move-result v3
+
+    .line 106
+    if-eqz v3, :cond_6
+
+    .line 108
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 111
+    move-result-object v3
+
+    .line 112
+    check-cast v3, Ljava/util/Map$Entry;
+
+    .line 114
+    invoke-interface {v3}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    .line 117
+    move-result-object v4
+
+    .line 118
+    invoke-virtual {v0, v4}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
+
+    .line 121
+    move-result v4
+
+    .line 122
+    if-nez v4, :cond_5
+
+    .line 124
+    invoke-interface {v3}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    .line 127
+    move-result-object v4
+
+    .line 128
+    check-cast v4, Lp7/r;
+
+    .line 130
+    invoke-interface {v3}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    .line 133
+    move-result-object v3
+
+    .line 134
+    check-cast v3, Ljava/util/Collection;
+
+    .line 136
+    check-cast v3, Ljava/util/Set;
+
+    .line 138
+    new-instance v5, Lp7/o;
+
+    .line 140
+    invoke-direct {v5}, Ljava/lang/Object;-><init>()V
+
+    .line 143
+    const/4 v6, 0x0
+
+    .line 144
+    iput-object v6, v5, Lp7/o;->b:Ljava/util/Set;
+
+    .line 146
+    new-instance v6, Ljava/util/concurrent/ConcurrentHashMap;
+
+    .line 148
+    invoke-direct {v6}, Ljava/util/concurrent/ConcurrentHashMap;-><init>()V
+
+    .line 151
+    invoke-static {v6}, Ljava/util/Collections;->newSetFromMap(Ljava/util/Map;)Ljava/util/Set;
+
+    .line 154
+    move-result-object v6
+
+    .line 155
+    iput-object v6, v5, Lp7/o;->a:Ljava/util/Set;
+
+    .line 157
+    iget-object v6, v5, Lp7/o;->a:Ljava/util/Set;
+
+    .line 159
+    invoke-interface {v6, v3}, Ljava/util/Set;->addAll(Ljava/util/Collection;)Z
+
+    .line 162
+    invoke-virtual {v0, v4, v5}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 165
+    goto :goto_2
+
+    .line 166
+    :cond_5
+    invoke-interface {v3}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    .line 169
+    move-result-object v4
+
+    .line 170
+    invoke-virtual {v0, v4}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 173
+    move-result-object v4
+
+    .line 174
+    check-cast v4, Lp7/o;
+
+    .line 176
+    invoke-interface {v3}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    .line 179
+    move-result-object v3
+
+    .line 180
+    check-cast v3, Ljava/util/Set;
+
+    .line 182
+    invoke-interface {v3}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    .line 185
+    move-result-object v3
+
+    .line 186
+    :goto_3
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    .line 189
+    move-result v5
+
+    .line 190
+    if-eqz v5, :cond_4
+
+    .line 192
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    .line 195
+    move-result-object v5
+
+    .line 196
+    check-cast v5, Lp8/b;
+
+    .line 198
+    new-instance v6, Lc0/j;
+
+    .line 200
+    const/16 v7, 0xb
+
+    .line 202
+    invoke-direct {v6, v4, v7, v5}, Lc0/j;-><init>(Ljava/lang/Object;ILjava/lang/Object;)V
+
+    .line 205
+    invoke-virtual {v1, v6}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 208
+    goto :goto_3
+
+    .line 209
+    :cond_6
+    return-object v1
+.end method

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView android:id="@id/vpn_settings_root" android:padding="20.0dip" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="fill_parent" android:fillViewport="true"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <com.google.android.material.button.MaterialButton android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall" android:id="@id/back" android:layout_width="48.0dip" android:layout_height="48.0dip" android:minWidth="0.0dip" android:text="@string/back_arrow" style="@style/Widget.Material3.Button.TextButton" />
+            <TextView android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium" android:textStyle="bold" android:layout_width="0.0dip" android:layout_height="wrap_content" android:text="@string/vpn_udpgw" android:layout_weight="1.0" android:layout_marginStart="8.0dip" />
+        </LinearLayout>
+        <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" app:cardCornerRadius="14.0dip">
+            <LinearLayout android:orientation="vertical" android:padding="18.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/dns" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@id/use_custom_dns" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/use_custom_dns" />
+                <com.google.android.material.textfield.TextInputLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:hint="@string/dns_1" style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@id/dns_primary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:inputType="textUri" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:hint="@string/dns_2" style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@id/dns_secondary" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:inputType="textUri" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" app:cardCornerRadius="14.0dip">
+            <LinearLayout android:orientation="vertical" android:padding="18.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/udpgw" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@id/enable_udpgw" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/enable_udpgw" />
+                <com.google.android.material.textfield.TextInputLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:hint="@string/udpgw_address" app:helperText="@string/udpgw_help_simple" style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@id/udpgw_address" android:layout_width="fill_parent" android:layout_height="wrap_content" android:singleLine="true" android:inputType="textUri" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" app:cardCornerRadius="14.0dip">
+            <LinearLayout android:orientation="vertical" android:padding="18.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textAppearance="@style/TextAppearance.Material3.TitleLarge" android:textStyle="bold" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/ipv6" />
+                <com.google.android.material.switchmaterial.SwitchMaterial android:id="@id/enable_ipv6" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="10.0dip" android:text="@string/enable_ipv6" />
+                <TextView android:textAppearance="@style/TextAppearance.Material3.BodySmall" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="6.0dip" android:text="@string/ipv6_help" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.button.MaterialButton android:textStyle="bold" android:id="@id/save_vpn_settings" android:layout_width="fill_parent" android:layout_height="56.0dip" android:layout_marginTop="18.0dip" android:layout_marginBottom="12.0dip" android:text="@string/save" app:cornerRadius="14.0dip" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -23,6 +23,7 @@ except ImportError:
 
 MAX_USER_ID_LENGTH = 128
 
+SCRIPT_DIR = Path(__file__).resolve().parent
 APKTOOL = os.environ.get("APKTOOL_BIN") or shutil.which("apktool") or next((p for p in ("/usr/local/bin/apktool", "/home/ubuntu/tools/apktool") if Path(p).is_file()), "apktool")
 _signer_env = os.environ.get("UBER_APK_SIGNER_JAR")
 SIGNER_JAR = Path(_signer_env) if _signer_env else next((Path(p) for p in ("/usr/local/bin/uber-apk-signer.jar", "/home/ubuntu/tools/uber-apk-signer.jar") if Path(p).is_file()), Path("/usr/local/bin/uber-apk-signer.jar"))
@@ -374,13 +375,13 @@ def generate_apk(args: argparse.Namespace) -> Path:
         run_command(build_cmd)
 
         print("Assinando APK...")
-        run_command(["java", "-jar", str(SIGNER_JAR), "--apks", str(unsigned_apk), "--out", str(output_dir)])
+        run_command([sys.executable, str(SCRIPT_DIR / "sign_apk.py"), str(unsigned_apk), str(output_dir)])
 
         final_destination = Path(args.output).resolve()
         final_destination.parent.mkdir(parents=True, exist_ok=True)
         
         candidates = sorted(output_dir.glob("*.apk"))
-        signed_apk = next((c for c in candidates if "signed" in c.name), candidates[-1])
+        signed_apk = next((c for c in candidates if "aligned" in c.name), candidates[-1])
         
         shutil.move(str(signed_apk), final_destination)
         print(f"Sucesso: APK gerada em {final_destination}")

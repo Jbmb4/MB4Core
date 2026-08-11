@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:tag="layout/item_category_0" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.cardview.widget.CardView android:id="@id/cardCategory" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="@dimen/_2sdp" app:cardBackgroundColor="@android:color/transparent" app:cardCornerRadius="@dimen/_10sdp" app:cardElevation="0.0dip">
+        <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:tag="binding_1" android:background="@drawable/item_background_rounded" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/_5sdp" android:layout_marginStart="@dimen/_2sdp" android:layout_marginEnd="@dimen/_2sdp">
+                <TextView android:textSize="@dimen/_10ssp" android:textStyle="bold" android:gravity="center" android:id="@id/categoryName" android:tag="binding_2" android:padding="@dimen/_3sdp" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+            </LinearLayout>
+            <androidx.core.widget.NestedScrollView android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <androidx.recyclerview.widget.RecyclerView android:id="@id/configRecycler" android:tag="binding_3" android:layout_width="fill_parent" android:layout_height="wrap_content" app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

@@ -1,0 +1,5 @@
+This APK embeds the XHTTP runtime derived from SocksRevive-XHTTP-DEMO.
+Source: https://git.dr2.site/penguinehis/SocksRevive-XHTTP-DEMO
+License: GNU General Public License v3.0 or later.
+The runtime is installed in the :xhttp process and its integration source is
+distributed with the panel repository under scripts/.

@@ -1,0 +1,75 @@
+.class public final La6/g;
+.super Ljava/lang/ClassLoader;
+.source "r8-map-id-ca80bf141badcbb625a386dd64b17c1d43f0cd15421b9266126ce1fca2e9f28b"
+
+
+# direct methods
+.method public constructor <init>()V
+    .locals 0
+
+    .line 1
+    invoke-direct {p0}, Ljava/lang/ClassLoader;-><init>()V
+
+    .line 4
+    return-void
+.end method
+
+
+# virtual methods
+.method public final loadClass(Ljava/lang/String;Z)Ljava/lang/Class;
+    .locals 1
+
+    .line 1
+    const-string v0, "com.google.android.gms.iid.MessengerCompat"
+
+    .line 3
+    invoke-static {p1, v0}, Ljava/util/Objects;->equals(Ljava/lang/Object;Ljava/lang/Object;)Z
+
+    .line 6
+    move-result v0
+
+    .line 7
+    if-eqz v0, :cond_1
+
+    .line 9
+    const/4 p1, 0x3
+
+    .line 10
+    const-string p2, "CloudMessengerCompat"
+
+    .line 12
+    invoke-static {p2, p1}, Landroid/util/Log;->isLoggable(Ljava/lang/String;I)Z
+
+    .line 15
+    move-result p1
+
+    .line 16
+    if-nez p1, :cond_0
+
+    .line 18
+    goto :goto_0
+
+    .line 19
+    :cond_0
+    const-string p1, "Using renamed FirebaseIidMessengerCompat class"
+
+    .line 21
+    invoke-static {p2, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    .line 24
+    :goto_0
+    const-class p1, La6/h;
+
+    .line 26
+    return-object p1
+
+    .line 27
+    :cond_1
+    invoke-super {p0, p1, p2}, Ljava/lang/ClassLoader;->loadClass(Ljava/lang/String;Z)Ljava/lang/Class;
+
+    .line 30
+    move-result-object p1
+
+    .line 31
+    return-object p1
+.end method

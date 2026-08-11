@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:tag="layout/item_config_0" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:id="@id/cardConfig" android:tag="binding_1" android:background="@drawable/item_background_rounded" android:focusable="true" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/_3sdp" android:layout_marginStart="@dimen/_1sdp" android:layout_marginEnd="@dimen/_1sdp">
+        <LinearLayout android:orientation="horizontal" android:padding="@dimen/_2sdp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@id/configImage" android:tag="binding_2" android:padding="@dimen/_2sdp" android:layout_width="@dimen/_40sdp" android:layout_height="@dimen/_40sdp" android:contentDescription="@string/todo" app:srcCompat="@drawable/ic_launcher" />
+            <RelativeLayout android:padding="@dimen/_2sdp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginStart="@dimen/_3sdp">
+                <TextView android:textSize="@dimen/_9ssp" android:textStyle="bold" android:id="@id/configName" android:tag="binding_3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentStart="true" />
+                <TextView android:textSize="@dimen/_9ssp" android:textStyle="bold|italic" android:gravity="bottom" android:id="@id/configDesc" android:tag="binding_4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_3sdp" android:layout_below="@id/configName" android:layout_alignParentBottom="true" android:layout_toStartOf="@id/configMode" android:layout_alignParentStart="true" />
+                <TextView android:textSize="@dimen/_8ssp" android:textStyle="bold|italic" android:id="@id/configMode" android:tag="binding_5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_marginEnd="@dimen/_3sdp" android:layout_alignParentEnd="true" />
+                <ImageView android:id="@id/configChecked" android:tag="binding_6" android:layout_width="@dimen/_18sdp" android:layout_height="@dimen/_18sdp" android:layout_marginTop="@dimen/_2sdp" android:layout_marginBottom="@dimen/_2sdp" android:src="@drawable/ic_checked" android:layout_alignParentTop="true" android:layout_marginStart="@dimen/_2sdp" android:layout_marginEnd="@dimen/_2sdp" android:layout_alignParentEnd="true" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

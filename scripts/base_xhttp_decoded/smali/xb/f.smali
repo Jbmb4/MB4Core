@@ -1,0 +1,14 @@
+.class public interface abstract Lxb/f;
+.super Ljava/lang/Object;
+.source "r8-map-id-ca80bf141badcbb625a386dd64b17c1d43f0cd15421b9266126ce1fca2e9f28b"
+
+# interfaces
+.implements Lfb/c;
+
+
+# virtual methods
+.method public abstract e(Ljava/lang/Object;Lob/q;)Lc7/e;
+.end method
+
+.method public abstract o(Ljava/lang/Object;)V
+.end method

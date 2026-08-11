@@ -1,0 +1,241 @@
+{
+  "content": [
+    {
+      "name": "APP_LOGO",
+      "value": null,
+      "type": "IMAGE"
+    },
+    {
+      "name": "APP_BACKGROUND_IMAGE",
+      "value": null,
+      "type": "IMAGE"
+    },
+    {
+      "name": "APP_BACKGROUND_TYPE",
+      "value": {
+        "options": [
+          {
+            "label": "Imagem",
+            "value": "IMAGE"
+          },
+          {
+            "label": "Cor",
+            "value": "COLOR"
+          }
+        ],
+        "selected": "COLOR"
+      },
+      "type": "SELECT"
+    },
+    {
+      "name": "APP_BACKGROUND_COLOR",
+      "value": "#080e16c7",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_CARD_COLOR",
+      "value": "#1d242e73",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_CARD_RADIUS",
+      "value": 25,
+      "type": "INTEGER"
+    },
+    {
+      "name": "APP_CARD_STATUS_COLOR",
+      "value": "#1d242e73",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_CARD_STATUS_RADIUS",
+      "value": 25,
+      "type": "INTEGER"
+    },
+    {
+      "name": "APP_CARD_CONFIG_COLOR",
+      "value": "#080e16c7",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_DIALOG_BACKGROUND_COLOR",
+      "value": "#080e16c7",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_DIALOG_LOGGER_COLOR",
+      "value": "#080e16c7",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_BORDER_COLOR",
+      "value": "#1d242e00",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_INPUT_COLOR",
+      "value": "#1d242e73",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_INPUT_RADIUS",
+      "value": 25,
+      "type": "INTEGER"
+    },
+    {
+      "name": "APP_TEXT_COLOR",
+      "value": "#FFFFFFFF",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_BUTTON_COLOR",
+      "value": "#1d242e73",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_BUTTON_RADIUS",
+      "value": 25,
+      "type": "INTEGER"
+    },
+    {
+      "name": "APP_ICON_COLOR",
+      "value": "#FFFFFFFF",
+      "type": "COLOR"
+    },
+    {
+      "name": "APP_SHOW_CONNECTION_MODE",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CONNECTION_LIMITER",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_BTN_UPDATE_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_BTN_LOGGER_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_BTN_PAGE_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_BTN_MENU_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_UPDATE_LAST_SEEN_ENABLED",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CONFIG_LOCATION_PERMISSION",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_DIALOG_ERROR_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CHECKUSER_DIALOG_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_DIALOG_NOTIFICATION_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_SUCCESS_TOAST_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_ERROR_TOAST_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_LOCAL_IP_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CONFIG_FILTER_ENABLED",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_PING_SERVICE_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CONNECTIVITY_CHECK_ENABLED",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CDN_COUNT_ENABLED",
+      "value": true,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_AIRPLANE_MODE",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_AIRPLANE_MODE_TIMEOUT",
+      "value": 1,
+      "type": "INTEGER"
+    },
+    {
+      "name": "APP_ALERT_SOUND_ENABLED",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_CURRENT_VERSION",
+      "value": "4.5.0",
+      "type": "STRING"
+    },
+    {
+      "name": "APP_DOWNLOAD_URL",
+      "value": null,
+      "type": "STRING"
+    },
+    {
+      "name": "APP_LAYOUT_WEBVIEW_ENABLED",
+      "value": false,
+      "type": "BOOLEAN"
+    },
+    {
+      "name": "APP_LAYOUT_WEBVIEW",
+      "value": null,
+      "type": "HTML"
+    },
+    {
+      "name": "APP_SUPPORT_BUTTON",
+      "value": null,
+      "type": "HTML"
+    },
+    {
+      "name": "APP_WEB_VIEW",
+      "value": null,
+      "type": "HTML"
+    }
+  ]
+}

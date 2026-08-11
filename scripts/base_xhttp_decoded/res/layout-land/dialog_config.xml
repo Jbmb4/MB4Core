@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:tag="layout-land/dialog_config_0" android:background="@android:color/transparent" android:padding="@dimen/_10sdp" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.cardview.widget.CardView android:id="@id/cardConfig" android:tag="binding_1" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_margin="@dimen/_5sdp" app:cardCornerRadius="@dimen/_15sdp" app:cardElevation="0.0dip" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.6">
+        <LinearLayout android:orientation="vertical" android:padding="@dimen/_10sdp" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                <TextView android:textSize="@dimen/_11ssp" android:textStyle="bold" android:ellipsize="end" android:id="@id/titleConfig" android:tag="binding_2" android:layout_width="0.0dip" android:layout_height="wrap_content" android:maxLines="1" android:layout_weight="1.0" />
+                <ImageView android:id="@id/btnCloseConfig" android:tag="binding_3" android:focusable="true" android:clickable="true" android:layout_width="@dimen/_18sdp" android:layout_height="@dimen/_18sdp" android:src="@drawable/ic_close" android:layout_marginStart="@dimen/_5sdp" />
+            </LinearLayout>
+            <TextView android:textSize="@dimen/_16ssp" android:textStyle="bold" android:gravity="center" android:tag="binding_4" android:padding="@dimen/_10sdp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_5sdp" />
+            <androidx.core.widget.NestedScrollView android:id="@id/nestedScrollView" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_5sdp" android:overScrollMode="never">
+                <androidx.recyclerview.widget.RecyclerView android:id="@id/recyclerCategory" android:tag="binding_5" android:layout_width="fill_parent" android:layout_height="wrap_content" android:overScrollMode="never" app:layoutManager="androidx.recyclerview.widget.GridLayoutManager" />
+            </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
