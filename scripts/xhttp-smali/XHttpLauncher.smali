@@ -119,7 +119,8 @@
     if-nez v1, :cond_path_ready
 
     :cond_path_default
-    const-string v1, "/ssh"
+    # SplitHTTP/XHTTP reference default endpoint.
+    const-string v1, "/xhttp"
 
     :cond_path_ready
     const-string v2, "xhttpPath"
