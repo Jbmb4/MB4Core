@@ -60,6 +60,29 @@ def install_launcher(base: Path) -> None:
     shutil.copy2(SCRIPT_DIR / "xhttp-smali/XHttpLauncher.smali", target)
 
 
+def install_obfuscated_dependency_aliases(base: Path) -> None:
+    """Provide the obfuscated Okio/OkHttp namespaces used by XHTTP builds.
+
+    Some reference/runtime variants resolve these packages as ``oiko`` and
+    ``oikhttp3``. The host APK may contain the unobfuscated ``okio`` and
+    ``okhttp3`` trees, so ship a complete isolated alias rather than relying on
+    the host's unrelated dependency versions.
+    """
+    root = base / "smali_classes3"
+    for source_name, alias_name in (("okio", "oiko"), ("okhttp3", "oikhttp3")):
+        source = root / source_name
+        if not source.is_dir():
+            continue
+        for src in source.rglob("*.smali"):
+            rel = src.relative_to(source)
+            dst = root / alias_name / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            text = src.read_text(encoding="utf-8")
+            text = text.replace(f"L{source_name}/", f"L{alias_name}/")
+            text = text.replace(f"L{source_name}$", f"L{alias_name}$")
+            dst.write_text(text, encoding="utf-8")
+
+
 def normalize_apktool_metadata(base: Path) -> None:
     """Make decoded metadata accepted by Apktool 3.x.
 
@@ -446,6 +469,7 @@ def main() -> None:
     require(args.base)
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
+    install_obfuscated_dependency_aliases(args.base)
     install_launcher(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)
