@@ -376,15 +376,14 @@ def generate_apk(args: argparse.Namespace) -> Path:
 
         print("Assinando APK...")
         run_command([sys.executable, str(SCRIPT_DIR / "sign_apk.py"), str(unsigned_apk), str(output_dir)])
-
+        signed_apk = output_dir / "signed.apk"
+        if not signed_apk.is_file() or signed_apk.stat().st_size == 0:
+            raise RuntimeError("A assinatura não produziu o APK final validado.")
         final_destination = Path(args.output).resolve()
         final_destination.parent.mkdir(parents=True, exist_ok=True)
-        
-        candidates = sorted(output_dir.glob("*.apk"))
-        signed_apk = next((c for c in candidates if "aligned" in c.name), candidates[-1])
-        
         shutil.move(str(signed_apk), final_destination)
         print(f"Sucesso: APK gerada em {final_destination}")
+
         return final_destination
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
