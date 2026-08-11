@@ -492,6 +492,11 @@ def main() -> None:
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
     install_obfuscated_dependency_aliases(args.reference, args.base)
+    
+    # Fix Conscrypt NPE crash in OkHttp
+    from fix_conscrypt import fix_conscrypt_npe
+    fix_conscrypt_npe(args.base / "smali_classes3")
+    
     install_launcher(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)
