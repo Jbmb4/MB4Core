@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Menu de Gerenciamento - DTunnelMod
+# Menu de Gerenciamento - Dtmod-MB4Core
 # ============================================================
 
 # Cores
@@ -59,7 +59,7 @@ export DTMOD_INSTALL_DIR="$PANEL_DIR"
 show_menu() {
     clear
     echo -e "${GREEN}=======================================${NC}"
-    echo -e "${GREEN}      BEM VINDO AO DTUNNEL MOD         ${NC}"
+    echo -e "${GREEN}      BEM VINDO AO DTMOD-MB4CORE         ${NC}"
     echo -e "${GREEN}=======================================${NC}"
     echo ""
     echo -e "${CYAN}1.${NC} Fazer backup"
