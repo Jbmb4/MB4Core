@@ -90,13 +90,15 @@ export default {
         fs.unlinkSync(outputPath);
       }
 
-      // Agendar remoção do arquivo após 10 minutos
-      setTimeout(() => fs.rmSync(finalPath, { force: true }), 10 * 60 * 1000);
+      // Mantém o arquivo por tempo suficiente para downloads em redes móveis.
+      // A rota autenticada de download envia o tamanho e o nome do arquivo de forma explícita.
+      const cleanupTimer = setTimeout(() => fs.rmSync(finalPath, { force: true }), 60 * 60 * 1000);
+      cleanupTimer.unref();
 
       return reply.send({ 
         success: true, 
         message: 'App gerado com sucesso!', 
-        download_url: `/downloads/${finalName}` 
+        download_url: `/apk/generated/${finalName}`
       });
     } catch (error: any) {
       if (fs.existsSync(outputPath)) fs.rmSync(outputPath, { force: true });
