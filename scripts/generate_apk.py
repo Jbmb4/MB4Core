@@ -291,7 +291,10 @@ def update_version(work_dir: Path, version_name: str | None, version_code: str |
     if version_name:
         content = re.sub(r'versionName:.*', f'versionName: {version_name}', content)
     if version_code:
-        content = re.sub(r'versionCode:.*', f"versionCode: '{version_code}'", content)
+        normalized_code = str(version_code).strip()
+        if not normalized_code.isdigit() or int(normalized_code) < 1:
+            raise ValueError("O código da versão deve ser um número inteiro positivo.")
+        content = re.sub(r'versionCode:.*', f"versionCode: {normalized_code}", content)
     apktool_yml.write_text(content, encoding="utf-8")
 
 def fix_foreground_service_type(work_dir: Path) -> None:

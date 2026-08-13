@@ -2,11 +2,12 @@
 """Assina APKs de forma portátil e valida o artefato final.
 
 Fluxo preferencial: ``zipalign`` (se disponível) seguido de ``apksigner``.
-Fallback: ``jarsigner`` diretamente no APK, preservando a compatibilidade
-com servidores que possuem somente o JDK instalado.
+Fallback recomendado: ``uber-apk-signer``, que produz assinaturas Android v2/v3.
+O ``jarsigner`` fica restrito ao último recurso para servidores legados.
 """
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -17,6 +18,21 @@ from typing import Optional, Sequence
 DEBUG_KEYSTORE = Path.home() / ".android" / "debug.keystore"
 DEBUG_ALIAS = "androiddebugkey"
 DEBUG_STOREPASS = "android"
+UBER_SIGNER_CANDIDATES = (
+    os.environ.get("UBER_APK_SIGNER_JAR"),
+    "/usr/local/bin/uber-apk-signer.jar",
+    "/home/ubuntu/tools/uber-apk-signer.jar",
+)
+
+
+def uber_apk_signer_jar() -> Optional[Path]:
+    """Retorna o uber-apk-signer instalado pelo painel, se disponível."""
+    for candidate in UBER_SIGNER_CANDIDATES:
+        if candidate:
+            path = Path(candidate)
+            if path.is_file():
+                return path
+    return None
 
 
 def command_path(command: str) -> Optional[str]:
@@ -98,6 +114,38 @@ def sign_with_apksigner(input_apk: Path, signed_apk: Path, keystore: Path) -> bo
     return True
 
 
+def sign_with_uber_apk_signer(input_apk: Path, signed_apk: Path, output_dir: Path) -> bool:
+    """Assina com uber-apk-signer quando Build Tools não estão disponíveis.
+
+    O instalador do painel já baixa esse artefato. Ao contrário do jarsigner,
+    ele alinha e assina o APK com os esquemas v2/v3 aceitos por Android atual.
+    """
+    signer_jar = uber_apk_signer_jar()
+    if not signer_jar or not command_path("java"):
+        return False
+
+    signer_output = output_dir / "uber-signer-output"
+    shutil.rmtree(signer_output, ignore_errors=True)
+    signer_output.mkdir(parents=True, exist_ok=True)
+
+    print("Assinando APK com uber-apk-signer (v2/v3)...")
+    run_command([
+        "java", "-jar", str(signer_jar),
+        "-a", str(input_apk),
+        "-o", str(signer_output),
+        "--allowResign",
+    ])
+
+    generated = sorted(path for path in signer_output.glob("*.apk") if path.is_file())
+    if not generated:
+        raise RuntimeError("uber-apk-signer não produziu um APK assinado.")
+
+    shutil.copy2(generated[0], signed_apk)
+    print("Validando assinatura v2/v3 com uber-apk-signer...")
+    run_command(["java", "-jar", str(signer_jar), "-a", str(signed_apk), "-y"])
+    return True
+
+
 def sign_with_jarsigner(input_apk: Path, signed_apk: Path, keystore: Path) -> None:
     """Assina com JDK quando Android Build Tools não estão instaladas."""
     jarsigner = command_path("jarsigner")
@@ -137,7 +185,8 @@ def sign_apk(unsigned_apk: Path, output_dir: Path) -> Path:
     ensure_debug_keystore(DEBUG_KEYSTORE)
     aligned_input = align_apk(unsigned_apk, output_dir)
     if not sign_with_apksigner(aligned_input, signed_apk, DEBUG_KEYSTORE):
-        sign_with_jarsigner(aligned_input, signed_apk, DEBUG_KEYSTORE)
+        if not sign_with_uber_apk_signer(aligned_input, signed_apk, output_dir):
+            sign_with_jarsigner(aligned_input, signed_apk, DEBUG_KEYSTORE)
 
     if not signed_apk.is_file() or signed_apk.stat().st_size == 0:
         raise RuntimeError("A assinatura terminou sem produzir um APK final válido.")
