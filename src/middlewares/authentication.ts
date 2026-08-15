@@ -15,8 +15,17 @@ export default class Authentication {
     CookieManager.deleteCookiesLoggedIn(reply);
     const routesNotAuthorized = ['/login', '/register'];
     const route = routesNotAuthorized.find((route) => route === req.routeOptions.config.url);
+    const isApiRequest = req.url.startsWith('/api/') || req.url.startsWith('/apk/');
+
+    if (isApiRequest) {
+      return reply.status(401).send({
+        success: false,
+        message: 'Sessão expirada. Faça login novamente para gerar o aplicativo.',
+      });
+    }
+
     if (!route) {
-      reply.redirect('/login');
+      return reply.redirect('/login');
     }
   }
 

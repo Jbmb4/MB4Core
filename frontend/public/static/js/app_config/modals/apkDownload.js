@@ -190,7 +190,17 @@ class ApkDownloadModal {
                     body: JSON.stringify(data)
                 });
 
-                const result = await response.json();
+                const contentType = response.headers.get('content-type') || '';
+                let result;
+                if (contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    await response.text();
+                    if (response.redirected || response.url.includes('/login')) {
+                        throw new Error('Sua sessão expirou. Faça login novamente e tente gerar o APK.');
+                    }
+                    throw new Error(`O servidor retornou uma resposta inválida (${response.status}).`);
+                }
                 
                 if (response.ok && result.success) {
                     btnGenerate.classList.add('d-none');
