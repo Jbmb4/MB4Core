@@ -202,13 +202,28 @@ class ApkDownloadModal {
                     throw new Error(`O servidor retornou uma resposta inválida (${response.status}).`);
                 }
                 
-                if (response.ok && result.success) {
+                if (response.ok && result.success && result.job_id) {
                     btnGenerate.classList.add('d-none');
                     statusArea.classList.remove('d-none');
-                    
-                    btnDownload.onclick = () => {
-                        window.location.href = result.download_url;
-                    };
+                    const statusMessage = statusArea.querySelector('.alert');
+                    btnDownload.disabled = true;
+                    btnDownload.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processando APK...';
+                    let finished = false;
+                    while (!finished) {
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        const statusResponse = await fetch(result.status_url, { headers: { 'Accept': 'application/json' } });
+                        const statusType = statusResponse.headers.get('content-type') || '';
+                        if (!statusType.includes('application/json')) throw new Error('A sessão expirou. Faça login novamente.');
+                        const statusResult = await statusResponse.json();
+                        if (!statusResponse.ok || !statusResult.success) throw new Error(statusResult.message || 'Falha ao gerar o aplicativo.');
+                        if (statusResult.status === 'completed' && statusResult.download_url) {
+                            finished = true;
+                            if (statusMessage) statusMessage.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> App gerado!';
+                            btnDownload.disabled = false;
+                            btnDownload.innerHTML = '<i class="bi bi-download me-1"></i> Baixar APK';
+                            btnDownload.onclick = () => { window.location.href = statusResult.download_url; };
+                        }
+                    }
                 } else {
                     throw new Error(result.message || 'Erro ao gerar aplicativo');
                 }
