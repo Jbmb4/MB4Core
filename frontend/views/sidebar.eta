@@ -1,7 +1,7 @@
 <div class="sidebar shadow">
   <div class="sidebar-header">
     <a href="/" target="_self">
-      <img src="../static/img/icon.jpg" width="40" height="40">
+      <img src="../static/img/icon.jpg?v=20260815-nexus-2" width="40" height="40">
       <span class="fs-4">MB4Core</span>
     </a>
     <button id="closeNav">
