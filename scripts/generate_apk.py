@@ -24,7 +24,9 @@ except ImportError:
 MAX_USER_ID_LENGTH = 128
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-APKTOOL = os.environ.get("APKTOOL_BIN") or shutil.which("apktool") or next((p for p in ("/usr/local/bin/apktool", "/home/ubuntu/tools/apktool") if Path(p).is_file()), "apktool")
+_apktool_bin = os.environ.get("APKTOOL_BIN") or shutil.which("apktool") or next((p for p in ("/usr/local/bin/apktool", "/home/ubuntu/tools/apktool") if Path(p).is_file()), None)
+_apktool_jar = os.environ.get("APKTOOL_JAR") or next((p for p in ("/usr/local/bin/apktool.jar", "/home/ubuntu/tools/apktool/apktool_3.0.3.jar", "/home/ubuntu/tools/apktool.jar") if Path(p).is_file()), None)
+APKTOOL_CMD = ([_apktool_bin] if _apktool_bin else (["java", "-jar", _apktool_jar] if _apktool_jar else ["apktool"]))
 _signer_env = os.environ.get("UBER_APK_SIGNER_JAR")
 SIGNER_JAR = Path(_signer_env) if _signer_env else next((Path(p) for p in ("/usr/local/bin/uber-apk-signer.jar", "/home/ubuntu/tools/uber-apk-signer.jar") if Path(p).is_file()), Path("/usr/local/bin/uber-apk-signer.jar"))
 
@@ -329,7 +331,7 @@ def generate_apk(args: argparse.Namespace) -> Path:
 
     try:
         print(f"Decompilando APK base ({base_filename})...")
-        run_command([APKTOOL, "d", "-f", str(apk_path), "-o", str(work_dir)])
+        run_command([*APKTOOL_CMD, "d", "-f", str(apk_path), "-o", str(work_dir)])
         if getattr(args, "xhttp", False):
             verify_xhttp_runtime(work_dir)
 
@@ -362,14 +364,14 @@ def generate_apk(args: argparse.Namespace) -> Path:
             if "/usr/local/bin" not in env.get("PATH", ""):
                 env["PATH"] = f"/usr/local/bin:{env.get('PATH', '')}"
             
-            version_proc = subprocess.run([APKTOOL, "--version"], capture_output=True, text=True, env=env)
+            version_proc = subprocess.run([*APKTOOL_CMD, "--version"], capture_output=True, text=True, env=env)
             version_str = (version_proc.stdout + version_proc.stderr).strip()
             match = re.search(r"(\d+)", version_str)
             major_version = int(match.group(1)) if match else 2
         except Exception:
             major_version = 2
 
-        build_cmd = [APKTOOL, "b"]
+        build_cmd = [*APKTOOL_CMD, "b"]
         # Versões 2.x precisam de --use-aapt2 para apps modernos, 3.x+ já usa por padrão ou mudou o parâmetro
         if major_version < 3:
             build_cmd.append("--use-aapt2")
