@@ -257,7 +257,10 @@ class ApkDownloadModal {
                         if (!statusType.includes('application/json')) throw new Error('A sessão expirou. Faça login novamente.');
                         const statusResult = await statusResponse.json();
                         if (!statusResponse.ok || !statusResult.success) throw new Error(statusResult.message || 'Falha ao gerar o aplicativo.');
-                        if (statusResult.status === 'completed' && statusResult.download_url) {
+                        const statusName = String(statusResult.status || '').toLowerCase();
+                        const hasDownload = Boolean(statusResult.download_url);
+                        const generationFinished = hasDownload && ['completed', 'done', 'success', 'finished'].includes(statusName);
+                        if (generationFinished || (hasDownload && statusResult.success === true && statusName !== 'running' && statusName !== 'queued')) {
                             finished = true;
                             clearInterval(progressTimer);
                             progressBar.style.width = '100%';
