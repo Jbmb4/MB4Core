@@ -17,7 +17,11 @@ export const eta = new Eta({ views });
 import routes from './routes/handle-routes';
 
 fastify
-  .register(cors, { origin: '*', methods: ['GET'] })
+  .register(cors, {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'X-CSRF-Token'],
+  })
   .register(helmet, {
     contentSecurityPolicy: false,
   })

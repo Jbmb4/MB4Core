@@ -88,11 +88,22 @@ class ApkDownloadModal {
                     </button>
 
                     <div id="generation_status" class="mt-3 d-none">
-                        <div class="alert alert-success bg-opacity-10 border-success text-success d-flex align-items-center py-2">
-                            <i class="bi bi-check-circle-fill me-2"></i> App gerado!
+                        <div class="generation-card" id="generation_card">
+                            <div class="d-flex justify-content-between align-items-center generation-caption">
+                                <span id="generation_title">Gerando o app...</span>
+                                <span id="generation_elapsed">0:00</span>
+                            </div>
+                            <div class="d-flex align-items-center generation-step">
+                                <span class="generation-spinner me-2" aria-hidden="true"></span>
+                                <span id="generation_message">Preparando o build</span>
+                            </div>
+                            <div class="progress generation-progress-wrap mt-2" id="generation_progress_wrap">
+                                <div id="generation_progress" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 12%;"></div>
+                            </div>
+                            <div class="generation-hint">Pode fechar; o build continua em segundo plano.</div>
                         </div>
-                        <button type="button" class="btn btn-info w-100 py-2 fw-bold text-white" id="btn_download">
-                            <i class="bi bi-download me-1"></i> Baixar
+                        <button type="button" class="btn btn-info w-100 py-2 fw-bold text-white d-none mt-2" id="btn_download">
+                            <i class="bi bi-download me-1"></i> Baixar APK
                         </button>
                     </div>
                 </div>
@@ -107,6 +118,14 @@ class ApkDownloadModal {
             .btn-success { background-color: #22c55e; border: none; }
             .btn-info { background-color: #0ea5e9; border: none; }
             .form-control::placeholder { color: #4b5563; }
+            .generation-card { background: rgba(52, 58, 64, .96); border: 1px solid rgba(140, 190, 220, .28); border-radius: 6px; padding: 12px; color: #dce8ef; }
+            .generation-caption { color: #aebbc5; font-size: .78rem; }
+            .generation-step { color: #dce8ef; font-size: .8rem; margin-top: 8px; }
+            .generation-spinner { width: 1rem; height: 1rem; border: 2px solid #26c6c9; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: apk-spin .7s linear infinite; flex: 0 0 auto; }
+            .generation-progress-wrap { height: 6px; background: rgba(30, 90, 130, .45); border-radius: 5px; overflow: hidden; animation: apk-pulse 1.8s ease-in-out infinite; }
+            .generation-hint { color: #8fa0aa; font-size: .72rem; margin-top: 7px; }
+            @keyframes apk-spin { to { transform: rotate(360deg); } }
+            @keyframes apk-pulse { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }
         </style>`;
     }
 
@@ -114,6 +133,12 @@ class ApkDownloadModal {
         const btnGenerate = this._element.querySelector('#btn_generate');
         const btnDownload = this._element.querySelector('#btn_download');
         const statusArea = this._element.querySelector('#generation_status');
+        const statusCard = this._element.querySelector('#generation_card');
+        const statusMessage = this._element.querySelector('#generation_message');
+        const statusTitle = this._element.querySelector('#generation_title');
+        const statusElapsed = this._element.querySelector('#generation_elapsed');
+        const progressBar = this._element.querySelector('#generation_progress');
+        const progressWrap = this._element.querySelector('#generation_progress_wrap');
         const iconUpload = this._element.querySelector('#icon_upload');
         const appIconInput = this._element.querySelector('#app_icon');
 
@@ -179,7 +204,25 @@ class ApkDownloadModal {
 
             try {
                 btnGenerate.disabled = true;
-                btnGenerate.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Gerando...';
+                btnGenerate.innerHTML = '<span class="generation-spinner me-2"></span> Gerando APK...';
+                statusArea.classList.remove('d-none');
+                statusCard.className = 'generation-card';
+                statusTitle.textContent = 'Gerando o app...';
+                statusMessage.textContent = 'Preparando o build';
+                statusElapsed.textContent = '0:00';
+                progressBar.style.width = '12%';
+                progressWrap.classList.remove('d-none');
+                const startedAt = Date.now();
+                const progressTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = String(elapsed % 60).padStart(2, '0');
+                    statusElapsed.textContent = `${minutes}:${seconds}`;
+                    const current = parseFloat(progressBar.style.width) || 12;
+                    progressBar.style.width = `${Math.min(current + 2, 88)}%`;
+                    if (elapsed > 4) { statusMessage.textContent = 'Compilando recursos e configurações...'; }
+                    if (elapsed > 12) { statusMessage.textContent = 'Assinando e validando o APK...'; }
+                }, 1000);
                 
                 const response = await fetch('/apk/generate', {
                     method: 'POST',
@@ -203,11 +246,9 @@ class ApkDownloadModal {
                 }
                 
                 if (response.ok && result.success && result.job_id) {
-                    btnGenerate.classList.add('d-none');
-                    statusArea.classList.remove('d-none');
-                    const statusMessage = statusArea.querySelector('.alert');
+                    statusMessage.textContent = 'Processando o APK no servidor';
                     btnDownload.disabled = true;
-                    btnDownload.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processando APK...';
+                    btnDownload.classList.add('d-none');
                     let finished = false;
                     while (!finished) {
                         await new Promise(resolve => setTimeout(resolve, 3000));
@@ -218,8 +259,13 @@ class ApkDownloadModal {
                         if (!statusResponse.ok || !statusResult.success) throw new Error(statusResult.message || 'Falha ao gerar o aplicativo.');
                         if (statusResult.status === 'completed' && statusResult.download_url) {
                             finished = true;
-                            if (statusMessage) statusMessage.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> App gerado!';
+                            clearInterval(progressTimer);
+                            progressBar.style.width = '100%';
+                            statusMessage.textContent = 'APK gerado com sucesso';
+                            statusElapsed.textContent = 'Pronto';
+                            statusCard.className = 'generation-card border border-success';
                             btnDownload.disabled = false;
+                            btnDownload.classList.remove('d-none');
                             btnDownload.innerHTML = '<i class="bi bi-download me-1"></i> Baixar APK';
                             btnDownload.onclick = () => { window.location.href = statusResult.download_url; };
                         }
@@ -228,9 +274,16 @@ class ApkDownloadModal {
                     throw new Error(result.message || 'Erro ao gerar aplicativo');
                 }
             } catch (err) {
+                if (typeof progressTimer !== 'undefined') clearInterval(progressTimer);
+                statusArea.classList.remove('d-none');
+                statusCard.className = 'generation-card border border-danger';
+                statusMessage.textContent = 'Falha ao gerar o APK';
+                statusElapsed.textContent = 'Tente novamente';
+                progressWrap.classList.add('d-none');
                 alert(err.message);
                 btnGenerate.disabled = false;
-                btnGenerate.innerHTML = '<i class="bi bi-lightning-fill me-1"></i> Gerar';
+                btnGenerate.classList.remove('d-none');
+                btnGenerate.innerHTML = '<i class="bi bi-lightning-fill me-1"></i> Gerar novamente';
             }
         });
     }
