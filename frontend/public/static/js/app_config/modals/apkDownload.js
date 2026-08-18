@@ -271,6 +271,7 @@ class ApkDownloadModal {
                             btnDownload.disabled = false;
                             btnDownload.classList.remove('d-none');
                             btnDownload.innerHTML = '<i class="bi bi-download me-1"></i> Baixar APK';
+                            btnDownload.setAttribute('download', statusResult.download_name || 'app.apk');
                             btnDownload.onclick = () => { window.location.href = statusResult.download_url; };
                             btnGenerate.disabled = false;
                             btnGenerate.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Gerar novo APK';
