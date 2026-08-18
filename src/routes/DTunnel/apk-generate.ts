@@ -11,6 +11,7 @@ const GENERATOR = path.resolve(process.cwd(), 'scripts', 'generate_apk.py');
 type JobStatus = {
   status: 'queued' | 'running' | 'completed' | 'failed';
   download_url?: string;
+  download_name?: string;
   error?: string;
   createdAt: number;
 };
@@ -38,6 +39,17 @@ function loadPersistedJob(jobId: string): JobStatus | undefined {
 
 export function getJob(jobId: string): JobStatus | undefined {
   return jobs.get(jobId) || loadPersistedJob(jobId);
+}
+
+function safeFilenamePart(value: string | undefined, fallback: string): string {
+  const normalized = (value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .replace(/^\.+|\.+$/g, '')
+    .replace(/^[-_]+|[-_]+$/g, '')
+    .slice(0, 80);
+  return normalized || fallback;
 }
 
 function getPanelDomain(req: FastifyRequest): string {
@@ -104,10 +116,14 @@ export default {
           if (fs.existsSync(outputPath)) fs.rmSync(outputPath, { force: true });
           return;
         }
-        const finalName = `app-${Date.now()}-${jobId}.${format}`;
+        const appName = safeFilenamePart(body.name, 'app');
+        const versionName = safeFilenamePart(body.version_name, '1.0.0');
+        const friendlyName = `${appName}-${versionName}.${format}`;
+        const finalName = `${appName}-${versionName}-${jobId}.${format}`;
         const finalPath = path.join(publicPath, finalName);
         fs.renameSync(outputPath, finalPath);
         job.status = 'completed';
+        job.download_name = friendlyName;
         job.download_url = `/apk/generated/${finalName}`;
         persistJob(jobId, job);
         const cleanupTimer = setTimeout(() => fs.rmSync(finalPath, { force: true }), JOB_TTL);
