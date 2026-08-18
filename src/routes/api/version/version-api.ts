@@ -6,8 +6,10 @@ import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 
 const headerSchema = z.object({
   password: z.string().optional(),
-  token: z.string(),
-  version: z.enum(['app_config', 'app_layout', 'app_text']),
+  token: z.string().optional(),
+  version: z.enum(['app_config', 'app_layout', 'app_text']).optional(),
+  'dtunnel-token': z.string().optional(),
+  'dtunnel-update': z.enum(['app_config', 'app_layout', 'app_text']).optional(),
   //'user-agent': z.literal('DTunnelMod (@DTunnelMod, @DTunnelModGroup, @LightXVD)'),
 });
 
@@ -24,8 +26,11 @@ export default {
     const { success, data } = headerSchema.safeParse(req.headers);
     if (!success) return reply.send();
 
-    const user_id = data.token;
-    const response = await handler[data.version](user_id);
+    const user_id = data.token ?? data['dtunnel-token'];
+    const update = data.version ?? data['dtunnel-update'];
+    if (!user_id || !update) return reply.send();
+
+    const response = await handler[update](user_id);
 
     return reply.send(response);
   },
