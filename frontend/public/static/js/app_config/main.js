@@ -12,7 +12,7 @@ import AppCustomModal from "./modals/custom.js";
 import AppConfigExportModal from "./modals/export.js";
 import AppConfigImportModal from "./modals/import.js";
 import UpdateModal from "./modals/update.js";
-import ApkDownloadModal from "./modals/apkDownload.js";
+import ApkDownloadModal from "./modals/apkDownload.js?v=20260818-card2";
 
 import AppConfig from "./models.js";
 import { AppConfigAdvancedView } from "./components/app.js";
