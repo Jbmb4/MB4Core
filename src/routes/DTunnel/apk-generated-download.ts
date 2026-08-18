@@ -3,7 +3,7 @@ import path from 'path';
 import Authentication from '../../middlewares/authentication';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 
-const APK_FILE_PATTERN = /^app-\d+-[0-9a-f-]{36}\.(apk|aab)$/i;
+const APK_FILE_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,159}-[0-9a-f-]{36}\.(apk|aab)$/i;
 
 export default {
   url: '/apk/generated/:file',
@@ -39,7 +39,7 @@ export default {
     reply
       .header('Content-Type', contentType)
       .header('Content-Length', stat.size)
-      .header('Content-Disposition', `attachment; filename="${file}"`)
+      .header('Content-Disposition', `attachment; filename="${file.replace(/-[0-9a-f-]{36}(?=\.(apk|aab)$)/i, '')}"`)
       .header('Cache-Control', 'no-store, no-transform')
       .header('X-Content-Type-Options', 'nosniff');
 
