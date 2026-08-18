@@ -202,6 +202,7 @@ class ApkDownloadModal {
                 base_version: this._element.querySelector('input[name="base_version"]:checked').value,
             };
 
+            let progressTimer;
             try {
                 btnGenerate.disabled = true;
                 btnGenerate.innerHTML = '<span class="generation-spinner me-2"></span> Gerando APK...';
@@ -213,7 +214,7 @@ class ApkDownloadModal {
                 progressBar.style.width = '12%';
                 progressWrap.classList.remove('d-none');
                 const startedAt = Date.now();
-                const progressTimer = setInterval(() => {
+                progressTimer = setInterval(() => {
                     const elapsed = Math.floor((Date.now() - startedAt) / 1000);
                     const minutes = Math.floor(elapsed / 60);
                     const seconds = String(elapsed % 60).padStart(2, '0');
@@ -279,7 +280,7 @@ class ApkDownloadModal {
                     throw new Error(result.message || 'Erro ao gerar aplicativo');
                 }
             } catch (err) {
-                if (typeof progressTimer !== 'undefined') clearInterval(progressTimer);
+                if (progressTimer) clearInterval(progressTimer);
                 statusArea.classList.remove('d-none');
                 statusCard.className = 'generation-card border border-danger';
                 statusMessage.textContent = 'Falha ao gerar o APK';

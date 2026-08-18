@@ -3,7 +3,7 @@ import path from 'path';
 import Authentication from '../../middlewares/authentication';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 
-const APK_FILE_PATTERN = /^app-\d+\.(apk|aab)$/;
+const APK_FILE_PATTERN = /^app-\d+-[0-9a-f-]{36}\.(apk|aab)$/i;
 
 export default {
   url: '/apk/generated/:file',

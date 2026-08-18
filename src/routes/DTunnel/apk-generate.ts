@@ -17,6 +17,28 @@ type JobStatus = {
 
 const jobs = new Map<string, JobStatus>();
 const JOB_TTL = 60 * 60 * 1000;
+const JOBS_DIR = path.resolve(os.tmpdir(), 'mb4core-apk-jobs');
+
+function persistJob(jobId: string, job: JobStatus) {
+  fs.mkdirSync(JOBS_DIR, { recursive: true });
+  const target = path.join(JOBS_DIR, `${jobId}.json`);
+  const temporary = `${target}.tmp`;
+  fs.writeFileSync(temporary, JSON.stringify(job), 'utf8');
+  fs.renameSync(temporary, target);
+}
+
+function loadPersistedJob(jobId: string): JobStatus | undefined {
+  if (!/^[0-9a-f-]{36}$/i.test(jobId)) return undefined;
+  try {
+    return JSON.parse(fs.readFileSync(path.join(JOBS_DIR, `${jobId}.json`), 'utf8')) as JobStatus;
+  } catch {
+    return undefined;
+  }
+}
+
+export function getJob(jobId: string): JobStatus | undefined {
+  return jobs.get(jobId) || loadPersistedJob(jobId);
+}
 
 function getPanelDomain(req: FastifyRequest): string {
   const configured = process.env.PANEL_DOMAIN?.trim();
@@ -61,11 +83,13 @@ export default {
     if (body.base_version === 'xhttp') args.push('--xhttp');
 
     jobs.set(jobId, { status: 'queued', createdAt: Date.now() });
+    persistJob(jobId, jobs.get(jobId)!);
     const publicPath = path.resolve(process.cwd(), 'frontend', 'public', 'downloads');
     fs.mkdirSync(publicPath, { recursive: true });
 
     const job = jobs.get(jobId)!;
     job.status = 'running';
+    persistJob(jobId, job);
     execFile('python3', args, {
       cwd: process.cwd(),
       timeout: 15 * 60 * 1000,
@@ -76,6 +100,7 @@ export default {
         if (error || !fs.existsSync(outputPath)) {
           job.status = 'failed';
           job.error = stderr?.trim() || error?.message || 'O gerador não produziu o APK.';
+          persistJob(jobId, job);
           if (fs.existsSync(outputPath)) fs.rmSync(outputPath, { force: true });
           return;
         }
@@ -84,11 +109,13 @@ export default {
         fs.renameSync(outputPath, finalPath);
         job.status = 'completed';
         job.download_url = `/apk/generated/${finalName}`;
+        persistJob(jobId, job);
         const cleanupTimer = setTimeout(() => fs.rmSync(finalPath, { force: true }), JOB_TTL);
         cleanupTimer.unref();
       } catch (finalizeError) {
         job.status = 'failed';
         job.error = finalizeError instanceof Error ? finalizeError.message : 'Falha ao finalizar o APK.';
+        persistJob(jobId, job);
       }
     });
 
