@@ -22,6 +22,7 @@ UBER_SIGNER_CANDIDATES = (
     os.environ.get("UBER_APK_SIGNER_JAR"),
     "/usr/local/bin/uber-apk-signer.jar",
     "/home/ubuntu/tools/uber-apk-signer.jar",
+    str(Path(__file__).resolve().parent / "tools" / "uber-apk-signer.jar"),
 )
 
 
