@@ -1,119 +1,132 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MB4Nexus - Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a1020">
     <meta name="csrf-token" content="<%= it.csrfToken %>">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #121214 0%, #1a1a1d 50%, #252529 100%);
-        }
-        .login-card {
-            background-color: #1a1a1d;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .input-field {
-            background-color: #252529;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .btn-primary {
-            background-color: #252529;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .btn-primary:hover {
-            background-color: #2d2d33;
-        }
-        .telegram-btn {
-            background-color: #24A1DE;
-        }
-        .telegram-btn-alt {
-            background-color: #0088cc;
-        }
-    </style>
+    <title>MB4NEXUS — Acesso</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/signin.css">
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="login-card w-full max-w-[360px] rounded-[24px] p-8 shadow-2xl">
-        <!-- Logo -->
-        <div class="flex justify-center mb-6">
-            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent"></div>
-                <img src="/static/img/icon.jpg?v=20260815-nexus-3" alt="MB4NEXUS" class="w-16 h-16 relative z-10 object-cover rounded-full">
-            </div>
-        </div>
+<body class="signin-page">
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="grid-overlay" aria-hidden="true"></div>
 
-        <!-- Title -->
-        <h1 class="text-white text-2xl font-medium text-center mb-8">DTMod - MB4Nexus</h1>
-
-        <!-- Alerts -->
-        <div id="error-message" class="hidden bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-lg mb-4 text-center"></div>
-        <div id="success-message" class="hidden bg-green-500/10 border border-green-500/20 text-green-500 text-sm p-3 rounded-lg mb-4 text-center"></div>
-
-        <!-- Form -->
-        <form id="loginForm" class="space-y-6">
-            <div>
-                <label class="block text-gray-400 text-sm mb-2 ml-1">Nome de usuario</label>
-                <input type="text" id="email" name="email" placeholder="username" 
-                    class="input-field w-full rounded-xl py-3 px-4 text-white placeholder-gray-600 outline-none transition-all focus:border-white/20" required>
-            </div>
-            
-            <div>
-                <label class="block text-gray-400 text-sm mb-2 ml-1">Senha</label>
-                <input type="password" id="password" name="password" placeholder="password" 
-                    class="input-field w-full rounded-xl py-3 px-4 text-white placeholder-gray-600 outline-none transition-all focus:border-white/20" required>
+    <main class="auth-shell">
+        <section class="login-card" aria-labelledby="loginTitle">
+            <div class="brand-mark">
+                <span class="brand-ring brand-ring-one" aria-hidden="true"></span>
+                <span class="brand-ring brand-ring-two" aria-hidden="true"></span>
+                <img src="/static/img/icon.jpg?v=20260815-nexus-3" alt="MB4NEXUS">
             </div>
 
-            <button type="submit" id="submitButton" 
-                class="btn-primary w-full text-white font-medium py-3 rounded-xl transition-all active:scale-[0.98]">
-                Entrar
-            </button>
-        </form>
+            <div class="brand-copy">
+                <p class="eyebrow">MB4NEXUS</p>
+                <h1 id="loginTitle">Acesso ao painel</h1>
+                <p class="subtitle">Entre para administrar suas configurações com segurança.</p>
+            </div>
 
-        <!-- Footer -->
-        <div class="mt-8 text-center">
-            <a href="/register" class="text-white text-sm border-b border-white/40 hover:border-white transition-all">
-                Não tem uma conta?
-            </a>
-        </div>
+            <div id="error-message" class="alert alert-error hidden" role="alert" aria-live="polite"></div>
+            <div id="success-message" class="alert alert-success hidden" role="status" aria-live="polite"></div>
 
-        <!-- Social Buttons -->
-        <div class="flex justify-center gap-4 mt-8">
-            <a href="#" class="telegram-btn w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl hover:opacity-90 transition-all">
-                <i class="fab fa-telegram-plane"></i>
-            </a>
-            <a href="#" class="telegram-btn-alt w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl hover:opacity-90 transition-all">
-                <i class="fab fa-telegram-plane"></i>
-            </a>
-        </div>
-    </div>
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="form-field">
+                    <label for="email">Nome de usuário</label>
+                    <div class="field-shell">
+                        <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 21a8 8 0 0 0-16 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <input type="text" id="email" name="email" placeholder="Digite seu usuário" autocomplete="username" required>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="password">Senha</label>
+                    <div class="field-shell">
+                        <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                        <input type="password" id="password" name="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+                        <button type="button" id="togglePassword" class="input-action" aria-label="Mostrar senha" aria-pressed="false">
+                            <svg class="eye-icon eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+                                <circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+                            </svg>
+                            <svg class="eye-icon eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="m3 3 18 18M10.6 6.2A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-3.1 3.8M6.1 6.8C3.8 8.6 2.5 12 2.5 12s3.5 6 9.5 6c1.3 0 2.5-.3 3.5-.7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitButton" class="primary-button">
+                    <span id="submitLabel">Entrar</span>
+                    <span id="submitSpinner" class="spinner hidden" aria-hidden="true"></span>
+                </button>
+            </form>
+
+            <div class="login-divider"><span>ou</span></div>
+
+            <p class="register-copy">Ainda não possui acesso?</p>
+            <a href="/register" class="register-link">Criar uma conta</a>
+
+            <div class="security-note">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3 19 6v5c0 4.6-2.8 8.1-7 10-4.2-1.9-7-5.4-7-10V6l7-3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                    <path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Conexão protegida</span>
+            </div>
+        </section>
+
+        <p class="copyright">MB4NEXUS · Painel de gerenciamento</p>
+    </main>
 
     <script src="../static/js/utils.js"></script>
     <script>
         const Elements = {
             loginForm: document.querySelector('#loginForm'),
             submitButton: document.querySelector('#submitButton'),
+            submitLabel: document.querySelector('#submitLabel'),
+            submitSpinner: document.querySelector('#submitSpinner'),
+            password: document.querySelector('#password'),
+            togglePassword: document.querySelector('#togglePassword'),
             error: document.querySelector('#error-message'),
             success: document.querySelector('#success-message'),
         };
 
         const showAlert = (type, message) => {
-            Elements[type].textContent = message;
-            Elements[type].classList.remove('hidden');
-            setTimeout(() => {
-                Elements[type].classList.add('hidden');
-            }, 5000);
+            const alert = Elements[type];
+            alert.textContent = message;
+            alert.classList.remove('hidden');
+            window.setTimeout(() => alert.classList.add('hidden'), 5000);
         };
+
+        Elements.togglePassword.addEventListener('click', () => {
+            const visible = Elements.password.type === 'text';
+            Elements.password.type = visible ? 'password' : 'text';
+            Elements.togglePassword.setAttribute('aria-pressed', String(!visible));
+            Elements.togglePassword.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha');
+            Elements.togglePassword.classList.toggle('is-visible', !visible);
+        });
 
         Elements.loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            
-            const submitBtn = Elements.submitButton;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+
+            if (!Elements.loginForm.checkValidity()) {
+                Elements.loginForm.reportValidity();
+                return;
+            }
+
+            Elements.submitButton.disabled = true;
+            Elements.submitLabel.textContent = 'Entrando';
+            Elements.submitSpinner.classList.remove('hidden');
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const email = event.target.email.value;
@@ -130,29 +143,27 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result?.error) {
                     handleError(result.error);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Entrar';
                     return;
                 }
 
-                showAlert('success', 'Login realizado com sucesso!');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1000);
+                showAlert('success', 'Login realizado com sucesso.');
+                window.setTimeout(() => { window.location.href = '/'; }, 700);
             } catch (error) {
-                showAlert('error', 'Erro na conexão. Tente novamente.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Entrar';
+                showAlert('error', 'Não foi possível conectar ao painel. Tente novamente.');
+            } finally {
+                Elements.submitButton.disabled = false;
+                Elements.submitLabel.textContent = 'Entrar';
+                Elements.submitSpinner.classList.add('hidden');
             }
         });
 
         const handleError = (message) => {
-            const msg = message.toLowerCase();
+            const msg = String(message).toLowerCase();
             if (msg.includes('password') || msg.includes('user not found')) {
-                showAlert('error', 'Usuário ou senha incorretos');
+                showAlert('error', 'Usuário ou senha incorretos.');
             } else {
                 showAlert('error', `Erro: ${message}`);
             }

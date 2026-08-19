@@ -142,3 +142,43 @@
     opacity: 1;
   }
 }
+
+
+.sidebar {
+  border-right: 1px solid rgba(129, 169, 231, 0.13);
+  background: linear-gradient(180deg, #101a2b 0%, #0d1625 100%);
+  box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
+}
+
+.sidebar-header {
+  border-bottom-color: rgba(129, 169, 231, 0.15);
+}
+
+.sidebar-header a {
+  color: #f2f7ff;
+}
+
+.sidebar-header button {
+  color: #a9c8f4;
+  background: rgba(73, 111, 165, 0.22);
+}
+
+.nav-link {
+  color: #a9b8ce !important;
+  transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.nav-link.active,
+.nav-link:hover,
+.nav-link:focus {
+  color: #f2f7ff !important;
+  background: linear-gradient(90deg, rgba(83, 139, 222, 0.25), rgba(87, 76, 171, 0.18)) !important;
+}
+
+.nav-link.active {
+  box-shadow: inset 3px 0 0 #72b0ff;
+}
+
+.nav-link:hover {
+  transform: translateX(2px);
+}
