@@ -134,15 +134,41 @@ def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
         print(f"Aviso: erro ao atualizar dtunnelmod.json: {e}")
 
 def update_app_name(work_dir: Path, new_name: str) -> None:
-    strings_xml = work_dir / "res" / "values" / "strings.xml"
-    if not strings_xml.is_file():
-        return
-    content = strings_xml.read_text(encoding="utf-8")
-    safe_name = xml_escape(new_name.strip())
-    updated, count = re.subn(r'(<string name="app_name">).*?(</string>)', rf'\1{safe_name}\2', content, count=1)
-    if count:
-        strings_xml.write_text(updated, encoding="utf-8")
-    print(f"Nome do app atualizado para: {new_name}")
+    clean_name = new_name.strip()
+    if not clean_name:
+        raise ValueError("Informe um nome de aplicativo válido.")
+
+    safe_name = xml_escape(clean_name)
+    pattern = re.compile(r'(<string\b(?=[^>]*\bname="app_name")[^>]*>).*?(</string>)', re.DOTALL)
+    replacements = 0
+    for strings_xml in sorted((work_dir / "res").glob("values*/strings*.xml")):
+        if not strings_xml.is_file():
+            continue
+        content = strings_xml.read_text(encoding="utf-8")
+        updated, count = pattern.subn(rf'\1{safe_name}\2', content)
+        if count:
+            strings_xml.write_text(updated, encoding="utf-8")
+            replacements += count
+
+    if replacements == 0:
+        raise RuntimeError("A APK base não possui um recurso app_name substituível; geração interrompida para evitar um rótulo fixo.")
+
+    print(f"Nome interno do app atualizado para: {clean_name} ({replacements} recurso(s)).")
+
+
+def validate_app_name(work_dir: Path, expected_name: str) -> None:
+    expected = expected_name.strip()
+    if not expected:
+        raise ValueError("Nome do aplicativo vazio após a normalização.")
+    found = []
+    for strings_xml in sorted((work_dir / "res").glob("values*/strings*.xml")):
+        if not strings_xml.is_file():
+            continue
+        content = strings_xml.read_text(encoding="utf-8")
+        if re.search(rf'<string\b(?=[^>]*\bname="app_name")[^>]*>\s*{re.escape(xml_escape(expected))}\s*</string>', content, re.DOTALL):
+            found.append(strings_xml)
+    if not found:
+        raise RuntimeError("A validação não encontrou o nome informado no recurso app_name da APK; geração interrompida.")
 
 def download_icon(icon_url: str) -> bytes:
     """Baixa o ícone com retries e User-Agent de navegador, validando que é uma imagem válida."""
@@ -341,6 +367,7 @@ def generate_apk(args: argparse.Namespace) -> Path:
         
         if args.name:
             update_app_name(work_dir, args.name)
+            validate_app_name(work_dir, args.name)
         
         if args.icon:
             print(f"Aplicando ícone customizado: {args.icon[:80]}")
