@@ -1,6 +1,41 @@
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+main.d-flex,
+main.d-flex > .container-fluid,
+.content,
+.content > .card,
+.content > .card > .card-body,
+#root {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .content {
     height: calc(100vh - 56px);
     width: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+.content > .card {
+    overflow-x: hidden !important;
+}
+
+#root > .table-responsive,
+#root > .table-responsive-md {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+#root table {
+    min-width: 720px;
 }
 
 .btn-responsive {
