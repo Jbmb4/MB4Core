@@ -153,22 +153,46 @@ def update_app_name(work_dir: Path, new_name: str) -> None:
     if replacements == 0:
         raise RuntimeError("A APK base não possui um recurso app_name substituível; geração interrompida para evitar um rótulo fixo.")
 
-    print(f"Nome interno do app atualizado para: {clean_name} ({replacements} recurso(s)).")
+    manifest = work_dir / "AndroidManifest.xml"
+    manifest_replacements = 0
+    if manifest.is_file():
+        manifest_content = manifest.read_text(encoding="utf-8")
+        label_pattern = re.compile(r'(android:label=")(?!@string/app_name)([^\"]*)(")')
+        manifest_content, manifest_replacements = label_pattern.subn(rf'\1{safe_name}\3', manifest_content)
+        if manifest_replacements:
+            manifest.write_text(manifest_content, encoding="utf-8")
+
+    if replacements == 0 and manifest_replacements == 0:
+        raise RuntimeError("A APK base não possui app_name nem android:label substituível; geração interrompida para evitar um rótulo fixo.")
+
+    print(f"Nome interno do app atualizado para: {clean_name} ({replacements} recurso(s), {manifest_replacements} label(s) no manifest).")
 
 
 def validate_app_name(work_dir: Path, expected_name: str) -> None:
     expected = expected_name.strip()
     if not expected:
         raise ValueError("Nome do aplicativo vazio após a normalização.")
-    found = []
+    expected_xml = xml_escape(expected)
+    found_resource = False
     for strings_xml in sorted((work_dir / "res").glob("values*/strings*.xml")):
         if not strings_xml.is_file():
             continue
         content = strings_xml.read_text(encoding="utf-8")
-        if re.search(rf'<string\b(?=[^>]*\bname="app_name")[^>]*>\s*{re.escape(xml_escape(expected))}\s*</string>', content, re.DOTALL):
-            found.append(strings_xml)
-    if not found:
-        raise RuntimeError("A validação não encontrou o nome informado no recurso app_name da APK; geração interrompida.")
+        if re.search(rf'<string\b(?=[^>]*\bname="app_name")[^>]*>\s*{re.escape(expected_xml)}\s*</string>', content, re.DOTALL):
+            found_resource = True
+            break
+
+    manifest = work_dir / "AndroidManifest.xml"
+    if not manifest.is_file():
+        raise RuntimeError("A APK não possui AndroidManifest.xml para validar o nome interno.")
+    manifest_content = manifest.read_text(encoding="utf-8")
+    literal_labels = re.findall(r'android:label="([^\"]*)"', manifest_content)
+    invalid_labels = [label for label in literal_labels if label != expected_xml and label != "@string/app_name"]
+    application_match = re.search(r'<application\b[^>]*android:label="([^\"]*)"', manifest_content, re.DOTALL)
+    application_label = application_match.group(1) if application_match else None
+    application_ok = application_label in {expected_xml, "@string/app_name"}
+    if (not found_resource and not application_ok) or invalid_labels or not application_ok:
+        raise RuntimeError("A validação encontrou um android:label fixo diferente do nome informado; geração interrompida.")
 
 def download_icon(icon_url: str) -> bytes:
     """Baixa o ícone com retries e User-Agent de navegador, validando que é uma imagem válida."""
