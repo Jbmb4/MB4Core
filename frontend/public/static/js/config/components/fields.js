@@ -432,27 +432,28 @@ export class ConfigUrlCheckUser extends TextFiled {
     }
 
     async _checkUrlOK(url, timeoutMilliseconds) {
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => {
-                reject(new Error('Request timed out'));
-            }, timeoutMilliseconds);
-        });
-
-        const fetchPromise = fetch(url, { mode: 'no-cors' });
-
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMilliseconds);
         try {
-            await Promise.race([fetchPromise, timeoutPromise]);
-            return true;
-        } catch (error) {
-            throw error;
+            const response = await fetch(`/api/checkuser-url?url=${encodeURIComponent(url)}`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                signal: controller.signal,
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || !result.ok) {
+                throw new Error(result.error || `HTTP ${result.status || response.status}`);
+            }
+            return result;
+        } finally {
+            clearTimeout(timer);
         }
     }
 
     async _checkUrlOKClick() {
         try {
-            const isUrlOK = await this._checkUrlOK(this._element.value, 3000)
-            if (isUrlOK) showToastSuccess('Sua url esta OK!')
-            else showToastError('URL offline ou invalida!')
+            const result = await this._checkUrlOK(this._element.value, 8000)
+            showToastSuccess(`URL OK (HTTP ${result.status})`)
         } catch (e) {
             showToastError(`Erro: ${e.message}`)
         }
