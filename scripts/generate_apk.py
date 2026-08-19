@@ -337,17 +337,83 @@ def update_manifest_package(work_dir: Path, new_package: str) -> None:
 
 def update_version(work_dir: Path, version_name: str | None, version_code: str | None) -> None:
     apktool_yml = work_dir / "apktool.yml"
-    if not apktool_yml.is_file():
-        return
-    content = apktool_yml.read_text(encoding="utf-8")
-    if version_name:
-        content = re.sub(r'versionName:.*', f'versionName: {version_name}', content)
-    if version_code:
-        normalized_code = str(version_code).strip()
-        if not normalized_code.isdigit() or int(normalized_code) < 1:
-            raise ValueError("O código da versão deve ser um número inteiro positivo.")
+    old_version_name = None
+    old_version_code = None
+    content = apktool_yml.read_text(encoding="utf-8") if apktool_yml.is_file() else ""
+    old_name_match = re.search(r'^\s*versionName:\s*(.+?)\s*$', content, re.MULTILINE)
+    old_code_match = re.search(r'^\s*versionCode:\s*(\d+)\s*$', content, re.MULTILINE)
+    if old_name_match:
+        old_version_name = old_name_match.group(1).strip()
+    if old_code_match:
+        old_version_code = int(old_code_match.group(1))
+
+    clean_name = str(version_name).strip() if version_name else None
+    if clean_name and ("\n" in clean_name or '"' in clean_name):
+        raise ValueError("O nome da versão contém caracteres inválidos.")
+    normalized_code = str(version_code).strip() if version_code else None
+    if normalized_code and (not normalized_code.isdigit() or int(normalized_code) < 1):
+        raise ValueError("O código da versão deve ser um número inteiro positivo.")
+
+    if clean_name and apktool_yml.is_file():
+        content = re.sub(r'versionName:.*', f'versionName: {clean_name}', content)
+    if normalized_code and apktool_yml.is_file():
         content = re.sub(r'versionCode:.*', f"versionCode: {normalized_code}", content)
-    apktool_yml.write_text(content, encoding="utf-8")
+    if apktool_yml.is_file():
+        apktool_yml.write_text(content, encoding="utf-8")
+
+    if not clean_name and not normalized_code:
+        return
+
+    # O cliente exibe a versão no bloco LBL_APP_VERSION. Algumas bases
+    # mantêm nome/código antigos em Smali, além do metadata do APK.
+    legacy_versions = {value for value in (old_version_name, "4.5.7", "4.5.8") if value}
+    if clean_name:
+        for smali_file in work_dir.glob("smali*/**/*.smali"):
+            smali_content = smali_file.read_text(encoding="utf-8")
+            updated = smali_content
+            for legacy in legacy_versions:
+                updated = updated.replace(f'"DTunnel v{legacy}"', f'"DTunnel v{clean_name}"')
+                updated = updated.replace(f'"{legacy}"', f'"{clean_name}"')
+            if updated != smali_content:
+                smali_file.write_text(updated, encoding="utf-8")
+
+        app_config = work_dir / "assets" / "app_config.json"
+        if app_config.is_file():
+            try:
+                data = json.loads(app_config.read_text(encoding="utf-8"))
+                entries = data.get("content", []) if isinstance(data, dict) else data
+                changed = False
+                for item in entries if isinstance(entries, list) else []:
+                    if isinstance(item, dict) and item.get("name") == "APP_CURRENT_VERSION":
+                        item["value"] = clean_name
+                        changed = True
+                if changed:
+                    app_config.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            except (OSError, json.JSONDecodeError):
+                pass
+
+    if normalized_code and old_version_code is not None:
+        old_hex = f"0x{old_version_code:x}"
+        new_hex = f"0x{int(normalized_code):x}"
+        for smali_file in work_dir.glob("smali*/**/*.smali"):
+            smali_content = smali_file.read_text(encoding="utf-8")
+            if "LBL_APP_VERSION" not in smali_content:
+                continue
+            marker = smali_content.find('const-string v6, "LBL_APP_VERSION"')
+            if marker < 0:
+                marker = smali_content.find('LBL_APP_VERSION')
+            window_start = max(0, marker - 1800)
+            window = smali_content[window_start:marker]
+            matches = list(re.finditer(rf'const/(?:4|16) (v\d+), {re.escape(old_hex)}', window, re.IGNORECASE))
+            if not matches:
+                continue
+            match = matches[-1]
+            replacement = f"const/16 {match.group(1)}, {new_hex}"
+            absolute_start = window_start + match.start()
+            absolute_end = window_start + match.end()
+            updated = smali_content[:absolute_start] + replacement + smali_content[absolute_end:]
+            smali_file.write_text(updated, encoding="utf-8")
+            break
 
 def fix_foreground_service_type(work_dir: Path) -> None:
     manifest = work_dir / "AndroidManifest.xml"
