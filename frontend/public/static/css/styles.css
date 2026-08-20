@@ -409,3 +409,163 @@ select optgroup {
 ::-webkit-scrollbar-thumb:hover {
     background: #5e89c2;
 }
+
+
+/* Compact dashboard hierarchy */
+.summary-card {
+    min-height: 0 !important;
+}
+
+.summary-card .card-body {
+    padding: 0.9rem 0.8rem !important;
+}
+
+.summary-icon {
+    display: inline-block;
+    color: #80b7ff;
+    font-size: 1.55rem;
+    line-height: 1;
+}
+
+.summary-label {
+    margin: 0 0 0.55rem;
+    color: #b7c7dc !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.summary-value {
+    min-height: 31px;
+    padding: 0.25rem 0.65rem !important;
+    color: #eaf3ff !important;
+    font-size: 0.78rem !important;
+    line-height: 1.35;
+}
+
+.summary-card .d-flex {
+    gap: 0.55rem !important;
+}
+
+.stat-card .card-body {
+    padding: 1rem 0.85rem !important;
+}
+
+.stat-icon {
+    width: 48px !important;
+    height: 48px !important;
+    margin-bottom: 0.65rem !important;
+    background: rgba(77, 127, 198, 0.16) !important;
+}
+
+.stat-icon-glyph {
+    color: #94c4ff !important;
+    font-size: 1.6rem !important;
+}
+
+.stat-card .card-body > a > p {
+    margin-bottom: 0.35rem !important;
+}
+
+.stat-card .__config,
+.stat-card .__category,
+.stat-card .__config__placeholder,
+.stat-card .__category__placeholder {
+    margin-bottom: 0.2rem !important;
+    font-size: 2rem !important;
+    line-height: 1.05;
+}
+
+.stat-card .bi-arrow-right-circle {
+    display: inline-block;
+    margin-top: 0.2rem;
+    color: #83b8ff;
+    font-size: 1.25rem !important;
+}
+
+@media (max-width: 767px) {
+    .content {
+        padding-top: 0.25rem !important;
+    }
+
+    .content > .container-fluid,
+    .content > .card > .card-body {
+        padding-right: 0.75rem !important;
+        padding-left: 0.75rem !important;
+    }
+
+    .content h4 {
+        margin-bottom: 0.45rem !important;
+        font-size: 1rem;
+    }
+
+    .content hr {
+        margin: 0.35rem 0 0.65rem !important;
+    }
+
+    .summary-card .card-body {
+        padding: 0.72rem 0.55rem !important;
+    }
+
+    .summary-icon {
+        margin-bottom: 0.4rem !important;
+        font-size: 1.25rem;
+    }
+
+    .summary-label {
+        margin-bottom: 0.35rem;
+        font-size: 0.7rem;
+    }
+
+    .summary-value {
+        min-height: 27px;
+        font-size: 0.68rem !important;
+    }
+
+    .stat-card .card-body {
+        padding: 0.8rem 0.65rem !important;
+    }
+
+    .stat-card .__config,
+    .stat-card .__category,
+    .stat-card .__config__placeholder,
+    .stat-card .__category__placeholder {
+        font-size: 1.65rem !important;
+    }
+}
+
+
+/* Compact profile and page shells */
+.content > .container-fluid > .card {
+    width: min(50rem, calc(100% - 1rem)) !important;
+}
+
+.content > .container-fluid > .card > .card-body > .d-flex img.rounded-circle {
+    width: 78px !important;
+    height: 78px !important;
+    object-fit: cover;
+}
+
+.content > .container-fluid > .card .mb-5 {
+    margin-bottom: 1.35rem !important;
+}
+
+@media (max-width: 767px) {
+    .content > .container-fluid > .card {
+        margin-bottom: 1rem !important;
+        padding: 0.75rem !important;
+    }
+
+    .content > .container-fluid > .card > .card-body > .d-flex img.rounded-circle {
+        width: 66px !important;
+        height: 66px !important;
+    }
+
+    .content > .container-fluid > .card .mb-5 {
+        margin-bottom: 0.9rem !important;
+    }
+
+    .content > .container-fluid > .card .btn.w-100 {
+        min-height: 45px;
+        border-radius: 12px !important;
+    }
+}

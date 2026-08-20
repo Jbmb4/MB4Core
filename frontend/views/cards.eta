@@ -7,34 +7,34 @@
   </div>
   <div class="row">
     <div class="col-md-4 mb-3">
-      <div class="card shadow border border-0">
+      <div class="card shadow border border-0 summary-card">
         <div class="card-body text-center">
-          <i class="bi bi-calendar-plus fs-1 mb-2"></i>
-          <p class="fs-4">Registrado em</p>
-          <div class="fs-5 bg-dark rounded-pill text-white ps-2">
+          <i class="bi bi-calendar-plus summary-icon mb-2"></i>
+          <p class="summary-label">Registrado em</p>
+          <div class="summary-value fs-5 bg-dark rounded-pill text-white ps-2">
             <%= it.formatDate(it.user.created_at) %>
           </div>
         </div>
       </div>
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card shadow border border-0">
+      <div class="card shadow border border-0 summary-card">
         <div class="card-body text-center">
-          <i class="bi bi-arrow-repeat fs-1 mb-2"></i>
-          <p class="fs-4">Atualizado em</p>
-          <div class="fs-5 bg-dark rounded-pill text-white ps-2">
+          <i class="bi bi-arrow-repeat summary-icon mb-2"></i>
+          <p class="summary-label">Atualizado em</p>
+          <div class="summary-value fs-5 bg-dark rounded-pill text-white ps-2">
             <%= it.formatDate(it.user.updated_at) %>
           </div>
         </div>
       </div>
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card shadow border border-0">
+      <div class="card shadow border border-0 summary-card">
         <div class="card-body text-center">
-          <i class="bi bi-hourglass-split fs-1 mb-2"></i>
-          <p class="fs-4">Expira em</p>
+          <i class="bi bi-hourglass-split summary-icon mb-2"></i>
+          <p class="summary-label">Expira em</p>
           <div class="d-flex gap-3">
-            <div class="fs-5 bg-dark rounded-pill text-white flex-fill ps-2">
+            <div class="summary-value fs-5 bg-dark rounded-pill text-white flex-fill ps-2">
               <i class="bi bi-infinity"></i>
             </div>
           </div>
@@ -51,11 +51,11 @@
       <hr />
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card border border-0 shadow">
+      <div class="card border border-0 shadow stat-card">
         <div class="card-body text-center text-nowrap">
           <a href="/configs" target="_self" class="text-decoration-none link-none">
-            <div class="rounded-circle bg-dark bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px">
-              <i class="bi bi-gear fs-1 text-light"></i>
+            <div class="rounded-circle bg-dark bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center stat-icon" style="width: 70px; height: 70px">
+              <i class="bi bi-gear stat-icon-glyph text-light"></i>
             </div>
             <p class="fw-bold fs-6">TOTAL DE CONFIGURAÇÕES</p>
             <p class="__config fs-1"></p>
@@ -70,11 +70,11 @@
       </div>
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card border border-0 shadow">
+      <div class="card border border-0 shadow stat-card">
         <div class="card-body text-center text-nowrap">
           <a href="/categories" target="_self" class="text-decoration-none link-none">
-            <div class="rounded-circle bg-dark bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px">
-              <i class="bi bi-tags fs-1 text-light"></i>
+            <div class="rounded-circle bg-dark bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center stat-icon" style="width: 70px; height: 70px">
+              <i class="bi bi-tags stat-icon-glyph text-light"></i>
             </div>
             <p class="fw-bold fs-6">TOTAL DE CATEGORIAS</p>
             <p class="__category fs-1"></p>
