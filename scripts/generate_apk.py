@@ -15,6 +15,7 @@ import argparse
 import requests
 from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
+from patch_xhttp_checkuser import patch_checkuser_runtime, validate_checkuser_runtime
 try:
     from PIL import Image
     HAS_PIL = True
@@ -420,6 +421,15 @@ def fix_foreground_service_type(work_dir: Path) -> None:
     if not manifest.is_file():
         return
     content = manifest.read_text(encoding="utf-8")
+    # Apktool/aapt2 usado no pipeline não aceita specialUse na tabela de flags
+    # disponível; dataSync é o tipo compatível já usado pelo runtime XHTTP.
+    content = content.replace(
+        'android:foregroundServiceType="specialUse"',
+        'android:foregroundServiceType="dataSync"',
+    ).replace(
+        'android:foregroundServiceType="0x40000000"',
+        'android:foregroundServiceType="dataSync"',
+    )
     if 'android.permission.FOREGROUND_SERVICE_DATA_SYNC' not in content:
         content = re.sub(
             r'(<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>)',
@@ -450,6 +460,8 @@ def generate_apk(args: argparse.Namespace) -> Path:
         run_command([*APKTOOL_CMD, "d", "-f", str(apk_path), "-o", str(work_dir)])
         if getattr(args, "xhttp", False):
             verify_xhttp_runtime(work_dir)
+            patch_checkuser_runtime(work_dir)
+            validate_checkuser_runtime(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)

@@ -804,6 +804,9 @@ def main() -> None:
     install_launcher(args.base)
     patch_panel_status_bridge(args.base)
     patch_service_manager(args.base)
+    from patch_xhttp_checkuser import patch_checkuser_runtime, validate_checkuser_runtime
+    patch_checkuser_runtime(args.base)
+    validate_checkuser_runtime(args.base)
     patch_manifest(args.base)
     patch_resources(args.reference, args.base)
     patch_startup_text(args.base)
