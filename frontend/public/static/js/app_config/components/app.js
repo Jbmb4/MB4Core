@@ -26,6 +26,7 @@ export default class AppConfigView extends App {
         this.appLogo = new Imagem({ height: '70px', margin: '10px auto', });
 
         this.card = new Card({ width: '100%', padding: '6px', });
+        this.card.element.classList.add('application-preview-card');
 
         this.config = new Input();
         this.config.setType('button');
@@ -33,17 +34,20 @@ export default class AppConfigView extends App {
         this.fileSvg = new FileIcon({ width: '20px', height: '20px' });
         this.arrowSvg = new ArrowDownIcon({ width: '20px', height: '20px' });
         this.configGroup = new InputGroup([this.fileSvg, this.config, this.arrowSvg], { cursor: 'pointer', height: '30px' });
+        this.configGroup.element.classList.add('application-preview-input');
 
         this.username = new Input();
         this.username.setEnabled(false);
         this.personSvg = new PersonIcon({ width: '20px', height: '20px' });
         this.usernameGroup = new InputGroup([this.personSvg, this.username], { height: '30px' });
+        this.usernameGroup.element.classList.add('application-preview-input');
 
         this.password = new Input();
         this.password.setEnabled(false);
         this.lockSvg = new LockIcon({ width: '20px', height: '20px' });
         this.eyeSvg = new EyeIcon({ width: '20px', height: '20px' });
         this.passwordGroup = new InputGroup([this.lockSvg, this.password, this.eyeSvg], { height: '30px' });
+        this.passwordGroup.element.classList.add('application-preview-input');
 
         this.buttonVpnStart = new ButtonVpnSetup(null, { padding: '7px 0', width: '100%', fontSize: '10px' });
 

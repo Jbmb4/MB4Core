@@ -287,3 +287,25 @@
 .application-screen .input-area {
     /* These are preview styles and continue to use the saved app configuration. */
 }
+
+
+/* Keep preview group colors dynamic; prevent global Bootstrap input blue from leaking in. */
+.application-screen .application-preview-input > input,
+.application-screen .application-preview-input input.form-control,
+.application-screen .application-preview-input input:disabled,
+.application-screen .application-preview-input input[readonly] {
+    color: inherit !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.application-screen .application-preview-input .input-group-text {
+    color: inherit !important;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.application-screen .application-preview-card {
+    box-shadow: none !important;
+}
