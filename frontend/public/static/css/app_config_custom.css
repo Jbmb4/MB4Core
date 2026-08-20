@@ -287,28 +287,3 @@
 .application-screen .input-area {
     /* These are preview styles and continue to use the saved app configuration. */
 }
-
-
-/* Neutral preview fields: override only the administrative preview */
-.application-screen .application-preview-card {
-    background: #0b1219 !important;
-    border: 1px solid rgba(102, 119, 138, 0.18) !important;
-    box-shadow: none !important;
-}
-
-.application-screen .application-preview-input {
-    background: #18212b !important;
-    border: 1px solid rgba(113, 132, 153, 0.18) !important;
-    box-shadow: none !important;
-}
-
-.application-screen .application-preview-input input,
-.application-screen .application-preview-input button,
-.application-screen .application-preview-input svg {
-    color: #e4ebf4 !important;
-    fill: #e4ebf4 !important;
-}
-
-.application-screen .application-preview-input input {
-    background: transparent !important;
-}
