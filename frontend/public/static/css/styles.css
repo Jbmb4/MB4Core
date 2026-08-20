@@ -637,3 +637,72 @@ select optgroup {
         font-size: 0.72rem !important;
     }
 }
+
+
+/* Configuration actions stay at the marked right edge */
+.config-table {
+    min-width: 760px;
+}
+
+.config-table .config-actions-head,
+.config-table .config-actions-cell {
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    min-width: 58px;
+    width: 58px;
+    background: #121e31 !important;
+    box-shadow: -8px 0 14px rgba(7, 13, 24, 0.28);
+}
+
+.config-table .config-actions-head {
+    color: #dceaff !important;
+}
+
+.config-table .config-status-head,
+.config-table .config-status-cell {
+    min-width: 76px;
+}
+
+.config-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.config-actions .btn {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 32px;
+    padding: 0 !important;
+    border: 1px solid rgba(123, 163, 219, 0.14) !important;
+    border-radius: 7px !important;
+    color: #e5f0ff !important;
+    background: #1a2a41 !important;
+}
+
+.config-actions .btn:hover,
+.config-actions .btn:focus-visible {
+    border-color: rgba(117, 182, 255, 0.55) !important;
+    background: #294568 !important;
+}
+
+.config-actions .btn:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 767px) {
+    .config-table .config-actions-head,
+    .config-table .config-actions-cell {
+        min-width: 54px;
+        width: 54px;
+    }
+
+    .config-actions .btn {
+        width: 32px;
+        height: 31px;
+    }
+}
