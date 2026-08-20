@@ -14,7 +14,7 @@ export default class Table {
 
     getTableHTML() {
         return `
-        <table class="table table-striped table-hover table-sm text-center">
+        <table class="table table-striped table-hover table-sm text-center config-table">
           <thead>
             <tr>
               <th scope="col">
@@ -25,8 +25,8 @@ export default class Table {
               <th scope="col" class="border-0" placeholder="Categoria">Categoria</th>
               <th scope="col" class="border-0" placeholder="Ordem">Ordem</th>
               <th scope="col" class="border-0" placeholder="Modo">Modo</th>
-              <th scope="col" class="border-0" placeholder="Status">Status</th>
-              <th scope="col" class="border-0" placeholder="Ações">Ações</th>
+              <th scope="col" class="border-0 config-status-head" placeholder="Status">Status</th>
+              <th scope="col" class="border-0 config-actions-head" placeholder="Ações">Ações</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -110,21 +110,23 @@ export class TableItem {
             ${mode}
           </div>
         </td>
-        <td class="align-middle">
+        <td class="align-middle config-status-cell">
           <div class="form-check form-switch d-flex justify-content-center">
             <input class="form-check-input toggle-status" type="checkbox" role="switch" ${status === 'ACTIVE' ? 'checked' : ''}>
           </div>
         </td>
-        <td class="align-middle">
-          <button class="btn btn-sm btn-dark mb-1 btn-c-edit">
+        <td class="align-middle config-actions-cell">
+          <div class="config-actions">
+          <button class="btn btn-sm btn-dark btn-c-edit">
             <i class="bi bi-pencil-square"></i>
           </button>
           <button class="btn btn-sm btn-dark mb-1 btn-c-copy">
             <i class="bi bi-files"></i>
           </button>
-          <button class="btn btn-sm btn-dark mb-1 btn-c-delete">
+          <button class="btn btn-sm btn-dark btn-c-delete">
             <i class="bi bi-trash"></i>
           </button>
+          </div>
         </td>
       `;
     }
