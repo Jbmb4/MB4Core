@@ -91,8 +91,11 @@ class ColorPicker {
     }
 
     setColor(color) {
-        this.picker.color.hexString = color;
-        if (this.onColorChange) this.onColorChange(color);
+        const value = String(color || '').trim();
+        if (!/^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(value)) return false;
+        this.picker.color.hexString = value;
+        if (this.onColorChange) this.onColorChange(value);
+        return true;
     }
 
     setOnColorChange(fn) {
@@ -195,8 +198,6 @@ class DialogBase {
             this.resize();
         });
 
-        // document.body.appendChild(this.dialog.element);
-        this.element.parentElement.appendChild(this.dialog.element);
     }
 }
 
@@ -254,13 +255,21 @@ class DialogPicker extends DialogBase {
         this.divSpan.style.height = '100%';
         this.divSpan.style.background = 'conic-gradient(rgb(204, 204, 204) 25%, rgb(255, 255, 255) 0deg, rgb(255, 255, 255) 50%, rgb(204, 204, 204) 0deg, rgb(204, 204, 204) 75%, rgb(255, 255, 255) 0deg) 0% 0% / 8px 8px';
 
-        const timeout = null;
-        this.input.addEventListener('input', e => {
+        let timeout = null;
+        const applyInputColor = () => {
+            const value = String(this.input.value || '').trim();
+            if (!/^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/.test(value)) {
+                this.input.classList.add('is-invalid');
+                return;
+            }
+            this.input.classList.remove('is-invalid');
+            this.setColor(value);
+        };
+        this.input.addEventListener('input', () => {
             clearTimeout(timeout);
-            setTimeout(() => {
-                this.setColor(e.target.value);
-            }, 1000);
+            timeout = setTimeout(applyInputColor, 250);
         });
+        this.input.addEventListener('change', applyInputColor);
 
         this.copyButton = document.createElement('button');
         this.copyButton.classList.add('btn', 'btn-outline-light');
@@ -297,9 +306,11 @@ class DialogPicker extends DialogBase {
 
     setOnColorChange(fn) {
         this.picker.setOnColorChange(color => {
-            fn(color);
-            this.input.value = color;
-            this.span.style.background = color;
+            const value = String(color || '').toUpperCase();
+            fn(value);
+            this.input.value = value;
+            this.span.style.background = value;
+            this.input.classList.remove('is-invalid');
         });
     }
 
