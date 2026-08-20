@@ -239,3 +239,51 @@
         align-items: center;
     }
 }
+
+
+/* Application management screen: neutral shell, layout colors untouched */
+.application-screen,
+.application-screen main.d-flex,
+.application-screen .container-fluid,
+.application-screen .content {
+    color: #e4e7eb !important;
+    background: #202124 !important;
+}
+
+.application-screen .content > .card,
+.application-screen .content > .card > .card-body {
+    background: #202124 !important;
+    border-color: #303236 !important;
+    box-shadow: none !important;
+}
+
+.application-screen .content > .card > .card-body {
+    padding: 1rem !important;
+}
+
+.application-screen h1,
+.application-screen .content h1 {
+    color: #e8eaed !important;
+}
+
+.application-screen .form-select,
+.application-screen .content > .card .btn-dark {
+    color: #e6e8eb !important;
+    border-color: #3b3e43 !important;
+    background: #2a2d30 !important;
+}
+
+.application-screen .content > .card .btn-dark:hover,
+.application-screen .content > .card .btn-dark:focus-visible {
+    border-color: #565b63 !important;
+    background: #33373c !important;
+}
+
+.application-screen #app {
+    background: transparent !important;
+}
+
+.application-screen .card-config,
+.application-screen .input-area {
+    /* These are preview styles and continue to use the saved app configuration. */
+}
