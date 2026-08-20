@@ -569,3 +569,71 @@ select optgroup {
         border-radius: 12px !important;
     }
 }
+
+
+/* Slightly larger highlighted account cards */
+.summary-card {
+    min-height: 134px !important;
+    border: 1px solid rgba(105, 164, 247, 0.2) !important;
+    background: linear-gradient(145deg, #14233a, #101d31) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.summary-card .card-body {
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.95rem 0.8rem !important;
+}
+
+.summary-icon {
+    margin-bottom: 0.55rem !important;
+    color: #84baff;
+    font-size: 1.7rem;
+}
+
+.summary-label {
+    margin-bottom: 0.62rem;
+    color: #d0ddec !important;
+    font-size: 0.82rem;
+}
+
+.summary-value {
+    width: 100%;
+    min-height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.7rem !important;
+    border: 1px solid rgba(157, 181, 210, 0.1);
+    color: #f0f6ff !important;
+    background: #27333a !important;
+    font-size: 0.8rem !important;
+}
+
+@media (max-width: 767px) {
+    .summary-card {
+        min-height: 126px !important;
+    }
+
+    .summary-card .card-body {
+        min-height: 124px;
+        padding: 0.88rem 0.62rem !important;
+    }
+
+    .summary-icon {
+        font-size: 1.48rem;
+    }
+
+    .summary-label {
+        margin-bottom: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .summary-value {
+        min-height: 31px;
+        font-size: 0.72rem !important;
+    }
+}
