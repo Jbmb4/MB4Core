@@ -437,3 +437,157 @@ body.signin-page {
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* Compact mobile login proportions */
+.auth-shell {
+    width: min(100%, 382px);
+}
+
+.login-card {
+    padding: 28px 28px 22px;
+    border-radius: 22px;
+}
+
+.brand-mark {
+    width: 76px;
+    height: 76px;
+    margin-bottom: 14px;
+}
+
+.brand-mark img {
+    width: 58px;
+    height: 58px;
+    border-radius: 17px;
+}
+
+.brand-ring-one {
+    inset: 2px;
+}
+
+.brand-ring-two {
+    inset: 8px;
+}
+
+.brand-copy {
+    margin-bottom: 19px;
+}
+
+.eyebrow {
+    margin-bottom: 5px;
+    font-size: 0.64rem;
+}
+
+.brand-copy h1 {
+    font-size: 1.46rem;
+}
+
+.subtitle {
+    margin-top: 7px;
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.login-form {
+    gap: 12px;
+}
+
+.form-field {
+    gap: 6px;
+}
+
+.form-field label {
+    font-size: 0.72rem;
+}
+
+.field-shell {
+    min-height: 49px;
+    padding: 0 12px;
+    border-radius: 13px;
+}
+
+.field-icon {
+    width: 17px;
+    height: 17px;
+    margin-right: 9px;
+}
+
+.field-shell input {
+    font-size: 0.82rem;
+}
+
+.primary-button {
+    min-height: 49px;
+    margin-top: 3px;
+    border-radius: 13px;
+    font-size: 0.84rem;
+}
+
+.login-divider {
+    margin: 17px 0 10px;
+}
+
+.register-copy,
+.register-link {
+    font-size: 0.75rem;
+}
+
+.register-link {
+    margin-top: 5px;
+}
+
+.security-note {
+    margin-top: 18px;
+    font-size: 0.66rem;
+}
+
+.security-note svg {
+    width: 14px;
+    height: 14px;
+}
+
+.copyright {
+    margin-top: 12px;
+    font-size: 0.62rem;
+}
+
+@media (max-width: 480px) {
+    body.signin-page {
+        padding: 14px 12px;
+    }
+
+    .login-card {
+        padding: 24px 20px 19px;
+        border-radius: 20px;
+    }
+
+    .brand-mark {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 11px;
+    }
+
+    .brand-mark img {
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
+    }
+
+    .brand-copy {
+        margin-bottom: 16px;
+    }
+
+    .brand-copy h1 {
+        font-size: 1.32rem;
+    }
+
+    .subtitle {
+        max-width: 260px;
+        font-size: 0.72rem;
+    }
+
+    .field-shell,
+    .primary-button {
+        min-height: 46px;
+    }
+}
