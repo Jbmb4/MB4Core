@@ -760,3 +760,48 @@ body.signin-page {
         min-height: 40px;
     }
 }
+
+
+/* Minimal original-name login composition */
+.login-card {
+    padding-top: 21px;
+    padding-bottom: 20px;
+}
+
+.brand-copy {
+    margin-bottom: 17px;
+}
+
+.brand-copy h1 {
+    color: #eef5ff;
+    font-size: 1.23rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+}
+
+.register-link {
+    margin: 15px auto 0;
+    color: #86baff;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding-top: 18px;
+        padding-bottom: 17px;
+    }
+
+    .brand-copy {
+        margin-bottom: 14px;
+    }
+
+    .brand-copy h1 {
+        font-size: 1.1rem;
+    }
+
+    .register-link {
+        margin-top: 12px;
+        font-size: 0.68rem;
+    }
+}
