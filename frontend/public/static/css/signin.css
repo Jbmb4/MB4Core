@@ -760,3 +760,32 @@ body.signin-page {
         min-height: 40px;
     }
 }
+
+
+/* Fixed login viewport */
+html,
+body.signin-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden !important;
+    position: relative;
+    overscroll-behavior-x: none;
+}
+
+body.signin-page {
+    touch-action: pan-y;
+}
+
+.auth-shell,
+.login-card {
+    max-width: 100%;
+    min-width: 0;
+}
+
+img,
+svg,
+input,
+button {
+    max-width: 100%;
+}
