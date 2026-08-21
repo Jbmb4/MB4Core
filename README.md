@@ -91,4 +91,12 @@ O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincr
 cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma migrate deploy && pnpm exec prisma generate --schema=./prisma/schema.prisma && pnpm build && pm2 restart DTunnel --update-env
 ```
 
+### Atualizar o e-mail do administrador existente
+
+O seed atualiza a conta administrativa pelo nome de usuário, troca o e-mail para `ADMIN_GMAIL_REDACTED` e preserva a senha já cadastrada:
+
+```bash
+cd /root/Dtmod && pnpm exec prisma db seed
+```
+
 <br />
