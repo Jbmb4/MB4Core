@@ -43,10 +43,7 @@ class ApkDownloadModal {
                         <label class="form-label small text-secondary">Formato</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="app_format" id="format_apk" value="apk" checked>
-                            <label class="btn btn-outline-primary" for="format_apk"><i class="bi bi-box-seam me-1"></i> APK</label>
-                            
-                            <input type="radio" class="btn-check" name="app_format" id="format_aab" value="aab">
-                            <label class="btn btn-outline-primary" for="format_aab"><i class="bi bi-send me-1"></i> AAB</label>
+                            <label class="btn btn-outline-primary w-100" for="format_apk"><i class="bi bi-box-seam me-1"></i> APK</label>
                         </div>
                     </div>
 
