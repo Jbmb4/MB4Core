@@ -7,6 +7,7 @@ import csrfProtection from '../../middlewares/csrf-protection';
 import AdminAuthentication from '../../middlewares/admin-auth';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { accessExpirationInputSchema, calculateAccessExpiration } from '../../utils/access-expiration';
+import { setUserAccessExpiration } from '../../utils/user-access';
 
 const createUserSchema = z
   .object({
@@ -61,8 +62,7 @@ export default {
           email,
           username: username.toLowerCase(),
           password: passwordHash,
-          is_admin: is_admin,
-          access_expires_at,
+          is_admin,
         },
       })
     );
@@ -70,6 +70,8 @@ export default {
     if (!user) {
       throw new Error('Não foi possível criar usuário');
     }
+
+    await setUserAccessExpiration(user.id, access_expires_at);
 
     // Criar textos padrão para o novo usuário
     for await (const AppText of AppTextDefault) {
@@ -90,7 +92,7 @@ export default {
       user: {
         username: user.username,
         is_admin: user.is_admin,
-        access_expires_at: user.access_expires_at,
+        access_expires_at,
       },
     });
   },

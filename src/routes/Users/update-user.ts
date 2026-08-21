@@ -6,6 +6,7 @@ import AdminAuthentication from '../../middlewares/admin-auth';
 import csrfProtection from '../../middlewares/csrf-protection';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { accessExpirationInputSchema, calculateAccessExpiration } from '../../utils/access-expiration';
+import { getUserAccessExpiration, setUserAccessExpiration } from '../../utils/user-access';
 
 const paramsSchema = z.object({
   id: z.string(),
@@ -70,28 +71,37 @@ export default {
     if (data.email) updateData.email = data.email;
     if (data.username) updateData.username = data.username.toLowerCase();
     if (data.is_admin !== undefined) updateData.is_admin = data.is_admin;
-    if (data.access_type !== undefined) {
-      updateData.access_expires_at = calculateAccessExpiration(data);
-    }
 
-    const updated = await SafeCallback(() =>
-      prisma.user.update({
-        where: { id: userId },
-        data: updateData,
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          is_admin: true,
-          access_expires_at: true,
-        },
-      })
-    );
+    const access_expires_at =
+      data.access_type !== undefined ? calculateAccessExpiration(data) : await getUserAccessExpiration(userId);
+
+    const updated = Object.keys(updateData).length
+      ? await SafeCallback(() =>
+          prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              is_admin: true,
+            },
+          })
+        )
+      : user;
 
     if (!updated) {
       throw new Error('Nao foi possivel atualizar o usuario');
     }
 
-    reply.send({ status: 200, message: 'Usuario atualizado com sucesso', user: updated });
+    if (data.access_type !== undefined) {
+      await setUserAccessExpiration(userId, access_expires_at);
+    }
+
+    reply.send({
+      status: 200,
+      message: 'Usuario atualizado com sucesso',
+      user: { ...updated, access_expires_at },
+    });
   },
 } as RouteOptions;

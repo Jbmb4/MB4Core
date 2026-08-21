@@ -88,7 +88,7 @@ pnpm start
 O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincroniza exatamente com `origin/main`, instala as dependências, regenera o Prisma Client, compila o projeto e reinicia o processo correto do PM2:
 
 ```bash
-cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma generate && pnpm build && pm2 restart DTunnel --update-env
+cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma generate --schema=./prisma/schema.prisma && pnpm build && pm2 restart DTunnel --update-env
 ```
 
 <br />

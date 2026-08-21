@@ -5,7 +5,7 @@ import SafeCallback from '../../utils/safe-callback';
 import CookieManager from '../../utils/cookie-manager';
 import csrfProtection from '../../middlewares/csrf-protection';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
-import { isAccessExpired } from '../../utils/access-expiration';
+import { hasActiveUserAccess } from '../../utils/user-access';
 
 const loginSchema = z.object({
   email: z.string().min(3),
@@ -33,7 +33,7 @@ export default {
       throw new Error('Usuário e/ou senha inválidos');
     }
 
-    if (isAccessExpired(user.access_expires_at)) {
+    if (!(await hasActiveUserAccess(user.id))) {
       reply.status(403);
       reply.header('csrf-token', req.csrfProtection.generateCsrf());
       throw new Error('Seu acesso expirou. Procure um administrador para renovar o prazo.');

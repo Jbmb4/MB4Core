@@ -4,7 +4,7 @@ import CookieManager from '../utils/cookie-manager';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import SafeCallback from '../utils/safe-callback';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { isAccessExpired } from '../utils/access-expiration';
+import { hasActiveUserAccess } from '../utils/user-access';
 
 interface IJwtPayload {
   id: string;
@@ -54,7 +54,7 @@ export default class Authentication {
       if (!user) {
         return Authentication.redirect(req, reply);
       }
-      if (isAccessExpired(user.access_expires_at)) {
+      if (!(await hasActiveUserAccess(id))) {
         return Authentication.redirect(req, reply, 'Seu acesso ao painel expirou. Procure um administrador.');
       }
       req.user = user;
