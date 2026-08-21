@@ -19,7 +19,6 @@ from patch_xhttp_checkuser import patch_checkuser_runtime, validate_checkuser_ru
 from patch_xhttp_panel_network import patch_panel_network, validate_panel_network
 from patch_xhttp_manual_refresh import patch_manual_refresh, validate_manual_refresh
 from patch_xhttp_physical_fallback import patch_physical_fallback, validate_physical_fallback
-from patch_xhttp_panel_host import patch_panel_host, validate_panel_host
 try:
     from PIL import Image
     HAS_PIL = True
@@ -472,8 +471,6 @@ def generate_apk(args: argparse.Namespace) -> Path:
             validate_manual_refresh(work_dir)
             patch_physical_fallback(work_dir)
             validate_physical_fallback(work_dir)
-            patch_panel_host(work_dir)
-            validate_panel_host(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)

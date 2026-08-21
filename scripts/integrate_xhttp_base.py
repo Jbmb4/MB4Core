@@ -808,7 +808,6 @@ def main() -> None:
     from patch_xhttp_panel_network import patch_panel_network, validate_panel_network
     from patch_xhttp_manual_refresh import patch_manual_refresh, validate_manual_refresh
     from patch_xhttp_physical_fallback import patch_physical_fallback, validate_physical_fallback
-    from patch_xhttp_panel_host import patch_panel_host, validate_panel_host
     patch_checkuser_runtime(args.base)
     validate_checkuser_runtime(args.base)
     patch_panel_network(args.base)
@@ -817,8 +816,6 @@ def main() -> None:
     validate_manual_refresh(args.base)
     patch_physical_fallback(args.base)
     validate_physical_fallback(args.base)
-    patch_panel_host(args.base)
-    validate_panel_host(args.base)
     patch_manifest(args.base)
     patch_resources(args.reference, args.base)
     patch_startup_text(args.base)
