@@ -5,24 +5,34 @@ const prisma = new PrismaClient();
 
 async function main() {
   const username = 'ADMIN_USERNAME_REDACTED';
+  const normalizedUsername = username.toLowerCase();
   const password = 'ADMIN_PASSWORD_REDACTED';
   const email = 'ADMIN_GMAIL_REDACTED';
+  const legacyEmail = 'ADMIN_EMAIL_REDACTED';
 
   const passwordHash = bcrypt.hashSync(password, 10);
-
-  const user = await prisma.user.upsert({
-    where: { username: username.toLowerCase() },
-    update: {
-      email,
-      is_admin: true,
-    },
-    create: {
-      username: username.toLowerCase(),
-      password: passwordHash,
-      email,
-      is_admin: true,
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ username: normalizedUsername }, { email: legacyEmail }],
     },
   });
+
+  const user = existingUser
+    ? await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          email,
+          is_admin: true,
+        },
+      })
+    : await prisma.user.create({
+        data: {
+          username: normalizedUsername,
+          password: passwordHash,
+          email,
+          is_admin: true,
+        },
+      });
 
   console.log({ message: 'Super Administrador configurado com sucesso', user: user.username, is_admin: user.is_admin });
 }
