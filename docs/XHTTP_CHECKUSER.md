@@ -24,6 +24,8 @@ O endpoint pode retornar o contrato completo:
 }
 ```
 
+A base do painel usada pelo cliente de atualização foi corrigida para `https://mb7nex.shop`: o host antigo `mp.mb7nex.shop` estava sem registro DNS público (NXDOMAIN), enquanto o domínio raiz responde aos endpoints `/api/dtunnelmod/version` e `/api/dtunnelmod/update`. Essa troca é restrita ao cliente do painel e não altera as URLs de checkuser configuradas no painel.
+
 A base também aceita uma lista JSON de nomes de usuário. Nesse caso, o runtime considera o usuário online quando o nome consultado está presente na lista e usa valores vazios/zero para os detalhes que não foram fornecidos.
 
 Durante uma sessão `SSH_XHTTP`, o refresh do painel usa uma `SocketFactory` específica no transporte gRPC. Cada socket do painel é protegido com `VpnService.protect()` antes da conexão, sem alterar o roteamento global do processo nem os sockets do túnel. Se essa proteção não retornar sucesso, a v18 tenta `Network.bindSocket()` em uma rede física com internet e que não seja `TRANSPORT_VPN`. Além disso, o botão de refresh da variante principal é tratado no selector `p4/c.a(9)` e inicia explicitamente `La5/e.e()`, `La5/e.g()` e `La5/e.d()`; um watchdog de 30 segundos encerra somente o indicador visual caso o callback nativo não retorne. O branch `p4/b.a(1)` não deve ser alterado, pois pertence ao fluxo do chooser e sua alteração faz CONFIGURAÇÃO abrir automaticamente. Assim, as requisições de versão/configuração podem continuar usando a rede física enquanto o túnel permanece conectado.
@@ -35,6 +37,7 @@ python3 scripts/test_xhttp_checkuser.py
 python3 scripts/test_xhttp_panel_network.py
 python3 scripts/test_xhttp_manual_refresh.py
 python3 scripts/test_xhttp_physical_fallback.py
+python3 scripts/test_xhttp_panel_host.py
 python3 scripts/verify_xhttp_integration.py
 python3 scripts/check_xhttp_fix.py
 ```
