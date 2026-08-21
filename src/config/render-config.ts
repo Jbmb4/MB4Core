@@ -10,7 +10,11 @@ export class Render {
     const content = eta.readFile(file);
 
     const res = eta.renderString(content, { ...options });
-    reply.header('Content-Type', 'text/html');
-    reply.send(res);
+    reply
+      .header('Content-Type', 'text/html; charset=utf-8')
+      .header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+      .header('Pragma', 'no-cache')
+      .header('Expires', '0')
+      .send(res);
   }
 }
