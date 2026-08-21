@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc --build",
+    "db:generate": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
+    "build": "npm run db:generate && tsc --build",
     "start": "node build/src/index.js",
     "dev": "tsx watch src/index.ts",
     "prod": "pm2 start ecosystem.config.js",

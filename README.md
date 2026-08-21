@@ -57,22 +57,42 @@ node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 npm install
 ```
 
-### 2. Gerar artefactos do prisma
+### 2. Gerar artefactos do Prisma
 
 ```bash
-npx prisma generate
+npm run db:generate
 ```
 
-### 3. Crie as migrations do banco de dados
+### 3. Aplicar as migrations do banco de dados
 
 ```bash
-npx prisma migrate deploy
+npm run db:deploy
 ```
 
-### 4. Rodando o projeto
+### 4. Compilar o projeto
+
+O comando de build regenera o Prisma Client automaticamente antes de executar o TypeScript:
+
+```bash
+npm run build
+```
+
+### 5. Rodando o projeto
 
 ```bash
 npm run start
+```
+
+### Atualização do painel no VPS
+
+Depois de baixar uma atualização do GitHub, execute a sequência abaixo na pasta do projeto. Ela instala eventuais dependências, aplica a nova estrutura do banco, regenera o Prisma Client e recompila o painel:
+
+```bash
+git pull origin main
+npm install
+npm run db:deploy
+npm run build
+pm2 restart ecosystem.config.js --update-env
 ```
 
 <br />
