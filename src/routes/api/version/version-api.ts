@@ -11,7 +11,7 @@ const headerSchema = z.object({
   version: z.enum(['app_config', 'app_layout', 'app_text']).optional(),
   'dtunnel-token': z.string().optional(),
   'dtunnel-update': z.enum(['app_config', 'app_layout', 'app_text']).optional(),
-  //'user-agent': z.literal('DTunnelMod (@DTunnelMod, @DTunnelModGroup, @LightXVD)'),
+  //'user-agent': z.literal('DTunnelMod (, , )'),
 });
 
 const handler = {
