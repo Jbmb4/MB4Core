@@ -18,6 +18,7 @@ from xml.sax.saxutils import escape as xml_escape
 from patch_xhttp_checkuser import patch_checkuser_runtime, validate_checkuser_runtime
 from patch_xhttp_panel_network import patch_panel_network, validate_panel_network
 from patch_xhttp_manual_refresh import patch_manual_refresh, validate_manual_refresh
+from patch_xhttp_physical_fallback import patch_physical_fallback, validate_physical_fallback
 try:
     from PIL import Image
     HAS_PIL = True
@@ -468,6 +469,8 @@ def generate_apk(args: argparse.Namespace) -> Path:
             validate_panel_network(work_dir)
             patch_manual_refresh(work_dir)
             validate_manual_refresh(work_dir)
+            patch_physical_fallback(work_dir)
+            validate_physical_fallback(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)
