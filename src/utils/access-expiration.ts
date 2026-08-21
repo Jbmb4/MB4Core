@@ -6,13 +6,13 @@ export type AccessDurationUnit = z.infer<typeof accessDurationUnitSchema>;
 export const accessExpirationInputSchema = z
   .object({
     access_type: z.enum(['lifetime', 'duration']).optional(),
-    access_duration: z.coerce.number().int().min(1).max(3650).optional(),
+    access_duration: z.coerce.number().int().min(0).max(3650).optional(),
     access_unit: accessDurationUnitSchema.optional(),
   })
   .superRefine((data, ctx) => {
     if (data.access_type !== 'duration') return;
 
-    if (!data.access_duration) {
+    if (!data.access_duration || data.access_duration < 1) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['access_duration'], message: 'Informe a duração do acesso.' });
     }
     if (!data.access_unit) {

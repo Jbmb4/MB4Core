@@ -269,6 +269,7 @@
     function getAccessPayload(prefix) {
       const access_type = document.getElementById(prefix + 'AccessType').value;
       if (access_type === 'keep') return {};
+      if (access_type === 'lifetime') return { access_type };
 
       const access_duration = Number(document.getElementById(prefix + 'AccessDuration').value);
       const access_unit = document.getElementById(prefix + 'AccessUnit').value;
