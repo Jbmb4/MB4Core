@@ -99,4 +99,12 @@ O seed atualiza a conta administrativa pelo nome de usuário, troca o e-mail par
 cd /root/Dtmod && pnpm exec prisma db seed
 ```
 
+### Configurar Colaboradores e Pix
+
+Depois da atualização, entre no painel com uma conta administradora e abra o menu **Colaboradores**. Informe o Access Token do Mercado Pago, defina o valor em reais e ative a opção **Ativar card de Colaboradores para os usuários**. O token é armazenado protegido no banco e nunca é enviado para usuários comuns.
+
+O card aparece no dashboard somente quando o administrador ativar a opção e existir valor configurado. Usuários comuns podem apenas gerar o código Pix; a criação da cobrança usa o valor definido pelo administrador e retorna o QR Code e o código copia e cola.
+
+O recurso exige `JWT_SECRET_KEY` ou `CSRF_SECRET` no `.env` para proteger o token armazenado. A geração do Pix usa a API de pagamentos do Mercado Pago, com `X-Idempotency-Key` em cada solicitação. A confirmação automática do pagamento ainda não está incluída nesta primeira versão.
+
 <br />

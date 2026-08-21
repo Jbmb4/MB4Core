@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR" translate="no" data-bs-theme="dark">
+<head>
+  <base href="/" target="_blank">
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>MB4Nexus - Colaboradores</title>
+  <link rel="shortcut icon" href="/static/img/favicon.svg?v=20260815-nexus-2" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../static/css/styles.css">
+  <link rel="stylesheet" href="../static/css/bootstrap.css">
+  <link rel="stylesheet" href="../static/css/sidebar.css">
+  <link rel="stylesheet" href="../static/css/header.css">
+  <meta name="csrf-token" content="<%= it.csrfToken %>">
+</head>
+<body>
+  <main class="d-flex">
+    <%~ include("./sidebar", it) %>
+    <div class="container-fluid p-0">
+      <%~ include("./header", it) %>
+      <div class="content pt-1 overflow-auto">
+        <div class="main-content-container container-fluid px-4">
+          <div class="mb-2">
+            <h4 class="fw-bold"><i class="bi bi-people me-2"></i> Colaboradores</h4>
+            <hr />
+          </div>
+
+          <% if (it.user.is_admin) { %>
+          <div class="card shadow border border-0 mb-4">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-sliders me-2"></i> Configuração do administrador</h5>
+              <p class="text-muted">Defina o token do Mercado Pago, o valor da contribuição e quando o card ficará visível para os usuários.</p>
+              <form id="collaboratorSettingsForm">
+                <div class="form-check form-switch mb-3">
+                  <input class="form-check-input" type="checkbox" role="switch" id="collaboratorEnabled" <%= it.settings.enabled ? 'checked' : '' %>>
+                  <label class="form-check-label" for="collaboratorEnabled">Ativar card de Colaboradores para os usuários</label>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="mercadoPagoToken">Token de acesso do Mercado Pago</label>
+                  <input type="password" class="form-control" id="mercadoPagoToken" autocomplete="new-password" placeholder="<%= it.settings.hasToken ? 'Token configurado; deixe vazio para manter' : 'Cole o Access Token do Mercado Pago' %>">
+                  <div class="form-text"><%= it.settings.hasToken ? 'Token já configurado e protegido no servidor.' : 'O token não será enviado para o navegador dos usuários.' %></div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="collaboratorAmount">Valor do Pix (R$)</label>
+                  <input type="number" class="form-control" id="collaboratorAmount" min="0.01" max="1000000" step="0.01" value="<%= it.settings.amount ?? '' %>" placeholder="Defina o valor">
+                  <div class="form-text">O valor será definido pelo administrador e usado em cada geração de Pix.</div>
+                </div>
+                <button type="button" class="btn btn-primary" id="saveCollaboratorSettings">
+                  <i class="bi bi-save me-1"></i> Salvar configuração
+                </button>
+              </form>
+            </div>
+          </div>
+          <% } %>
+
+          <% if (it.settings.enabled && it.settings.amount) { %>
+          <div class="card shadow border border-0 mb-4">
+            <div class="card-body text-center">
+              <div class="rounded-circle bg-dark bg-opacity-10 mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 76px; height: 76px">
+                <i class="bi bi-qr-code fs-1"></i>
+              </div>
+              <h5 class="card-title">Contribuição de Colaboradores</h5>
+              <p class="text-muted">Gere um código Pix com o valor definido pelo administrador.</p>
+              <p class="fs-3 fw-bold" id="collaboratorAmountDisplay"></p>
+              <button type="button" class="btn btn-success" id="generateCollaboratorPix">
+                <i class="bi bi-lightning-charge me-1"></i> Gerar código Pix
+              </button>
+            </div>
+          </div>
+          <% } else if (!it.user.is_admin) { %>
+          <div class="alert alert-secondary">O card de Colaboradores não está ativo no momento.</div>
+          <% } %>
+
+          <div class="card shadow border border-0 d-none" id="pixResultCard">
+            <div class="card-body">
+              <h5 class="card-title"><i class="bi bi-check-circle me-2"></i> Pix gerado</h5>
+              <p class="text-muted">Use o QR Code ou copie o código Pix para concluir o pagamento.</p>
+              <div class="text-center mb-3">
+                <img id="pixQrCode" alt="QR Code Pix" class="img-fluid" style="max-width: 280px;">
+              </div>
+              <div class="input-group mb-3">
+                <textarea class="form-control" id="pixCopyPaste" rows="4" readonly></textarea>
+                <button class="btn btn-outline-primary" type="button" id="copyPixCode">Copiar</button>
+              </div>
+              <a class="btn btn-outline-secondary d-none" id="pixTicketUrl" target="_blank" rel="noopener">Abrir pagamento</a>
+              <div class="small text-muted mt-3">Status inicial: <span id="pixStatus"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../static/js/sidebar.js"></script>
+  <script src="../static/js/utils.js"></script>
+  <script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const configuredAmount = <%= it.settings.amount ?? 'null' %>;
+    const formatBRL = (value) => value == null ? '' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    const amountDisplay = document.getElementById('collaboratorAmountDisplay');
+    if (amountDisplay && configuredAmount != null) amountDisplay.textContent = formatBRL(configuredAmount);
+
+    document.getElementById('saveCollaboratorSettings')?.addEventListener('click', async () => {
+      const enabled = document.getElementById('collaboratorEnabled').checked;
+      const amountValue = document.getElementById('collaboratorAmount').value;
+      const token = document.getElementById('mercadoPagoToken').value.trim();
+      const body = { enabled, amount: amountValue ? Number(amountValue) : null };
+      if (token) body.token = token;
+
+      try {
+        const response = await fetch('/collaborators/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'csrf-token': csrfToken },
+          body: JSON.stringify(body),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Não foi possível salvar a configuração.');
+        await Swal.fire({ icon: 'success', title: 'Sucesso', text: data.message, confirmButtonText: 'OK' });
+        window.location.reload();
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: error.message || 'Não foi possível salvar a configuração.' });
+      }
+    });
+
+    document.getElementById('generateCollaboratorPix')?.addEventListener('click', async () => {
+      const button = document.getElementById('generateCollaboratorPix');
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Gerando Pix...';
+      try {
+        const response = await fetch('/collaborators/pix', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'csrf-token': csrfToken },
+          body: '{}',
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Não foi possível gerar o Pix.');
+        const payment = data.payment;
+        document.getElementById('pixResultCard').classList.remove('d-none');
+        document.getElementById('pixCopyPaste').value = payment.qr_code;
+        document.getElementById('pixStatus').textContent = payment.status;
+        document.getElementById('pixQrCode').src = payment.qr_code_base64
+          ? 'data:image/png;base64,' + payment.qr_code_base64
+          : '';
+        if (payment.ticket_url) {
+          const ticket = document.getElementById('pixTicketUrl');
+          ticket.href = payment.ticket_url;
+          ticket.classList.remove('d-none');
+        }
+        document.getElementById('pixResultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        Swal.fire({ icon: 'error', title: 'Erro', text: error.message || 'Não foi possível gerar o Pix.' });
+      } finally {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-lightning-charge me-1"></i> Gerar código Pix';
+      }
+    });
+
+    document.getElementById('copyPixCode')?.addEventListener('click', async () => {
+      const value = document.getElementById('pixCopyPaste').value;
+      await navigator.clipboard.writeText(value);
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Código copiado', showConfirmButton: false, timer: 1600 });
+    });
+  </script>
+</body>
+</html>

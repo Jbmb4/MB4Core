@@ -46,6 +46,12 @@
         <span>Usuarios</span>
       </a>
     </li>
+    <li class="nav-item">
+      <a href="/collaborators" target="_self" class="nav-link text-white <%~ it.active === 'collaborators' ? 'active' : '' %>">
+        <i class="bi bi-qr-code"></i>
+        <span>Colaboradores</span>
+      </a>
+    </li>
     <% } %>
     <li class="nav-item">
       <a href="/texts" target="_self" class="nav-link text-white <%~ it.active === 'texts' ? 'active' : '' %>">

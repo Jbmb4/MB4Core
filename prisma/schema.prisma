@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id                 String    @id @default(uuid())
-  username           String    @unique
-  password           String
-  email              String    @unique
-  is_admin           Boolean   @default(false)
-  access_expires_at  DateTime?
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  app_text_version   Int       @default(1)
-  app_layout_version Int       @default(1)
-  app_config_version Int       @default(1)
+  id                   String    @id @default(uuid())
+  username             String    @unique
+  password             String
+  email                String    @unique
+  is_admin             Boolean   @default(false)
+  access_expires_at    DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+  app_text_version     Int       @default(1)
+  app_layout_version   Int       @default(1)
+  app_config_version   Int       @default(1)
+  collaborator_enabled Boolean   @default(false)
+  collaborator_amount  Int?
+  mercado_pago_token   String?
 
   cdn       Cdn[]
   AppText   AppText[]
