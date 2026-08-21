@@ -4,40 +4,50 @@ from __future__ import annotations
 from pathlib import Path
 
 
-BINDING = Path("smali/p4/b.smali")
+BINDING = Path("smali/p4/c.smali")
 WATCHDOG = Path("smali_classes3/com/dtunnel/xhttp/PanelUpdateWatchdog.smali")
 WATCHDOG_RUNNABLE = Path("smali_classes3/com/dtunnel/xhttp/PanelUpdateWatchdog$1.smali")
 
-OLD_REFRESH_BRANCH = '''    :cond_1
-    iget-object p1, p0, Lp4/a;->e0:La5/e;
+OLD_REFRESH_BRANCH = '''    :pswitch_0
+    iget-object p1, p0, Lp4/a;->d0:La5/n;
 
-    .line 68
+    .line 11
     if-eqz p1, :cond_2
 
-    .line 70
-    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
+    .line 13
+    iget-object p1, p1, La5/n;->N:Landroidx/lifecycle/c0;
 
-    .line 72
-    goto :goto_0'''
+    .line 15
+    :goto_0
+    invoke-static {v1, p1}, Landroidx/datastore/preferences/protobuf/d;->t(Ljava/lang/Object;Landroidx/lifecycle/c0;)V
 
-NEW_REFRESH_BRANCH = '''    :cond_1
+    .line 18
+    return-void'''
+
+
+NEW_REFRESH_BRANCH = '''    :pswitch_0
     iget-object p1, p0, Lp4/a;->e0:La5/e;
 
-    .line 68
+    .line 11
     if-eqz p1, :cond_2
 
-    .line 70
-    iget-object v0, p1, La5/e;->n:Landroidx/lifecycle/c0;
-
-    invoke-static {v1, v0}, Landroidx/datastore/preferences/protobuf/d;->t(Ljava/lang/Object;Landroidx/lifecycle/c0;)V
-
+    .line 13
     invoke-virtual {p1}, La5/e;->e()V
 
+    .line 16
     invoke-virtual {p1}, La5/e;->g()V
 
+    .line 19
     invoke-virtual {p1}, La5/e;->d()V
 
+    .line 22
     invoke-static {p1}, Lcom/dtunnel/xhttp/PanelUpdateWatchdog;->schedule(La5/e;)V
+
+    .line 25
+    return-void
+
+    :goto_0
+    invoke-static {v1, p1}, Landroidx/datastore/preferences/protobuf/d;->t(Ljava/lang/Object;Landroidx/lifecycle/c0;)V
 
     return-void'''
 
@@ -107,7 +117,7 @@ WATCHDOG_RUNNABLE_SMALI = r'''.class final Lcom/dtunnel/xhttp/PanelUpdateWatchdo
 def patch_manual_refresh(root: Path) -> None:
     binding = root / BINDING
     if not binding.is_file():
-        raise RuntimeError("Base XHTTP sem smali/p4/b.smali")
+        raise RuntimeError("Base XHTTP sem smali/p4/c.smali")
     target_dir = root / WATCHDOG.parent
     target_dir.mkdir(parents=True, exist_ok=True)
     (root / WATCHDOG).write_text(WATCHDOG_SMALI, encoding="utf-8")
@@ -117,7 +127,7 @@ def patch_manual_refresh(root: Path) -> None:
     if NEW_REFRESH_BRANCH in text:
         return
     if OLD_REFRESH_BRANCH not in text:
-        raise RuntimeError("Branch do botão de refresh não encontrada em p4/b.smali")
+        raise RuntimeError("Branch do botão de refresh não encontrada em p4/c.smali")
     binding.write_text(text.replace(OLD_REFRESH_BRANCH, NEW_REFRESH_BRANCH, 1), encoding="utf-8")
 
 
@@ -129,12 +139,13 @@ def validate_manual_refresh(root: Path) -> None:
         "La5/e;->g()V",
         "La5/e;->d()V",
         "PanelUpdateWatchdog;->schedule(La5/e;)V",
+        "Lp4/a;->e0:La5/e;",
     )
     missing = [marker for marker in required if marker not in text]
     if missing:
         raise RuntimeError(f"Refresh manual incompleto: {missing}")
     if OLD_REFRESH_BRANCH in text:
-        raise RuntimeError("Refresh manual ainda apenas limpa La5/e.n")
+        raise RuntimeError("Refresh manual ainda apenas limpa La5/n.N")
     for relative in (WATCHDOG, WATCHDOG_RUNNABLE):
         if not (root / relative).is_file():
             raise RuntimeError(f"Arquivo ausente: {relative}")

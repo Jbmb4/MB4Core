@@ -19,18 +19,24 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory) / "base"
         shutil.copytree(BASE, root)
-        patch_manual_refresh(root)
-        validate_manual_refresh(root)
-        binding = root / "smali/p4/b.smali"
+        binding = root / "smali/p4/c.smali"
+        chooser = root / "smali/p4/b.smali"
         first = binding.read_text(encoding="utf-8")
+        chooser_before = chooser.read_text(encoding="utf-8")
         patch_manual_refresh(root)
         validate_manual_refresh(root)
         second = binding.read_text(encoding="utf-8")
-        assert first == second
+        chooser_after = chooser.read_text(encoding="utf-8")
+        assert first != second
+        assert chooser_before == chooser_after
         assert second.count("La5/e;->e()V") == 1
         assert second.count("La5/e;->g()V") == 1
         assert second.count("La5/e;->d()V") == 1
-        assert second.count("PanelUpdateWatchdog;->schedule(La5/e;)V") == 1
+        assert second.count("PanelUpdateWatchdog;->schedule(La5/e;)") == 1
+        patch_manual_refresh(root)
+        validate_manual_refresh(root)
+        assert binding.read_text(encoding="utf-8") == second
+        assert chooser.read_text(encoding="utf-8") == chooser_after
 
     print("SSH_XHTTP manual refresh regression test passed")
 
