@@ -26,13 +26,14 @@ O endpoint pode retornar o contrato completo:
 
 A base também aceita uma lista JSON de nomes de usuário. Nesse caso, o runtime considera o usuário online quando o nome consultado está presente na lista e usa valores vazios/zero para os detalhes que não foram fornecidos.
 
-Durante uma sessão `SSH_XHTTP`, o refresh do painel usa uma `SocketFactory` específica no transporte gRPC. Cada socket do painel é protegido com `VpnService.protect()` antes da conexão, sem alterar o roteamento global do processo nem os sockets do túnel. Assim, as requisições de versão/configuração podem continuar usando a rede física enquanto o túnel permanece conectado.
+Durante uma sessão `SSH_XHTTP`, o refresh do painel usa uma `SocketFactory` específica no transporte gRPC. Cada socket do painel é protegido com `VpnService.protect()` antes da conexão, sem alterar o roteamento global do processo nem os sockets do túnel. Além disso, o botão de refresh inicia explicitamente `La5/e.e()`, `La5/e.g()` e `La5/e.d()`; um watchdog de 30 segundos encerra somente o indicador visual caso o callback nativo não retorne. Assim, as requisições de versão/configuração podem continuar usando a rede física enquanto o túnel permanece conectado.
 
 Para testar as correções antes de gerar uma APK branded:
 
 ```bash
 python3 scripts/test_xhttp_checkuser.py
 python3 scripts/test_xhttp_panel_network.py
+python3 scripts/test_xhttp_manual_refresh.py
 python3 scripts/verify_xhttp_integration.py
 python3 scripts/check_xhttp_fix.py
 ```

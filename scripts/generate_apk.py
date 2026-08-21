@@ -17,6 +17,7 @@ from pathlib import Path
 from xml.sax.saxutils import escape as xml_escape
 from patch_xhttp_checkuser import patch_checkuser_runtime, validate_checkuser_runtime
 from patch_xhttp_panel_network import patch_panel_network, validate_panel_network
+from patch_xhttp_manual_refresh import patch_manual_refresh, validate_manual_refresh
 try:
     from PIL import Image
     HAS_PIL = True
@@ -465,6 +466,8 @@ def generate_apk(args: argparse.Namespace) -> Path:
             validate_checkuser_runtime(work_dir)
             patch_panel_network(work_dir)
             validate_panel_network(work_dir)
+            patch_manual_refresh(work_dir)
+            validate_manual_refresh(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)
