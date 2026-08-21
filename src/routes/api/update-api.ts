@@ -11,7 +11,7 @@ const headerSchema = z.object({
   password: z.string().optional(),
   token: z.string(),
   update: z.enum(['cdn', 'category', 'app_config', 'app_layout', 'app_text']),
-  //'user-agent': z.literal(')'),
+  //'user-agent': z.literal('DTunnelMod ()'),
 });
 
 const handler = {
