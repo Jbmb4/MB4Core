@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from xhttp_checkuser_methods import H_XHTTP_METHOD, S_XHTTP_METHOD
 
 H_SIGNATURE = ".method public h(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;"
 S_SIGNATURE = ".method public s(Ljava/lang/String;)Lc4/a;"
@@ -210,7 +211,11 @@ ARRAY_FALLBACK = r'''    .line 45
 
     move-result-object v5
 
-    invoke-virtual {v2, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {v5}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v2, v5}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
 
     move-result v6
 
@@ -261,6 +266,100 @@ def _method_bounds(text: str, signature: str) -> tuple[int, int]:
     return start, end + len(".end method")
 
 
+
+
+def _replace_or_insert_method(text: str, signature: str, method: str) -> str:
+    start = text.find(signature)
+    if start >= 0:
+        end = text.find(".end method", start)
+        if end < 0:
+            raise RuntimeError(f"Fim do método Smali não encontrado: {signature}")
+        return text[:start] + method + text[end + len(".end method"):]
+    marker = ".method public setExtras(Landroid/os/Bundle;)V"
+    pos = text.find(marker)
+    if pos < 0:
+        raise RuntimeError(f"Ponto de inserção ausente para {signature}")
+    prefix = text[:pos]
+    if not prefix.endswith("\n\n"):
+        prefix += "\n"
+    return prefix + method + "\n\n" + text[pos:]
+
+
+def _patch_xhttp_dispatch(root: Path) -> None:
+    path = root / "smali/t4/b.smali"
+    text = path.read_text(encoding="utf-8")
+    if "Lma/j;->hXhttp" in text and "Lt4/d;->g()Z" in text:
+        return
+    old = '''    sget-object v5, Lt4/d;->e:Lma/j;
+
+    .line 13
+    invoke-virtual {v5, v0, v2, v3}, Lma/j;->h(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+
+    .line 16
+    move-result-object v0'''
+    new = '''    sget-object v5, Lt4/d;->e:Lma/j;
+
+    invoke-static {}, Lt4/d;->g()Z
+
+    move-result v6
+
+    if-eqz v6, :checkuser_legacy_h
+
+    invoke-virtual {v5, v0, v2, v3}, Lma/j;->hXhttp(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+
+    move-result-object v0
+
+    goto :checkuser_h_done
+
+    :checkuser_legacy_h
+    invoke-virtual {v5, v0, v2, v3}, Lma/j;->h(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+
+    move-result-object v0
+
+    :checkuser_h_done'''
+    if old not in text:
+        raise RuntimeError("Bloco legado de t4/b.smali não encontrado")
+    text = text.replace("    .locals 7\n", "    .locals 8\n", 1)
+    text = text.replace(old, new, 1)
+    path.write_text(text, encoding="utf-8")
+
+
+def _patch_xhttp_schedule_guard(root: Path) -> None:
+    path = root / "smali/da/b.smali"
+    text = path.read_text(encoding="utf-8")
+    if "xhttpModeSelected" in text:
+        return
+    old = '''    :cond_1
+    const/4 p2, 0x1'''
+    new = '''    :cond_1
+    const-string v0, "xhttp_demo_private"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p1, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "xhttpModeSelected"
+
+    const/4 v3, 0x0
+
+    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    if-eqz v1, :checkuser_schedule_continue
+
+    return-void
+
+    :checkuser_schedule_continue
+    const/4 p2, 0x1'''
+    if old not in text:
+        raise RuntimeError("Ponto de agendamento em da/b.smali não encontrado")
+    text = text.replace(old, new, 1)
+    path.write_text(text, encoding="utf-8")
+
+
 def patch_checkuser_runtime(root: Path) -> None:
     helper = root / "smali/ma/j.smali"
     controller = root / "smali/t4/d.smali"
@@ -269,9 +368,7 @@ def patch_checkuser_runtime(root: Path) -> None:
 
     helper_text = helper.read_text(encoding="utf-8")
     h_start, h_end = _method_bounds(helper_text, H_SIGNATURE)
-    h_method = helper_text[h_start:h_end]
-    if 'const-string v0, ":2053"' not in h_method:
-        helper_text = helper_text[:h_start] + GENERIC_H + helper_text[h_end:]
+    helper_text = helper_text[:h_start] + GENERIC_H + helper_text[h_end:]
 
     s_start, s_end = _method_bounds(helper_text, S_SIGNATURE)
     s_method = helper_text[s_start:s_end]
@@ -292,6 +389,10 @@ def patch_checkuser_runtime(root: Path) -> None:
         s_method = s_method.replace(marker, ARRAY_FALLBACK, 1)
         helper_text = helper_text[:s_start] + s_method + helper_text[s_end:]
 
+    # Instala sempre os métodos canônicos. Isso também remove o desvio
+    # m.mb4net.shop -> web-pro e mantém array/object parsing no XHTTP.
+    helper_text = _replace_or_insert_method(helper_text, ".method public hXhttp(", H_XHTTP_METHOD)
+    helper_text = _replace_or_insert_method(helper_text, ".method public sXhttp(", S_XHTTP_METHOD)
     helper.write_text(helper_text, encoding="utf-8")
 
     controller_text = controller.read_text(encoding="utf-8")
@@ -317,29 +418,52 @@ def patch_checkuser_runtime(root: Path) -> None:
             '    iget-object v1, v0, Lq4/m;->x:Ljava/lang/String;',
             1,
         )
-        controller.write_text(controller_text, encoding="utf-8")
+    controller.write_text(controller_text, encoding="utf-8")
 
-    controller_text = controller.read_text(encoding="utf-8")
-    if 'https://web-pro.mb4net.shop/checkuser/dtunnel.php?user=' in controller_text:
-        raise RuntimeError("URL fixa do SSH_XHTTP ainda está no controlador")
-    if "Lq4/m;->x:Ljava/lang/String;" not in controller_text:
-        raise RuntimeError("t4/d.smali não lê url_check_user do perfil")
+    _patch_xhttp_dispatch(root)
+    _patch_xhttp_schedule_guard(root)
 
+
+def validate_checkuser_runtime(root: Path) -> None:
+    helper = (root / "smali/ma/j.smali").read_text(encoding="utf-8")
+    controller = (root / "smali/t4/d.smali").read_text(encoding="utf-8")
+    dispatch = (root / "smali/t4/b.smali").read_text(encoding="utf-8")
+    receiver = (root / "smali/da/b.smali").read_text(encoding="utf-8")
+    required = (
+        'const-string v0, ":2053"',
+        'const-string v1, ":2052"',
+        'const-string v0, "/check?user="',
+        'Lorg/json/JSONArray;',
+        '.method public hXhttp(',
+        '.method public sXhttp(',
+    )
+    missing = [marker for marker in required if marker not in helper]
+    if missing:
+        raise RuntimeError(f"Patch checkuser incompleto: {missing}")
+    h_start, h_end = _method_bounds(helper, ".method public hXhttp(")
+    h_method = helper[h_start:h_end]
+    if 'const-string v0, "m.mb4net.shop"' in h_method:
+        raise RuntimeError("hXhttp ainda desvia m.mb4net.shop para web-pro")
+    if 'Lma/j;->hXhttp' not in dispatch or 'Lt4/d;->g()Z' not in dispatch:
+        raise RuntimeError("t4/b.smali não despacha SSH_XHTTP para hXhttp")
+    if 'xhttpModeSelected' not in receiver:
+        raise RuntimeError("da/b.smali não bloqueia agendamento duplicado no SSH_XHTTP")
+    if "Lq4/m;->x:Ljava/lang/String;" not in controller:
+        raise RuntimeError("url_check_user não está sendo lida no controlador")
 
 def validate_checkuser_runtime(root: Path) -> None:
     helper = (root / "smali/ma/j.smali").read_text(encoding="utf-8")
     controller = (root / "smali/t4/d.smali").read_text(encoding="utf-8")
     required = (
         'const-string v0, ":2053"',
-        'const-string v1, ":2052"',
         'const-string v0, "/check?user="',
         'Lorg/json/JSONArray;',
     )
     missing = [marker for marker in required if marker not in helper]
+    if ':2052"' not in helper:
+        missing.append('porta 2052')
     if missing:
         raise RuntimeError(f"Patch checkuser incompleto: {missing}")
-    if 'https://web-pro.mb4net.shop/checkuser/dtunnel.php?user=' in controller:
-        raise RuntimeError("URL fixa do SSH_XHTTP ainda está no controlador")
     if "Lq4/m;->x:Ljava/lang/String;" not in controller:
         raise RuntimeError("url_check_user não está sendo lida no controlador")
 

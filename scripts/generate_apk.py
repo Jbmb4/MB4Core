@@ -137,6 +137,26 @@ def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
     except Exception as e:
         print(f"Aviso: erro ao atualizar dtunnelmod.json: {e}")
 
+TEMPORARY_PANEL_HOSTS = ("mp.mb7nex.shop", "mb7nex.shop")
+
+
+def validate_panel_host_sources(work_dir: Path) -> None:
+    """Reject temporary hardcoded panel hosts in the runtime clients."""
+    targets = (
+        work_dir / "smali/bc/o.smali",
+        work_dir / "smali/i4/b.smali",
+    )
+    for path in targets:
+        if not path.is_file():
+            raise RuntimeError(f"Cliente de painel ausente: {path.relative_to(work_dir)}")
+        content = path.read_text(encoding="utf-8")
+        found = [host for host in TEMPORARY_PANEL_HOSTS if host in content]
+        if found:
+            raise RuntimeError(
+                f"Host temporário encontrado em {path.relative_to(work_dir)}: {', '.join(found)}"
+            )
+
+
 def update_app_name(work_dir: Path, new_name: str) -> None:
     clean_name = new_name.strip()
     if not clean_name:
@@ -473,8 +493,9 @@ def generate_apk(args: argparse.Namespace) -> Path:
             validate_physical_fallback(work_dir)
 
         replace_domains(work_dir, args.domain)
+        validate_panel_host_sources(work_dir)
         update_user_id(work_dir, args.user_id)
-        update_dtunnelmod_json(work_dir, args.domain)
+        # O asset dtunnelmod.json permanece como está na base; não sobrescrever.
         
         if args.name:
             update_app_name(work_dir, args.name)

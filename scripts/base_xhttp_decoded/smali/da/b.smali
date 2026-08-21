@@ -116,6 +116,25 @@
 
     .line 59
     :cond_1
+    const-string v0, "xhttp_demo_private"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p1, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "xhttpModeSelected"
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_2
+
+    return-void
+
+    :cond_2
     const/4 p2, 0x1
 
     .line 60
@@ -175,41 +194,41 @@
     const/4 v0, 0x1
 
     .line 96
-    if-eq p1, p2, :cond_8
+    if-eq p1, p2, :cond_9
 
     .line 98
     const/4 p2, 0x5
 
     .line 99
-    if-eq p1, p2, :cond_8
+    if-eq p1, p2, :cond_9
 
     .line 101
     const/16 p2, 0x9
 
     .line 103
-    if-eq p1, p2, :cond_2
+    if-eq p1, p2, :cond_3
 
     .line 105
     const/16 p2, 0xb
 
     .line 107
-    if-eq p1, p2, :cond_2
+    if-eq p1, p2, :cond_3
 
     .line 109
     const/16 p2, 0xc
 
     .line 111
-    if-eq p1, p2, :cond_2
+    if-eq p1, p2, :cond_3
 
     .line 113
     goto :goto_2
 
     .line 114
-    :cond_2
+    :cond_3
     sget-object p1, Lt4/a;->h:Landroid/content/Context;
 
     .line 116
-    if-eqz p1, :cond_3
+    if-eqz p1, :cond_4
 
     .line 118
     sget-object p2, Le4/g;->B:Le4/g;
@@ -221,30 +240,30 @@
     invoke-virtual {p2, p1, v2}, Le4/g;->b(Landroid/content/Context;Ljava/lang/String;)V
 
     .line 125
-    :cond_3
+    :cond_4
     sput-boolean v1, Lt4/a;->g:Z
 
     .line 127
     sget-object p1, Lt4/a;->d:Ljava/util/concurrent/Future;
 
     .line 129
-    if-eqz p1, :cond_4
+    if-eqz p1, :cond_5
 
     .line 131
     invoke-interface {p1, v0}, Ljava/util/concurrent/Future;->cancel(Z)Z
 
     .line 134
-    :cond_4
+    :cond_5
     sget-object p1, Lt4/a;->e:Ljava/util/concurrent/ScheduledFuture;
 
     .line 136
-    if-eqz p1, :cond_5
+    if-eqz p1, :cond_6
 
     .line 138
     invoke-interface {p1, v0}, Ljava/util/concurrent/Future;->cancel(Z)Z
 
     .line 141
-    :cond_5
+    :cond_6
     const/4 p1, 0x0
 
     .line 142
@@ -257,14 +276,14 @@
     sget-object p2, Lt4/a;->i:Lda/b;
 
     .line 148
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     .line 150
     :try_start_0
     sget-object v0, Lt4/a;->h:Landroid/content/Context;
 
     .line 152
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_7
 
     .line 154
     invoke-virtual {v0, p2}, Landroid/content/Context;->unregisterReceiver(Landroid/content/BroadcastReceiver;)V
@@ -285,12 +304,12 @@
     invoke-static {p2}, Lcom/bumptech/glide/c;->c(Ljava/lang/Throwable;)Lab/h;
 
     .line 163
-    :cond_6
+    :cond_7
     :goto_1
     sput-object p1, Lt4/a;->i:Lda/b;
 
     .line 165
-    :cond_7
+    :cond_8
     sput-object p1, Lt4/a;->h:Landroid/content/Context;
 
     .line 167
@@ -309,17 +328,17 @@
     goto :goto_2
 
     .line 177
-    :cond_8
+    :cond_9
     sget-boolean p1, Lt4/a;->g:Z
 
     .line 179
-    if-eqz p1, :cond_9
+    if-eqz p1, :cond_a
 
     .line 181
     goto :goto_2
 
     .line 182
-    :cond_9
+    :cond_a
     sput-boolean v0, Lt4/a;->g:Z
 
     .line 184
@@ -397,7 +416,7 @@
     sget-object v0, Lcom/ssh/service/SshVpnServiceManager;->b:Ljava/lang/ref/SoftReference;
 
     .line 234
-    if-eqz v0, :cond_15
+    if-eqz v0, :cond_16
 
     .line 236
     invoke-virtual {v0}, Ljava/lang/ref/SoftReference;->get()Ljava/lang/Object;
@@ -409,13 +428,13 @@
     check-cast v0, Lia/a;
 
     .line 242
-    if-nez v0, :cond_a
+    if-nez v0, :cond_b
 
     .line 244
     goto/16 :goto_4
 
     .line 246
-    :cond_a
+    :cond_b
     const-string v1, "key"
 
     .line 248
@@ -458,37 +477,37 @@
     const-string v2, "CONNECTING"
 
     .line 273
-    if-eq p2, v1, :cond_e
+    if-eq p2, v1, :cond_f
 
     .line 275
     const/4 p1, 0x2
 
     .line 276
-    if-eq p2, p1, :cond_d
+    if-eq p2, p1, :cond_e
 
     .line 278
     const/4 p1, 0x3
 
     .line 279
-    if-eq p2, p1, :cond_c
+    if-eq p2, p1, :cond_d
 
     .line 281
     const/4 p1, 0x4
 
     .line 282
-    if-eq p2, p1, :cond_b
+    if-eq p2, p1, :cond_c
 
     .line 284
     const/4 p1, 0x5
 
     .line 285
-    if-eq p2, p1, :cond_b
+    if-eq p2, p1, :cond_c
 
     .line 287
     goto :goto_4
 
     .line 288
-    :cond_b
+    :cond_c
     sput-object v2, Lcom/ssh/service/SshVpnServiceManager;->d:Ljava/lang/String;
 
     .line 290
@@ -498,14 +517,14 @@
     goto :goto_4
 
     .line 294
-    :cond_c
+    :cond_d
     invoke-static {}, Lcom/ssh/service/SshVpnServiceManager;->c()V
 
     .line 297
     goto :goto_4
 
     .line 298
-    :cond_d
+    :cond_e
     check-cast v0, Lcom/ssh/service/SshVpnService;
 
     .line 300
@@ -515,7 +534,7 @@
     goto :goto_4
 
     .line 304
-    :cond_e
+    :cond_f
     sget-object p2, Lcom/ssh/service/SshVpnServiceManager;->d:Ljava/lang/String;
 
     .line 306
@@ -531,38 +550,38 @@
     const-string v3, ""
 
     .line 315
-    if-eq v0, v1, :cond_13
+    if-eq v0, v1, :cond_14
 
     .line 317
     const v1, -0x21eecb6f
 
     .line 320
-    if-eq v0, v1, :cond_11
+    if-eq v0, v1, :cond_12
 
     .line 322
     const v1, -0x11519548
 
     .line 325
-    if-eq v0, v1, :cond_f
+    if-eq v0, v1, :cond_10
 
     .line 327
     goto :goto_3
 
     .line 328
-    :cond_f
+    :cond_10
     invoke-virtual {p2, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     .line 331
     move-result p2
 
     .line 332
-    if-nez p2, :cond_10
+    if-nez p2, :cond_11
 
     .line 334
     goto :goto_3
 
     .line 335
-    :cond_10
+    :cond_11
     sget-object p2, Le4/g;->q:Le4/g;
 
     .line 337
@@ -572,7 +591,7 @@
     goto :goto_4
 
     .line 341
-    :cond_11
+    :cond_12
     const-string v0, "AUTH_ERROR"
 
     .line 343
@@ -582,13 +601,13 @@
     move-result p2
 
     .line 347
-    if-nez p2, :cond_12
+    if-nez p2, :cond_13
 
     .line 349
     goto :goto_3
 
     .line 350
-    :cond_12
+    :cond_13
     sget-object p2, Le4/g;->v:Le4/g;
 
     .line 352
@@ -598,7 +617,7 @@
     goto :goto_4
 
     .line 356
-    :cond_13
+    :cond_14
     const-string v0, "CONNECTED"
 
     .line 358
@@ -608,7 +627,7 @@
     move-result p2
 
     .line 362
-    if-eqz p2, :cond_14
+    if-eqz p2, :cond_15
 
     .line 364
     sget-object p2, Le4/g;->o:Le4/g;
@@ -620,7 +639,7 @@
     goto :goto_4
 
     .line 370
-    :cond_14
+    :cond_15
     :goto_3
     sget-object p2, Le4/g;->p:Le4/g;
 
@@ -628,7 +647,7 @@
     invoke-virtual {p2, p1, v3}, Le4/g;->b(Landroid/content/Context;Ljava/lang/String;)V
 
     .line 375
-    :cond_15
+    :cond_16
     :goto_4
     return-void
 
@@ -676,25 +695,25 @@
     move-result p2
 
     .line 406
-    if-eqz p2, :cond_18
+    if-eqz p2, :cond_19
 
     .line 408
     const/16 v0, 0xa
 
     .line 410
-    if-eq p2, v0, :cond_17
+    if-eq p2, v0, :cond_18
 
     .line 412
     const/16 p1, 0xd
 
     .line 414
-    if-eq p2, p1, :cond_16
+    if-eq p2, p1, :cond_17
 
     .line 416
     goto :goto_5
 
     .line 417
-    :cond_16
+    :cond_17
     sget-object p1, Lcom/v2ray/ang/service/V2RayServiceManager;->a:Lcom/v2ray/ang/service/V2RayServiceManager;
 
     .line 419
@@ -716,7 +735,7 @@
     goto :goto_5
 
     .line 434
-    :cond_17
+    :cond_18
     sget-object p2, Lcom/v2ray/ang/service/V2RayServiceManager;->a:Lcom/v2ray/ang/service/V2RayServiceManager;
 
     .line 436
@@ -744,7 +763,7 @@
     goto :goto_5
 
     .line 455
-    :cond_18
+    :cond_19
     sget-object p2, Lcom/v2ray/ang/service/V2RayServiceManager;->a:Lcom/v2ray/ang/service/V2RayServiceManager;
 
     .line 457
@@ -763,7 +782,7 @@
     const-string v0, ""
 
     .line 468
-    if-eqz p2, :cond_19
+    if-eqz p2, :cond_1a
 
     .line 470
     sget-object p2, Le4/g;->o:Le4/g;
@@ -775,7 +794,7 @@
     goto :goto_5
 
     .line 476
-    :cond_19
+    :cond_1a
     sget-object p2, Le4/g;->p:Le4/g;
 
     .line 478

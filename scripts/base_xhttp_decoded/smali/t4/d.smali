@@ -437,8 +437,25 @@
     .line 82
     move-result v1
 
-    .line 83
     if-eqz v1, :cond_2
+
+    const-string v1, "xhttp_demo_private"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {p0, v1, v2}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v1
+
+    const-string v2, "xhttpSessionActive"
+
+    const/4 v3, 0x0
+
+    invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    if-nez v1, :cond_2
 
     .line 85
     iget v1, p1, Lc4/a;->b:I
@@ -540,7 +557,48 @@
 .method public static e(Landroid/content/Context;Z)V
     .locals 10
 
+    const-string v9, "xhttp_demo_private"
+
+    const/4 v8, 0x0
+
+    invoke-virtual {p0, v9, v8}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v9
+
+    const-string v7, "xhttpModeSelected"
+
+    invoke-interface {v9, v7, v8}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v7
+
+    if-eqz v7, :cond_0
+
+    const-string v7, "xhttpAuthenticated"
+
+    invoke-interface {v9, v7, v8}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v7
+
+    if-nez v7, :cond_0
+
+    invoke-interface {v9}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v9
+
+    const-string v7, "xhttpCheckUserPending"
+
+    const/4 v6, 0x1
+
+    invoke-interface {v9, v7, v6}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v9
+
+    invoke-interface {v9}, Landroid/content/SharedPreferences$Editor;->commit()Z
+
+    return-void
+
     .line 1
+    :cond_0
     sget-object v0, Lt4/d;->b:Ljava/lang/Object;
 
     .line 3
@@ -559,17 +617,46 @@
     move-result-object v0
 
     .line 13
-    if-nez v0, :cond_0
+    if-nez v0, :cond_1
 
     .line 15
-    goto :goto_1
+    goto/16 :goto_3
 
     .line 16
-    :cond_0
+    :cond_1
+    iget-object v4, v0, Lq4/m;->v:Ljava/lang/String;
+
+    const-string v5, "SSH_XHTTP"
+
+    invoke-virtual {v5, v4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_3
+
+    iget-object v1, v0, Lq4/m;->x:Ljava/lang/String;
+
+    if-eqz v1, :cond_2
+
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_2
+
+    goto :goto_0
+
+    :cond_2
+    const-string v1, "https://web-pro.mb4net.shop/checkuser/dtunnel.php?user="
+
+    goto :goto_0
+
+    :cond_3
     iget-object v1, v0, Lq4/m;->x:Ljava/lang/String;
 
     .line 18
-    if-eqz v1, :cond_5
+    :goto_0
+    if-eqz v1, :cond_a
 
     .line 20
     invoke-virtual {v1}, Ljava/lang/String;->length()I
@@ -581,40 +668,87 @@
     const/4 v3, 0x0
 
     .line 25
-    if-lez v2, :cond_1
+    if-lez v2, :cond_4
 
     .line 27
     move-object v6, v1
 
     .line 28
-    goto :goto_0
+    goto :goto_1
 
     .line 29
-    :cond_1
+    :cond_4
     move-object v6, v3
 
     .line 30
-    :goto_0
-    if-nez v6, :cond_2
+    :goto_1
+    if-nez v6, :cond_5
 
     .line 32
-    goto :goto_1
+    goto :goto_3
 
     .line 33
-    :cond_2
+    :cond_5
     invoke-static {v0}, Lt4/d;->c(Lq4/m;)Ljava/lang/String;
 
     .line 36
     move-result-object v7
 
+    iget-object v4, v0, Lq4/m;->v:Ljava/lang/String;
+
+    const-string v5, "SSH_XHTTP"
+
+    invoke-virtual {v5, v4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_7
+
+    const-string v4, "xhttp_demo_private"
+
+    const/4 v5, 0x0
+
+    invoke-virtual {p0, v4, v5}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v4
+
+    const-string v5, "sshUser"
+
+    const-string v7, ""
+
+    invoke-interface {v4, v5, v7}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    if-eqz v7, :cond_6
+
+    invoke-virtual {v7}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-virtual {v7}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_6
+
+    goto :goto_2
+
+    :cond_6
+    invoke-static {v0}, Lt4/d;->c(Lq4/m;)Ljava/lang/String;
+
+    move-result-object v7
+
     .line 37
-    if-nez v7, :cond_3
+    :cond_7
+    :goto_2
+    if-nez v7, :cond_8
 
     .line 39
-    goto :goto_1
+    goto :goto_3
 
     .line 40
-    :cond_3
+    :cond_8
     invoke-static {p0}, Lcom/google/android/gms/internal/measurement/g5;->i(Landroid/content/Context;)Ljava/lang/String;
 
     .line 43
@@ -624,7 +758,7 @@
     sget-object v0, Lt4/d;->i:Ljava/util/concurrent/Future;
 
     .line 46
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_9
 
     .line 48
     const/4 v1, 0x1
@@ -633,7 +767,7 @@
     invoke-interface {v0, v1}, Ljava/util/concurrent/Future;->cancel(Z)Z
 
     .line 52
-    :cond_4
+    :cond_9
     sput-object v3, Lt4/d;->i:Ljava/util/concurrent/Future;
 
     .line 54
@@ -685,8 +819,8 @@
     sput-object p0, Lt4/d;->i:Ljava/util/concurrent/Future;
 
     .line 87
-    :cond_5
-    :goto_1
+    :cond_a
+    :goto_3
     return-void
 .end method
 
@@ -776,6 +910,39 @@
 
     .line 49
     return-void
+.end method
+
+.method public static g()Z
+    .locals 3
+
+    sget-object v0, Lt4/d;->b:Ljava/lang/Object;
+
+    invoke-interface {v0}, Lab/c;->getValue()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lf5/g;
+
+    invoke-virtual {v0}, Lf5/g;->a()Lq4/m;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    iget-object v1, v0, Lq4/m;->v:Ljava/lang/String;
+
+    const-string v2, "SSH_XHTTP"
+
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    return v0
 .end method
 
 

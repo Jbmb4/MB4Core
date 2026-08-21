@@ -47,7 +47,7 @@
 
 # virtual methods
 .method public final run()V
-    .locals 7
+    .locals 8
 
     .line 1
     iget-object v1, p0, Lt4/b;->l:Landroid/content/Context;
@@ -66,21 +66,34 @@
 
     .line 11
     :try_start_0
+    invoke-static {}, Lt4/d;->g()Z
+
+    move-result v6
+
     sget-object v5, Lt4/d;->e:Lma/j;
 
-    .line 13
-    invoke-virtual {v5, v0, v2, v3}, Lma/j;->h(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+    if-eqz v6, :cond_0
 
-    .line 16
+    invoke-virtual {v5, v0, v2, v3}, Lma/j;->hXhttp(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+
     move-result-object v0
 
+    goto :goto_0
+
+    :cond_0
+    invoke-virtual {v5, v0, v2, v3}, Lma/j;->h(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lc4/a;
+
+    move-result-object v0
+
+    .line 16
     .line 17
+    :goto_0
     invoke-static {v1, v0, v4}, Lt4/d;->d(Landroid/content/Context;Lc4/a;Z)V
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
     .line 20
-    goto :goto_1
+    goto :goto_2
 
     .line 21
     :catch_0
@@ -99,13 +112,13 @@
     const-string v4, ""
 
     .line 30
-    if-nez v3, :cond_0
+    if-nez v3, :cond_1
 
     .line 32
     move-object v3, v4
 
     .line 33
-    :cond_0
+    :cond_1
     invoke-virtual {v2, v1, v3}, Le4/g;->b(Landroid/content/Context;Ljava/lang/String;)V
 
     .line 36
@@ -115,30 +128,30 @@
     move-result-object v0
 
     .line 40
-    if-nez v0, :cond_1
+    if-nez v0, :cond_2
 
     .line 42
     move-object v3, v4
 
     .line 43
-    goto :goto_0
+    goto :goto_1
 
     .line 44
-    :cond_1
+    :cond_2
     move-object v3, v0
 
     .line 45
-    :goto_0
+    :goto_1
     sget-boolean v0, Li4/a;->m:Z
 
     .line 47
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_3
 
     .line 49
-    goto :goto_1
+    goto :goto_2
 
     .line 50
-    :cond_2
+    :cond_3
     invoke-static {}, Lt4/d;->b()Lq4/d;
 
     .line 53
@@ -172,7 +185,7 @@
     invoke-static/range {v1 .. v6}, Led/g;->f(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;II)V
 
     .line 71
-    :goto_1
+    :goto_2
     invoke-static {}, Lt4/d;->f()V
 
     .line 74

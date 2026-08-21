@@ -86,7 +86,9 @@ def test_static_runtime_markers() -> None:
         root = Path(directory)
         for relative in (
             "smali/ma/j.smali",
+            "smali/t4/b.smali",
             "smali/t4/d.smali",
+            "smali/da/b.smali",
         ):
             source = ROOT / "scripts/base_xhttp_decoded" / relative
             target = root / relative
