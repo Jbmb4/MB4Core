@@ -54,19 +54,19 @@ node -e "console.log(require('crypto').randomBytes(256).toString('base64'));"
 ### 1. Instale as dependências:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Gerar artefactos do Prisma
 
 ```bash
-npm run db:generate
+pnpm exec prisma generate
 ```
 
 ### 3. Aplicar as migrations do banco de dados
 
 ```bash
-npm run db:deploy
+pnpm exec prisma migrate deploy
 ```
 
 ### 4. Compilar o projeto
@@ -74,25 +74,21 @@ npm run db:deploy
 O comando de build regenera o Prisma Client automaticamente antes de executar o TypeScript:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 ### 5. Rodando o projeto
 
 ```bash
-npm run start
+pnpm start
 ```
 
 ### Atualização do painel no VPS
 
-Depois de baixar uma atualização do GitHub, execute a sequência abaixo na pasta do projeto. Ela instala eventuais dependências, aplica a nova estrutura do banco, regenera o Prisma Client e recompila o painel:
+O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincroniza exatamente com `origin/main`, instala as dependências, regenera o Prisma Client, compila o projeto e reinicia o processo correto do PM2:
 
 ```bash
-git pull origin main
-npm install
-npm run db:deploy
-npm run build
-pm2 restart ecosystem.config.js --update-env
+cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma generate && pnpm build && pm2 restart DTunnel --update-env
 ```
 
 <br />
