@@ -15,6 +15,7 @@ export default {
           username: true,
           email: true,
           is_admin: true,
+          access_expires_at: true,
           created_at: true,
           updated_at: true,
           _count: {

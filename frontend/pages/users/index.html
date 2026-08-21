@@ -51,6 +51,7 @@
                       <th>Usuario</th>
                       <th>Email</th>
                       <th>Tipo</th>
+                      <th>Acesso</th>
                       <th>Configs</th>
                       <th>Criado em</th>
                       <th>Acoes</th>
@@ -58,7 +59,7 @@
                   </thead>
                   <tbody id="usersTable">
                     <tr>
-                      <td colspan="6" class="text-center">
+                      <td colspan="7" class="text-center">
                         <div class="spinner-border text-primary" role="status">
                           <span class="visually-hidden">Carregando...</span>
                         </div>
@@ -101,6 +102,27 @@
               <label class="form-check-label" for="newIsAdmin">Administrador</label>
               <div class="form-text">Se marcado, o usuario tera acesso total ao painel.</div>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Validade do acesso</label>
+              <select class="form-select" id="newAccessType">
+                <option value="lifetime" selected>Acesso vitalício</option>
+                <option value="duration">Acesso por prazo</option>
+              </select>
+            </div>
+            <div class="row g-2 mb-3 d-none" id="newAccessDurationGroup">
+              <div class="col-6">
+                <label class="form-label">Duração</label>
+                <input type="number" class="form-control" id="newAccessDuration" min="1" max="3650" placeholder="Ex.: 30">
+              </div>
+              <div class="col-6">
+                <label class="form-label">Unidade</label>
+                <select class="form-select" id="newAccessUnit">
+                  <option value="days">Dias</option>
+                  <option value="months" selected>Meses</option>
+                  <option value="years">Anos</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -139,6 +161,29 @@
               <label class="form-check-label" for="editIsAdmin">Administrador</label>
               <div class="form-text">Administradores tem acesso total ao painel.</div>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Validade do acesso</label>
+              <select class="form-select" id="editAccessType">
+                <option value="keep" selected>Manter validade atual</option>
+                <option value="lifetime">Acesso vitalício</option>
+                <option value="duration">Acesso por prazo</option>
+              </select>
+              <div class="form-text" id="editAccessCurrent"></div>
+            </div>
+            <div class="row g-2 mb-3 d-none" id="editAccessDurationGroup">
+              <div class="col-6">
+                <label class="form-label">Duração</label>
+                <input type="number" class="form-control" id="editAccessDuration" min="1" max="3650" placeholder="Ex.: 30">
+              </div>
+              <div class="col-6">
+                <label class="form-label">Unidade</label>
+                <select class="form-select" id="editAccessUnit">
+                  <option value="days">Dias</option>
+                  <option value="months" selected>Meses</option>
+                  <option value="years">Anos</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -173,6 +218,14 @@
           data.users.forEach(user => {
             const tr = document.createElement('tr');
             const createdDate = new Date(user.created_at).toLocaleDateString('pt-BR');
+            const expirationDate = user.access_expires_at ? new Date(user.access_expires_at) : null;
+            const isExpired = expirationDate && expirationDate.getTime() <= Date.now();
+            const accessBadge = !expirationDate
+              ? '<span class="badge bg-success"><i class="bi bi-infinity"></i> Vitalício</span>'
+              : isExpired
+                ? `<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Expirado em ${expirationDate.toLocaleDateString('pt-BR')}</span>`
+                : `<span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Até ${expirationDate.toLocaleDateString('pt-BR')}</span>`;
+            const expirationArg = user.access_expires_at ? `'${user.access_expires_at}'` : 'null';
             tr.innerHTML = `
               <td>
                 <i class="bi bi-person-circle me-1"></i>
@@ -185,10 +238,11 @@
                   : '<span class="badge bg-secondary"><i class="bi bi-person"></i> Usuario</span>'
                 }
               </td>
+              <td>${accessBadge}</td>
               <td><span class="badge bg-info">${user._count.AppConfig} configs</span></td>
               <td>${createdDate}</td>
               <td>
-                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUser('${user.id}', '${user.username}', '${user.email}', ${user.is_admin})">
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUser('${user.id}', '${user.username}', '${user.email}', ${user.is_admin}, ${expirationArg})">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.id}', '${user.username}')">
@@ -199,13 +253,30 @@
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhum usuario encontrado</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Nenhum usuario encontrado</td></tr>';
         }
       } catch (err) {
         console.error(err);
-        document.getElementById('usersTable').innerHTML = '<tr><td colspan="6" class="text-center text-danger">Erro ao carregar usuarios</td></tr>';
+        document.getElementById('usersTable').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Erro ao carregar usuarios</td></tr>';
       }
     }
+
+    function toggleAccessDuration(prefix) {
+      const type = document.getElementById(prefix + 'AccessType').value;
+      document.getElementById(prefix + 'AccessDurationGroup').classList.toggle('d-none', type !== 'duration');
+    }
+
+    function getAccessPayload(prefix) {
+      const access_type = document.getElementById(prefix + 'AccessType').value;
+      if (access_type === 'keep') return {};
+
+      const access_duration = Number(document.getElementById(prefix + 'AccessDuration').value);
+      const access_unit = document.getElementById(prefix + 'AccessUnit').value;
+      return { access_type, access_duration, access_unit };
+    }
+
+    document.getElementById('newAccessType').addEventListener('change', () => toggleAccessDuration('new'));
+    document.getElementById('editAccessType').addEventListener('change', () => toggleAccessDuration('edit'));
 
     // Criar usuario
     document.getElementById('btnCreateUser').addEventListener('click', async () => {
@@ -213,6 +284,7 @@
       const email = document.getElementById('newEmail').value.trim();
       const password = document.getElementById('newPassword').value;
       const is_admin = document.getElementById('newIsAdmin').checked;
+      const access = getAccessPayload('new');
 
       if (!username || !email || !password) {
         Swal.fire({ icon: 'warning', title: 'Atencao', text: 'Preencha todos os campos obrigatorios' });
@@ -224,6 +296,11 @@
         return;
       }
 
+      if (access.access_type === 'duration' && (!access.access_duration || access.access_duration < 1)) {
+        Swal.fire({ icon: 'warning', title: 'Atencao', text: 'Informe uma duração válida para o acesso' });
+        return;
+      }
+
       try {
         const response = await fetch('/users', {
           method: 'POST',
@@ -231,7 +308,7 @@
             'Content-Type': 'application/json',
             'csrf-token': csrfToken,
           },
-          body: JSON.stringify({ username, email, password, is_admin }),
+          body: JSON.stringify({ username, email, password, is_admin, ...access }),
         });
 
         const data = await response.json();
@@ -240,6 +317,7 @@
           Swal.fire({ icon: 'success', title: 'Sucesso', text: data.message || 'Usuario criado com sucesso' });
           bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
           document.getElementById('createUserForm').reset();
+          toggleAccessDuration('new');
           loadUsers();
         } else {
           Swal.fire({ icon: 'error', title: 'Erro', text: data.error || 'Erro ao criar usuario' });
@@ -250,12 +328,18 @@
     });
 
     // Abrir modal de edicao
-    window.openEditUser = function(id, username, email, is_admin) {
+    window.openEditUser = function(id, username, email, is_admin, access_expires_at) {
       document.getElementById('editUserId').value = id;
       document.getElementById('editUsername').value = username;
       document.getElementById('editEmail').value = email;
       document.getElementById('editIsAdmin').checked = is_admin;
       document.getElementById('editPassword').value = '';
+      document.getElementById('editAccessType').value = 'keep';
+      document.getElementById('editAccessDuration').value = '';
+      document.getElementById('editAccessDurationGroup').classList.add('d-none');
+      document.getElementById('editAccessCurrent').textContent = access_expires_at
+        ? 'Validade atual: ' + new Date(access_expires_at).toLocaleString('pt-BR')
+        : 'Validade atual: acesso vitalício';
       new bootstrap.Modal(document.getElementById('editUserModal')).show();
     };
 
@@ -266,6 +350,7 @@
       const email = document.getElementById('editEmail').value.trim();
       const password = document.getElementById('editPassword').value;
       const is_admin = document.getElementById('editIsAdmin').checked;
+      const access = getAccessPayload('edit');
 
       if (!username || !email) {
         Swal.fire({ icon: 'warning', title: 'Atencao', text: 'Preencha todos os campos obrigatorios' });
@@ -277,7 +362,12 @@
         return;
       }
 
-      const body = { username, email, is_admin };
+      if (access.access_type === 'duration' && (!access.access_duration || access.access_duration < 1)) {
+        Swal.fire({ icon: 'warning', title: 'Atencao', text: 'Informe uma duração válida para o acesso' });
+        return;
+      }
+
+      const body = { username, email, is_admin, ...access };
       if (password) body.password = password;
 
       try {

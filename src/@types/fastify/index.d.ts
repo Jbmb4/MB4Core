@@ -7,6 +7,7 @@ type User = {
   password: string;
   email: string;
   is_admin: boolean;
+  access_expires_at: Date | null;
   created_at: Date;
   updated_at: Date;
 };

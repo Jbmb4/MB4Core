@@ -35,7 +35,11 @@
           <p class="summary-label">Expira em</p>
           <div class="d-flex gap-3">
             <div class="summary-value fs-5 bg-dark rounded-pill text-white flex-fill ps-2">
-              <i class="bi bi-infinity"></i>
+              <% if (it.user.access_expires_at) { %>
+                <%= it.formatDate(it.user.access_expires_at) %>
+              <% } else { %>
+                <i class="bi bi-infinity"></i> Vitalício
+              <% } %>
             </div>
           </div>
         </div>

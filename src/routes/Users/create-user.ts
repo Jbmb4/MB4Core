@@ -6,20 +6,26 @@ import AppTextDefault from '../DTunnel/AppText/defaults';
 import csrfProtection from '../../middlewares/csrf-protection';
 import AdminAuthentication from '../../middlewares/admin-auth';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
+import { accessExpirationInputSchema, calculateAccessExpiration } from '../../utils/access-expiration';
 
-const createUserSchema = z.object({
-  username: z.string().min(6).max(20),
-  password: z.string().min(6).max(20),
-  email: z.string().email(),
-  is_admin: z.boolean().optional().default(false),
-});
+const createUserSchema = z
+  .object({
+    username: z.string().min(6).max(20),
+    password: z.string().min(6).max(20),
+    email: z.string().email(),
+    is_admin: z.boolean().optional().default(false),
+  })
+  .merge(accessExpirationInputSchema);
 
 export default {
   url: '/users',
   method: 'POST',
   onRequest: [AdminAuthentication.user, csrfProtection],
   handler: async (req: FastifyRequest, reply: FastifyReply) => {
-    const { username, email, password, is_admin } = createUserSchema.parse(req.body);
+    const { username, email, password, is_admin, access_type, access_duration, access_unit } = createUserSchema.parse(
+      req.body
+    );
+    const access_expires_at = calculateAccessExpiration({ access_type, access_duration, access_unit });
 
     const usernameAlreadyExists = await SafeCallback(() =>
       prisma.user.findFirst({
@@ -56,6 +62,7 @@ export default {
           username: username.toLowerCase(),
           password: passwordHash,
           is_admin: is_admin,
+          access_expires_at,
         },
       })
     );
@@ -77,6 +84,14 @@ export default {
       );
     }
 
-    reply.status(201).send({ status: 201, message: 'Usuário criado com sucesso', user: { username: user.username, is_admin: user.is_admin } });
+    reply.status(201).send({
+      status: 201,
+      message: 'Usuário criado com sucesso',
+      user: {
+        username: user.username,
+        is_admin: user.is_admin,
+        access_expires_at: user.access_expires_at,
+      },
+    });
   },
 } as RouteOptions;

@@ -3,6 +3,7 @@ import GetVersionText from './get-app-text';
 import GetVersionConfig from './get-app-config';
 import GetVersionLayout from './get-app-layout';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
+import { hasActiveUserAccess } from '../../../utils/user-access';
 
 const headerSchema = z.object({
   password: z.string().optional(),
@@ -29,6 +30,9 @@ export default {
     const user_id = data.token ?? data['dtunnel-token'];
     const update = data.version ?? data['dtunnel-update'];
     if (!user_id || !update) return reply.send();
+    if (!(await hasActiveUserAccess(user_id))) {
+      return reply.status(403).send({ success: false, message: 'Acesso do usuário expirado.' });
+    }
 
     const response = await handler[update](user_id);
 

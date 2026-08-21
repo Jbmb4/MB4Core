@@ -5,6 +5,7 @@ import GetAppConfig from './get-app-config';
 import GetAppLayout from './get-app-layout';
 import GetAppText from './get-app-text';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
+import { hasActiveUserAccess } from '../../utils/user-access';
 
 const headerSchema = z.object({
   password: z.string().optional(),
@@ -29,6 +30,10 @@ export default {
     if (!success) return reply.send();
 
     const user_id = data.token;
+    if (!(await hasActiveUserAccess(user_id))) {
+      return reply.status(403).send({ success: false, message: 'Acesso do usuário expirado.' });
+    }
+
     const response = await handler[data.update](user_id);
 
     reply.send(response);

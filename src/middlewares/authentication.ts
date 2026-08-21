@@ -4,6 +4,7 @@ import CookieManager from '../utils/cookie-manager';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import SafeCallback from '../utils/safe-callback';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { isAccessExpired } from '../utils/access-expiration';
 
 interface IJwtPayload {
   id: string;
@@ -11,21 +12,21 @@ interface IJwtPayload {
 }
 
 export default class Authentication {
-  private static redirect(req: FastifyRequest, reply: FastifyReply) {
+  private static redirect(req: FastifyRequest, reply: FastifyReply, message?: string) {
     CookieManager.deleteCookiesLoggedIn(reply);
     const routesNotAuthorized = ['/login', '/register'];
     const route = routesNotAuthorized.find((route) => route === req.routeOptions.config.url);
     const isApiRequest = req.url.startsWith('/api/') || req.url.startsWith('/apk/');
 
     if (isApiRequest) {
-      return reply.status(401).send({
+      return reply.status(message ? 403 : 401).send({
         success: false,
-        message: 'Sessão expirada. Faça login novamente para gerar o aplicativo.',
+        message: message || 'Sessão expirada. Faça login novamente para gerar o aplicativo.',
       });
     }
 
     if (!route) {
-      return reply.redirect('/login');
+      return reply.redirect(message ? '/login?expired=1' : '/login');
     }
   }
 
@@ -52,6 +53,9 @@ export default class Authentication {
       const user = await SafeCallback(() => prisma.user.findUnique({ where: { id } }));
       if (!user) {
         return Authentication.redirect(req, reply);
+      }
+      if (isAccessExpired(user.access_expires_at)) {
+        return Authentication.redirect(req, reply, 'Seu acesso ao painel expirou. Procure um administrador.');
       }
       req.user = user;
     }

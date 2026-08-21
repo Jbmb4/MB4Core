@@ -5,17 +5,20 @@ import SafeCallback from '../../utils/safe-callback';
 import AdminAuthentication from '../../middlewares/admin-auth';
 import csrfProtection from '../../middlewares/csrf-protection';
 import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
+import { accessExpirationInputSchema, calculateAccessExpiration } from '../../utils/access-expiration';
 
 const paramsSchema = z.object({
   id: z.string(),
 });
 
-const updateUserSchema = z.object({
-  password: z.string().min(6).max(20).optional(),
-  email: z.string().email().optional(),
-  is_admin: z.boolean().optional(),
-  username: z.string().min(6).max(20).optional(),
-});
+const updateUserSchema = z
+  .object({
+    password: z.string().min(6).max(20).optional(),
+    email: z.string().email().optional(),
+    is_admin: z.boolean().optional(),
+    username: z.string().min(6).max(20).optional(),
+  })
+  .merge(accessExpirationInputSchema);
 
 export default {
   url: '/users/:id',
@@ -25,9 +28,7 @@ export default {
     const { id: userId } = paramsSchema.parse(req.params);
     const data = updateUserSchema.parse(req.body);
 
-    const user = await SafeCallback(() =>
-      prisma.user.findUnique({ where: { id: userId } })
-    );
+    const user = await SafeCallback(() => prisma.user.findUnique({ where: { id: userId } }));
 
     if (!user) {
       reply.status(404);
@@ -69,6 +70,9 @@ export default {
     if (data.email) updateData.email = data.email;
     if (data.username) updateData.username = data.username.toLowerCase();
     if (data.is_admin !== undefined) updateData.is_admin = data.is_admin;
+    if (data.access_type !== undefined) {
+      updateData.access_expires_at = calculateAccessExpiration(data);
+    }
 
     const updated = await SafeCallback(() =>
       prisma.user.update({
@@ -79,6 +83,7 @@ export default {
           username: true,
           email: true,
           is_admin: true,
+          access_expires_at: true,
         },
       })
     );
