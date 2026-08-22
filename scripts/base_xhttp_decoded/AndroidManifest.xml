@@ -49,7 +49,7 @@
                 <action android:name="android.net.VpnService"/>
             </intent-filter>
         </service>
-        <service android:enabled="true" android:exported="false" android:foregroundServiceType="" android:name="com.v2ray.ang.service.V2RayVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:process=":RunSoLibV2RayDaemon">
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="dataSync" android:name="com.v2ray.ang.service.V2RayVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:process=":RunSoLibV2RayDaemon">
             <intent-filter>
                 <action android:name="android.net.VpnService"/>
             </intent-filter>

@@ -65,7 +65,7 @@ def patch_tunnel(base: Path) -> None:
 
 '''
     marker = ".method public declared-synchronized startRouting(Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;)Z"
-    if "->isRoutingHealthy()Z" not in text:
+    if ".method public isRoutingHealthy()Z" not in text:
         text = replace_once(text, marker, health_method + marker, "Tunnel.isRoutingHealthy")
 
     stop_marker = ".method private stopRoutingThroughTunnel()V\n    .locals 2\n\n    .line 448"
@@ -112,7 +112,7 @@ def patch_manager(base: Path) -> None:
 
 '''
     marker = ".method public onStartCommand(Landroid/content/Intent;II)I"
-    if "->isRoutingHealthy()Z" not in text:
+    if ".method public isRoutingHealthy()Z" not in text:
         text = replace_once(text, marker, health_method + marker, "TunnelVpnManager.isRoutingHealthy")
 
     restart_method = r'''

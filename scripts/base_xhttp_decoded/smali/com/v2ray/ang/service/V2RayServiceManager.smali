@@ -628,7 +628,7 @@
     if-lt v8, v3, :cond_e
 
     .line 328
-    const/high16 v3, 0x40000000    # 2.0f
+    const/4 v3, 0x1
 
     .line 330
     goto :goto_6

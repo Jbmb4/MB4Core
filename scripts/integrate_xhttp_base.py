@@ -529,9 +529,19 @@ def patch_manifest(base: Path) -> None:
     require(manifest)
     text = manifest.read_text(encoding="utf-8")
 
-    # Android 14+ rejects the legacy numeric/specialUse flag in this base.
-    text = text.replace('android:foregroundServiceType="specialUse"', 'android:foregroundServiceType=""')
+    # Keep the V2Ray foreground type compatible with the API 33 framework
+    # used by the rebuild and align the manager's runtime type below.
     text = text.replace('android:foregroundServiceType="0x40000000"', 'android:foregroundServiceType=""')
+    v2ray_name = 'android:name="com.v2ray.ang.service.V2RayVpnService"'
+    v2ray_type_re = re.compile(r'(<service\b(?=[^>]*' + re.escape(v2ray_name) + r')[^>]*android:foregroundServiceType=")[^"]*(")')
+    text, type_count = v2ray_type_re.subn(r'\1dataSync\2', text, count=1)
+    if type_count == 0:
+        v2ray_open_re = re.compile(r'(<service\b(?=[^>]*' + re.escape(v2ray_name) + r')[^>]*)(>)')
+        text, open_count = v2ray_open_re.subn(r'\1 android:foregroundServiceType="dataSync"\2', text, count=1)
+        if open_count == 0:
+            raise RuntimeError("Could not find V2Ray service declaration")
+    v2ray_property = '<property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="v2ray-vless"/>'
+    text = text.replace(v2ray_property, '')
 
     permission = '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>'
     if permission not in text:
@@ -554,6 +564,20 @@ def patch_manifest(base: Path) -> None:
         text = re.sub(r'(android:name="com\.dragonssh\.xhttpdemo\.core\.tunnel\.vpn\.TunnelVpnService")\s+android:process=":xhttp"', r'\1', text)
 
     manifest.write_text(text, encoding="utf-8")
+
+
+def patch_v2ray_foreground_type(base: Path) -> None:
+    """Use the manifest-declared DATA_SYNC type on the API-33 build toolchain."""
+    manager = base / "smali/com/v2ray/ang/service/V2RayServiceManager.smali"
+    require(manager)
+    text = manager.read_text(encoding="utf-8")
+    old = "const/high16 v3, 0x40000000    # 2.0f"
+    new = "const/4 v3, 0x1"
+    if old in text:
+        text = text.replace(old, new, 1)
+    elif new not in text:
+        raise RuntimeError("V2Ray foreground type literal not found")
+    manager.write_text(text, encoding="utf-8")
 
 
 def parse_public_resources(public_text: str) -> dict[tuple[str, str], int]:
@@ -810,6 +834,7 @@ def main() -> None:
     patch_panel_status_bridge(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)
+    patch_v2ray_foreground_type(args.base)
     patch_resources(args.reference, args.base)
     patch_startup_text(args.base)
     patch_notification_action(args.base)
