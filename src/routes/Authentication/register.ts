@@ -18,6 +18,7 @@ export default {
   onRequest: [csrfProtection],
   handler: async (req: FastifyRequest, reply: FastifyReply) => {
     const { username, email, password } = registerSchema.parse(req.body);
+    const normalizedEmail = email.trim().toLowerCase();
 
     const usernameAlreadyExists = await SafeCallback(() =>
       prisma.user.findFirst({
@@ -35,7 +36,7 @@ export default {
 
     const emailAlreadyExists = await SafeCallback(() =>
       prisma.user.findFirst({
-        where: { email },
+        where: { email: normalizedEmail },
       })
     );
 
@@ -50,7 +51,7 @@ export default {
     const user = await SafeCallback(() =>
       prisma.user.create({
         data: {
-          email,
+          email: normalizedEmail,
           username,
           password: passwordHash,
         },

@@ -26,6 +26,7 @@ export default {
     const { username, email, password, is_admin, access_type, access_duration, access_unit } = createUserSchema.parse(
       req.body
     );
+    const normalizedEmail = email.trim().toLowerCase();
     const access_expires_at = calculateAccessExpiration({ access_type, access_duration, access_unit });
 
     const usernameAlreadyExists = await SafeCallback(() =>
@@ -44,7 +45,7 @@ export default {
 
     const emailAlreadyExists = await SafeCallback(() =>
       prisma.user.findFirst({
-        where: { email },
+        where: { email: normalizedEmail },
       })
     );
 
@@ -59,7 +60,7 @@ export default {
     const user = await SafeCallback(() =>
       prisma.user.create({
         data: {
-          email,
+          email: normalizedEmail,
           username: username.toLowerCase(),
           password: passwordHash,
           is_admin,

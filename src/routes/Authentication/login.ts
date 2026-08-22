@@ -8,7 +8,7 @@ import { FastifyReply, FastifyRequest, RouteOptions } from 'fastify';
 import { hasActiveUserAccess } from '../../utils/user-access';
 
 const loginSchema = z.object({
-  email: z.string().min(3),
+  email: z.string().trim().email(),
   password: z.string().min(6).max(20),
 });
 
@@ -17,15 +17,18 @@ export default {
   method: 'POST',
   onRequest: [csrfProtection],
   handler: async (req: FastifyRequest, reply: FastifyReply) => {
-    const { email: identifier, password } = loginSchema.parse(req.body);
+    const { email, password } = loginSchema.parse(req.body);
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await SafeCallback(() =>
-      prisma.user.findFirst({
-        where: {
-          OR: [{ email: identifier }, { username: identifier.toLowerCase() }],
-        },
-      })
+    const matchingUsers = await SafeCallback(
+      () =>
+        prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM users WHERE LOWER(email) = LOWER(${normalizedEmail}) LIMIT 1
+      `
     );
+    const user = matchingUsers?.[0]
+      ? await SafeCallback(() => prisma.user.findUnique({ where: { id: matchingUsers[0].id } }))
+      : null;
 
     if (!user || !BCrypt.compare(password, user.password)) {
       reply.status(401);

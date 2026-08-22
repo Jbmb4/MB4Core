@@ -107,4 +107,16 @@ O card aparece no dashboard somente quando o administrador ativar a opção e ex
 
 O recurso exige `JWT_SECRET_KEY` ou `CSRF_SECRET` no `.env` para proteger o token armazenado. A geração do Pix usa a API de pagamentos do Mercado Pago, com `X-Idempotency-Key` em cada solicitação. A confirmação automática do pagamento ainda não está incluída nesta primeira versão.
 
+### Segurança e login por Gmail
+
+Administradores podem abrir o menu **Segurança** para alterar o Gmail usado no login e a senha da conta. A senha atual é exigida para confirmar a operação; deixar os campos de nova senha vazios mantém a senha existente.
+
+O painel aceita login somente pelo Gmail cadastrado. O nome de usuário continua sendo mantido como identificação interna e visual, mas não funciona como credencial de acesso. Novas contas criadas no painel devem receber um Gmail válido para entrar.
+
+Depois de publicar a alteração, use o fluxo padrão do VPS:
+
+```bash
+cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma generate && pnpm build && pm2 restart DTunnel --update-env
+```
+
 <br />

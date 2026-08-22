@@ -33,13 +33,13 @@
 
             <form id="loginForm" class="login-form" novalidate>
                 <div class="form-field">
-                    <label for="email">Nome de usuário</label>
+                    <label for="email">Gmail</label>
                     <div class="field-shell">
                         <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M20 21a8 8 0 0 0-16 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                             <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
                         </svg>
-                        <input type="text" id="email" name="email" placeholder="Digite seu usuário" autocomplete="username" required>
+                        <input type="email" id="email" name="email" placeholder="Digite seu Gmail" autocomplete="email" required>
                     </div>
                 </div>
 
@@ -156,7 +156,7 @@
         const handleError = (message) => {
             const msg = String(message).toLowerCase();
             if (msg.includes('password') || msg.includes('user not found')) {
-                showAlert('error', 'Usuário ou senha incorretos.');
+                showAlert('error', 'Gmail ou senha incorretos.');
             } else {
                 showAlert('error', `Erro: ${message}`);
             }

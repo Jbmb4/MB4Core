@@ -28,6 +28,7 @@ export default {
   handler: async (req: FastifyRequest, reply: FastifyReply) => {
     const { id: userId } = paramsSchema.parse(req.params);
     const data = updateUserSchema.parse(req.body);
+    const normalizedEmail = data.email?.trim().toLowerCase();
 
     const user = await SafeCallback(() => prisma.user.findUnique({ where: { id: userId } }));
 
@@ -53,10 +54,10 @@ export default {
     }
 
     // Se tentar mudar email, verificar se ja existe
-    if (data.email && data.email !== user.email) {
+    if (normalizedEmail && normalizedEmail !== user.email) {
       const exists = await SafeCallback(() =>
         prisma.user.findFirst({
-          where: { email: data.email },
+          where: { email: normalizedEmail },
         })
       );
       if (exists) {
@@ -68,7 +69,7 @@ export default {
 
     const updateData: any = {};
     if (data.password) updateData.password = BCrypt.hash(data.password);
-    if (data.email) updateData.email = data.email;
+    if (normalizedEmail) updateData.email = normalizedEmail;
     if (data.username) updateData.username = data.username.toLowerCase();
     if (data.is_admin !== undefined) updateData.is_admin = data.is_admin;
 
