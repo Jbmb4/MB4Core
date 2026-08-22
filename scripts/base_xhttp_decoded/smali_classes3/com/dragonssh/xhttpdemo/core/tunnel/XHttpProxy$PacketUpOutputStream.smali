@@ -37,8 +37,6 @@
 
 .field private final hostHeader:Ljava/lang/String;
 
-.field private final sessionId:Ljava/lang/String;
-
 .field private final lock:Ljava/lang/Object;
 
 .field private seq:J
@@ -57,7 +55,7 @@
     return-void
 .end method
 
-.method constructor <init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;Ljava/lang/String;)V
+.method constructor <init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;)V
     .locals 3
 
     .line 311
@@ -117,8 +115,6 @@
 
     .line 321
     iput-object p3, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->hostHeader:Ljava/lang/String;
-
-    iput-object p4, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->sessionId:Ljava/lang/String;
 
     .line 322
     new-instance p1, Ljava/lang/Thread;
@@ -493,14 +489,6 @@
     const-string v6, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 
     .line 428
-    invoke-virtual {v1, v5, v6}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
-
-    move-result-object v1
-
-    const-string v5, "X-Session-ID"
-
-    iget-object v6, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;->sessionId:Ljava/lang/String;
-
     invoke-virtual {v1, v5, v6}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
 
     move-result-object v1

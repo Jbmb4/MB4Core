@@ -798,7 +798,6 @@ def main() -> None:
     require(args.base)
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
-    patch_xhttp_session_header(args.base)
     from patch_vpn_stability import patch_vpn_stability
     patch_vpn_stability(args.base)
     install_obfuscated_dependency_aliases(args.reference, args.base)

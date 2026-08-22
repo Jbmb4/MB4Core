@@ -9,7 +9,7 @@ A correção cobre dois sintomas observados no aplicativo: a VPN permanecer visu
 1. O método `startVpnWatchdog()` existente apenas parava um watchdog anterior; ele não criava nem iniciava uma thread de monitoramento.
 2. `stopRoutingThroughTunnel()` destruía o `tun2socks`, mas não limpava `mRoutingThroughTunnel`. Uma tentativa de reinício podia ser recusada pela própria flag antiga.
 3. `restartTunnel()` considerava o serviço VPN existente como suficiente e publicava “VPN estabelecido” sem validar o TUN/tun2socks.
-4. O runtime XHTTP não enviava o identificador de sessão nos pedidos GET persistente e POST de uplink. O servidor podia aceitar a conexão SSH, mas não associar corretamente o tráfego de dados à sessão.
+4. O runtime XHTTP já gera um UUID por conexão e o transporta no path do GET e dos POSTs de uplink. Uma tentativa de duplicar esse valor no cabeçalho `X-Session-ID` foi revertida após o servidor rejeitar o handshake; o contrato compatível é manter o UUID no path original.
 5. A base original trazia `foregroundServiceType="0x40000000"`/`specialUse`, que é rejeitado pelo `aapt2` usado para Android atual; o manifest foi alinhado ao APK anexado, com tipo vazio para os serviços VPN.
 
 ## Implementação
@@ -18,17 +18,17 @@ O novo watchdog aguarda a inicialização, verifica periodicamente a existência
 
 O gerenciador agora expõe `isRoutingHealthy()`, limpa a flag de roteamento durante o teardown e recria a thread de tunelamento quando o mesmo relay SOCKS continua configurado, preservando o reconnect normal quando o servidor SOCKS muda.
 
-O `X-Session-ID` é enviado tanto no GET de downlink como em cada POST de uplink. O pipeline de integração também reaplica automaticamente as correções e os validadores verificam os marcadores compilados.
+O fluxo XHTTP mantém o UUID original no path do GET de downlink e de cada POST de uplink. O cabeçalho experimental `X-Session-ID` não é aplicado pelo pipeline, porque causou a regressão de conexão relatada. O pipeline de integração reaplica automaticamente o watchdog e os validadores verificam a sessão pelo UUID/path.
 
 ## Verificações executadas
 
 - Compilação do smali e dos recursos com Apktool 3.0.3/aapt2.
 - Assinatura Android v2/v3 com `apksigner`.
-- Validação de runtime, serviços, bibliotecas nativas, cabeçalho de sessão e watchdog.
+- Validação de runtime, serviços, bibliotecas nativas, UUID de sessão no path e watchdog.
 - Teste de idempotência dos scripts de patch.
 - Verificação de integração da base XHTTP.
 
-A validação final resultou em `VALIDATION PASSED` e a verificação da base resultou em `Verificação XHTTP concluída`.
+Após a regressão relatada, o cabeçalho experimental foi removido do pipeline. A V2 foi recompilada com o handshake original, resultou em `VALIDATION PASSED`, e a base resultou em `Verificação XHTTP concluída`.
 
 ## Limitação da validação
 

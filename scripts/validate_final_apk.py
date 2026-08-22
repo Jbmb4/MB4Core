@@ -24,7 +24,7 @@ checks = [
     ("prefs xhttpSni/path/host/tls", all(k in text for k in ("xhttpSni", "xhttpPath", "xhttpHost", "xhttpTls", "tls12", "sshServer", "sshPort", "sshUser", "sshPass", "dnsForward", "dnsResolver", "udpResolver"))),
     ("VPN process classes", b"dragonssh" in dex_blob),
     ("conscrypt JNI lib", "lib/arm64-v8a/libconscrypt_jni.so" in names and "lib/armeabi-v7a/libconscrypt_jni.so" in names),
-    ("XHTTP session header compiled", b"X-Session-ID" in dex_blob),
+    ("XHTTP UUID path session", b"randomUUID" in dex_blob and b"addPathSegment" in dex_blob),
     ("VPN watchdog and TUN health check", b"vpn-watchdog" in dex_blob and b"isRoutingHealthy" in dex_blob and b"VPN routing unhealthy" in dex_blob),
 ]
 

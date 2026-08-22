@@ -73,8 +73,6 @@ SOURCE_ASSERTIONS = {
         "AndroidX legado",
         "bad_dispatch",
         "guarded_dispatch",
-        "patch_xhttp_session_header",
-        "X-Session-ID",
         "XHttpPanelState",
         "XHttpHostBridge",
         "XHttpStopReceiver",
@@ -115,7 +113,8 @@ DEX_MARKERS = (
 
     b"org/conscrypt/CryptoUpcalls",
     b"SSH_XHTTP",
-    b"X-Session-ID",
+    b"randomUUID",
+    b"addPathSegment",
     b"com/dtunnel/xhttp/XHttpPanelState",
     b"com/dtunnel/xhttp/XHttpHostBridge",
     b"com/dtunnel/xhttp/XHttpStopReceiver",
