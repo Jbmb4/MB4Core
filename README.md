@@ -91,9 +91,9 @@ O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincr
 cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma migrate deploy && pnpm exec prisma generate --schema=./prisma/schema.prisma && pnpm build && pm2 restart DTunnel --update-env
 ```
 
-### Atualizar o e-mail do administrador existente
+### Preservar o administrador existente
 
-O seed atualiza a conta administrativa pelo nome de usuário, troca o e-mail para `ADMIN_GMAIL_REDACTED` e preserva a senha já cadastrada:
+O seed não cria credenciais administrativas fixas e não altera a senha ou o Gmail de uma conta administradora existente. Em uma instalação sem administrador, use a opção 8 do `menuop` para criar o Super ADM diretamente no VPS.
 
 ```bash
 cd /root/Dtmod && pnpm exec prisma db seed
@@ -109,7 +109,7 @@ O recurso exige `JWT_SECRET_KEY` ou `CSRF_SECRET` no `.env` para proteger o toke
 
 ### Segurança e login por Gmail
 
-Administradores podem abrir o menu **Segurança** para alterar o Gmail usado no login e a senha da conta. A senha atual é exigida para confirmar a operação; deixar os campos de nova senha vazios mantém a senha existente.
+Administradores podem abrir o menu **Mudar Gmail e senha** para alterar o Gmail usado no login e a senha da conta. A senha atual é exigida para confirmar a operação; deixar os campos de nova senha vazios mantém a senha existente.
 
 O painel aceita login somente pelo Gmail cadastrado. O nome de usuário continua sendo mantido como identificação interna e visual, mas não funciona como credencial de acesso. Novas contas criadas no painel devem receber um Gmail válido para entrar.
 
@@ -123,6 +123,6 @@ cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm insta
 
 ### Alterar Gmail e senha pelo menuop
 
-No menu do terminal, escolha a opção **8. Mudar Gmail e senha do administrador**. O menu solicitará a senha atual, o novo Gmail e, opcionalmente, a nova senha. Pressione Enter no campo de nova senha para manter a senha atual.
+No menu do terminal, escolha a opção **8. Criar ou mudar Super ADM**. O menu solicitará a senha atual, o novo Gmail e, opcionalmente, a nova senha. Pressione Enter no campo de nova senha para manter a senha atual.
 
 A opção altera somente a conta marcada como administradora, preserva a senha quando solicitado e impede o uso de um Gmail já cadastrado em outra conta.

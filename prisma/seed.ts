@@ -1,45 +1,32 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const username = 'ADMIN_USERNAME_REDACTED';
-  const normalizedUsername = username.toLowerCase();
-  const password = 'ADMIN_PASSWORD_REDACTED';
-  const email = 'ADMIN_GMAIL_REDACTED';
-  const legacyEmail = 'ADMIN_EMAIL_REDACTED';
-
-  const passwordHash = bcrypt.hashSync(password, 10);
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [{ username: normalizedUsername }, { email: legacyEmail }],
-    },
+  const admin = await prisma.user.findFirst({
+    where: { is_admin: true },
+    orderBy: { created_at: 'asc' },
+    select: { username: true, email: true, is_admin: true },
   });
 
-  const user = existingUser
-    ? await prisma.user.update({
-        where: { id: existingUser.id },
-        data: {
-          email,
-          is_admin: true,
-        },
-      })
-    : await prisma.user.create({
-        data: {
-          username: normalizedUsername,
-          password: passwordHash,
-          email,
-          is_admin: true,
-        },
-      });
+  if (!admin) {
+    console.log({
+      message: 'Nenhum administrador foi criado. Use a opção do menuop para criar o Super Administrador no VPS.',
+    });
+    return;
+  }
 
-  console.log({ message: 'Super Administrador configurado com sucesso', user: user.username, is_admin: user.is_admin });
+  console.log({
+    message: 'Administrador existente preservado; nenhuma senha ou credencial foi alterada pelo seed.',
+    user: admin.username,
+    email: admin.email,
+    is_admin: admin.is_admin,
+  });
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
+  .catch((error) => {
+    console.error(error);
     process.exit(1);
   })
   .finally(async () => {
