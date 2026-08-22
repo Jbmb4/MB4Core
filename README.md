@@ -93,9 +93,9 @@ cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm insta
 
 ### Atualizações do aplicativo
 
-O arquivo `dtunnelmod.json` do APK contém somente a URL de bootstrap do painel. Os campos `credits`, `channel` e `group` não participam da atualização. O aplicativo consulta as versões por meio das APIs `/api/dtunnelmod/version` e `/api/dtunnelmod/update`, que entregam separadamente as configurações, textos e layout publicados no painel.
+A versão atual da base do APK valida as quatro chaves de `dtunnelmod.json`: `url`, `credits`, `channel` e `group`. Por isso, **não remova essas quatro chaves dos APKs atuais**: a URL localiza o painel e as demais chaves são mantidas por compatibilidade com o leitor interno da base. A atualização de configurações, textos e layout continua sendo entregue pelas APIs `/api/dtunnelmod/version` e `/api/dtunnelmod/update`; os campos sociais não definem a versão nem o endereço do download.
 
-Para disponibilizar uma nova versão do APK, gere o aplicativo com uma nova versão/código e informe a URL pública do APK no campo `APP_DOWNLOAD_URL` da configuração do aplicativo. A versão exibida usa `APP_CURRENT_VERSION`; esses campos já ficam separados do manifesto social.
+Para disponibilizar uma nova versão do APK, gere o aplicativo com uma nova versão/código e informe a URL pública do APK no campo `APP_DOWNLOAD_URL` da configuração do aplicativo. A versão exibida usa `APP_CURRENT_VERSION`. A remoção definitiva das chaves sociais só deve ser feita depois que a base do APK for substituída por uma versão cujo leitor aceite o manifesto sem elas.
 
 ### Criar ou preservar o administrador
 

@@ -126,9 +126,15 @@ def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
     if not dtunnelmod_json.is_file():
         return
     try:
-        # O manifesto é usado somente para descobrir o painel. A atualização
-        # de configuração/texto/versão acontece pelas APIs version/update.
-        data = {"url": f"https://{new_domain}"}
+        # A base atual do APK ainda valida estas quatro chaves no manifesto.
+        # A URL localiza o painel; as chaves sociais são mantidas para
+        # compatibilidade e não controlam as APIs de atualização.
+        data = {
+            "url": f"https://{new_domain}",
+            "credits": "@LightXVD and @Kiritosan",
+            "channel": "@dtunnelmod",
+            "group": "@dtunnelmodgroup",
+        }
         dtunnelmod_json.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     except OSError as error:
         print(f"Aviso: erro ao atualizar dtunnelmod.json: {error}")
