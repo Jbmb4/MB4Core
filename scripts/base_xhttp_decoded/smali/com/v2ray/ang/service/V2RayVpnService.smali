@@ -183,6 +183,18 @@
     move-result-object v4
 
     .line 28
+    new-instance v1, Ljava/io/File;
+
+    invoke-virtual/range {p0 .. p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
+
+    move-result-object v2
+
+    const-string v3, "sock_path"
+
+    invoke-direct {v1, v2, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-virtual {v1}, Ljava/io/File;->delete()Z
+
     const-string v1, "127.0.0.1:"
 
     .line 30

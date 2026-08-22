@@ -253,7 +253,7 @@
 
     .line 89
     :catch_0
-    const/4 p1, 0x5
+    const/16 p1, 0x9
 
     .line 90
     if-gt v1, p1, :cond_3

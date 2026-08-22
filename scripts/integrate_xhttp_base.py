@@ -823,6 +823,8 @@ def main() -> None:
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
     from patch_vpn_stability import patch_vpn_stability
+    from patch_v2ray_tun import patch_v2ray_tun
+    patch_v2ray_tun(args.base)
     patch_vpn_stability(args.base)
     install_obfuscated_dependency_aliases(args.reference, args.base)
     

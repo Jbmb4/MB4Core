@@ -7,6 +7,7 @@ from pathlib import Path
 
 from integrate_xhttp_base import normalize_apktool_metadata, patch_manifest, patch_v2ray_foreground_type
 from patch_vpn_stability import patch_vpn_stability
+from patch_v2ray_tun import patch_v2ray_tun
 
 
 def main() -> None:
@@ -16,6 +17,7 @@ def main() -> None:
     normalize_apktool_metadata(args.base)
     patch_manifest(args.base)
     patch_v2ray_foreground_type(args.base)
+    patch_v2ray_tun(args.base)
     patch_vpn_stability(args.base)
     print(f"Runtime fixes applied to {args.base}")
 
