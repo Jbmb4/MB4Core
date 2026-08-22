@@ -145,13 +145,13 @@
 
 
 .sidebar {
-  border-right: 1px solid rgba(129, 169, 231, 0.13);
-  background: linear-gradient(180deg, #101a2b 0%, #0d1625 100%);
+  border-right: 1px solid var(--panel-accent-border);
+  background: linear-gradient(180deg, var(--panel-accent-fade), #0d1625 100%);
   box-shadow: 12px 0 36px rgba(0, 0, 0, 0.14);
 }
 
 .sidebar-header {
-  border-bottom-color: rgba(129, 169, 231, 0.15);
+  border-bottom-color: var(--panel-accent-border);
 }
 
 .sidebar-header a {
@@ -160,7 +160,7 @@
 
 .sidebar-header button {
   color: #a9c8f4;
-  background: rgba(73, 111, 165, 0.22);
+  background: var(--panel-accent-fade);
 }
 
 .nav-link {
@@ -172,7 +172,7 @@
 .nav-link:hover,
 .nav-link:focus {
   color: #f2f7ff !important;
-  background: linear-gradient(90deg, var(--panel-accent-soft), rgba(87, 76, 171, 0.18)) !important;
+  background: linear-gradient(90deg, var(--panel-accent-soft), var(--panel-accent-fade)) !important;
 }
 
 .nav-link.active {

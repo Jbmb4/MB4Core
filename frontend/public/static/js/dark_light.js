@@ -1,7 +1,7 @@
 const getPreferredTheme = () => localStorage.getItem('bs-theme') || 'dark';
 
 const COLOR_STORAGE_KEY = 'panel-accent-color';
-const DEFAULT_COLOR = '#6daeff';
+const DEFAULT_COLOR = 'default';
 
 const COLOR_CONTRAST = {
   '#2f6fed': '#ffffff',
@@ -33,22 +33,42 @@ const setDarkMode = () => setTheme('dark');
 const setLightMode = () => setTheme('light');
 const swithTheme = () => setTheme(getPreferredTheme() === 'dark' ? 'light' : 'dark');
 
-const applyAccentColor = (color) => {
-  const normalizedColor = String(color || '').toLowerCase();
-  const selectedColor = COLOR_CONTRAST[normalizedColor] ? normalizedColor : DEFAULT_COLOR;
-  const contrastColor = COLOR_CONTRAST[selectedColor];
-
-  document.documentElement.style.setProperty('--panel-accent', selectedColor);
-  document.documentElement.style.setProperty('--panel-accent-strong', selectedColor);
-  document.documentElement.style.setProperty('--panel-accent-contrast', contrastColor);
-  document.documentElement.style.setProperty('--panel-accent-soft', `${selectedColor}2e`);
-  localStorage.setItem(COLOR_STORAGE_KEY, selectedColor);
-
+const updateSelectedColor = (selectedKey) => {
   document.querySelectorAll('.theme-color-option').forEach((option) => {
-    const isSelected = option.dataset.themeColor?.toLowerCase() === selectedColor;
+    const optionKey = option.dataset.themeColor?.toLowerCase() || '';
+    const isSelected = optionKey === selectedKey;
     option.classList.toggle('is-selected', isSelected);
+    option.style.setProperty('--swatch-contrast', COLOR_CONTRAST[optionKey] || '#ffffff');
     option.setAttribute('aria-pressed', String(isSelected));
   });
+};
+
+const applyAccentColor = (color) => {
+  const normalizedColor = String(color || '').trim().toLowerCase();
+  const isDefault = normalizedColor === DEFAULT_COLOR || !COLOR_CONTRAST[normalizedColor];
+  const selectedColor = isDefault ? DEFAULT_COLOR : normalizedColor;
+  const root = document.documentElement;
+
+  if (isDefault) {
+    root.style.removeProperty('--panel-accent');
+    root.style.removeProperty('--panel-accent-strong');
+    root.style.removeProperty('--panel-accent-contrast');
+    root.style.removeProperty('--panel-accent-soft');
+    root.style.removeProperty('--panel-accent-fade');
+    root.style.removeProperty('--panel-accent-border');
+    localStorage.removeItem(COLOR_STORAGE_KEY);
+  } else {
+    const contrastColor = COLOR_CONTRAST[selectedColor];
+    root.style.setProperty('--panel-accent', selectedColor);
+    root.style.setProperty('--panel-accent-strong', selectedColor);
+    root.style.setProperty('--panel-accent-contrast', contrastColor);
+    root.style.setProperty('--panel-accent-soft', `${selectedColor}2e`);
+    root.style.setProperty('--panel-accent-fade', `${selectedColor}14`);
+    root.style.setProperty('--panel-accent-border', `${selectedColor}38`);
+    localStorage.setItem(COLOR_STORAGE_KEY, selectedColor);
+  }
+
+  updateSelectedColor(selectedColor);
 };
 
 const closeColorPicker = () => {

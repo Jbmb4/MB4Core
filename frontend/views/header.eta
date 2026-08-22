@@ -8,15 +8,19 @@
         <i id="toggle-theme-icon" class="fs-6 bi bi-moon-stars-fill"></i>
       </button>
       <div id="theme-color-picker" class="theme-color-picker" role="group" aria-label="Escolha a cor do painel" hidden>
-        <button class="theme-color-option" type="button" data-theme-color="#2f6fed" style="--swatch: #2f6fed" aria-label="Azul"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#14b887" style="--swatch: #14b887" aria-label="Verde"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#8457e6" style="--swatch: #8457e6" aria-label="Roxo"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#f0783c" style="--swatch: #f0783c" aria-label="Laranja"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#6daeff" style="--swatch: #6daeff" aria-label="Azul claro"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#ed3f5b" style="--swatch: #ed3f5b" aria-label="Vermelho"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#10a8c4" style="--swatch: #10a8c4" aria-label="Ciano"></button>
-        <button class="theme-color-option" type="button" data-theme-color="#f2bd08" style="--swatch: #f2bd08" aria-label="Amarelo"></button>
-        <button class="theme-color-option theme-color-option-white" type="button" data-theme-color="#ffffff" style="--swatch: #ffffff" aria-label="Branco"></button>
+        <div class="theme-color-picker-title">Cor do painel</div>
+        <div class="theme-color-grid">
+          <button class="theme-color-option theme-color-option-default" type="button" data-theme-color="default" aria-label="Padrão do painel" title="Padrão"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#2f6fed" style="--swatch: #2f6fed" aria-label="Azul" title="Azul"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#14b887" style="--swatch: #14b887" aria-label="Verde" title="Verde"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#8457e6" style="--swatch: #8457e6" aria-label="Roxo" title="Roxo"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#f0783c" style="--swatch: #f0783c" aria-label="Laranja" title="Laranja"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#6daeff" style="--swatch: #6daeff" aria-label="Azul claro" title="Azul claro"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#ed3f5b" style="--swatch: #ed3f5b" aria-label="Vermelho" title="Vermelho"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#10a8c4" style="--swatch: #10a8c4" aria-label="Ciano" title="Ciano"></button>
+          <button class="theme-color-option" type="button" data-theme-color="#f2bd08" style="--swatch: #f2bd08" aria-label="Amarelo" title="Amarelo"></button>
+          <button class="theme-color-option theme-color-option-white" type="button" data-theme-color="#ffffff" style="--swatch: #ffffff" aria-label="Branco" title="Branco"></button>
+        </div>
       </div>
     </div>
     <a href="/profile" target="_self">

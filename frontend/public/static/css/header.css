@@ -42,25 +42,25 @@
 .header {
     min-height: 64px;
     padding: 9px 14px;
-    border-bottom: 1px solid rgba(129, 169, 231, 0.13);
-    background: rgba(11, 18, 32, 0.72);
+  border-bottom: 1px solid var(--panel-accent-border);
+  background: linear-gradient(180deg, var(--panel-accent-fade), rgba(11, 18, 32, 0.82));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
 }
 
 .header a {
     color: #eaf2ff;
-    background: rgba(52, 78, 117, 0.24);
+    background: var(--panel-accent-fade);
 }
 
 .header button {
     color: #a8c9f9;
-    background: rgba(52, 78, 117, 0.3);
+    background: linear-gradient(135deg, var(--panel-accent-fade), rgba(24, 38, 61, 0.92));
 }
 
 .header button:hover,
 .header a:hover {
-    background: rgba(79, 125, 194, 0.3);
+    background: var(--panel-accent-soft);
 }
 
 
@@ -80,20 +80,53 @@
 
 .theme-color-picker {
   position: absolute;
-  top: calc(100% + 7px);
-  right: 5px;
+  top: calc(100% + 10px);
+  right: 50%;
   z-index: 1100;
-  display: grid;
-  grid-template-columns: repeat(5, 24px);
-  gap: 9px;
-  min-width: 171px;
-  padding: 12px;
+  display: block;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 13px 15px 15px;
   border: 1px solid rgba(143, 180, 237, 0.24);
-  border-radius: 15px;
+  border-radius: 17px;
   background: rgba(17, 28, 46, 0.98);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transform: translateX(50%);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+}
+
+.theme-color-picker::before {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid rgba(143, 180, 237, 0.24);
+  border-left: 1px solid rgba(143, 180, 237, 0.24);
+  background: rgba(17, 28, 46, 0.98);
+  content: '';
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.theme-color-picker-title {
+  position: relative;
+  margin-bottom: 11px;
+  color: #dbe8fb;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.theme-color-grid {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
 }
 
 .theme-color-picker[hidden] {
@@ -101,17 +134,36 @@
 }
 
 .theme-color-option {
-  width: 24px !important;
-  height: 24px;
-  min-width: 24px;
+  position: relative;
+  width: 38px !important;
+  height: 38px;
+  min-width: 38px;
   margin: 0 !important;
   padding: 0;
   border: 2px solid transparent !important;
   border-radius: 50% !important;
-  background: var(--swatch) !important;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.24);
+  background: transparent !important;
+  box-shadow: none;
   cursor: pointer;
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.theme-color-option::before {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.24);
+  content: '';
+}
+
+.theme-color-option-default {
+  --swatch: linear-gradient(135deg, #6daeff 0 50%, #17243a 50% 100%);
+}
+
+.theme-color-option-default::before {
+  background: var(--swatch);
 }
 
 .theme-color-option:hover,
@@ -126,7 +178,20 @@
   box-shadow: 0 0 0 2px rgba(7, 14, 27, 0.9), 0 0 0 4px var(--panel-accent);
 }
 
+.theme-color-option.is-selected::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--swatch-contrast, #ffffff);
+  content: '✓';
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
 .theme-color-option-white {
+  --swatch-contrast: #0b1220;
   border-color: rgba(164, 180, 204, 0.75) !important;
 }
 
@@ -137,15 +202,26 @@
 @media (max-width: 575px) {
   .theme-color-picker {
     right: 0;
-    grid-template-columns: repeat(5, 23px);
-    gap: 8px;
-    min-width: 160px;
-    padding: 11px;
+    transform: none;
+  }
+
+  .theme-color-picker::before {
+    left: auto;
+    right: 17px;
+    transform: rotate(45deg);
+  }
+
+  .theme-color-grid {
+    gap: 2px;
   }
 
   .theme-color-option {
-    width: 23px !important;
-    height: 23px;
-    min-width: 23px;
+    width: 29px !important;
+    height: 29px;
+    min-width: 29px;
+  }
+
+  .theme-color-option::before {
+    inset: 3px;
   }
 }
