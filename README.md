@@ -120,3 +120,9 @@ cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm insta
 ```
 
 <br />
+
+### Alterar Gmail e senha pelo menuop
+
+No menu do terminal, escolha a opção **8. Mudar Gmail e senha do administrador**. O menu solicitará a senha atual, o novo Gmail e, opcionalmente, a nova senha. Pressione Enter no campo de nova senha para manter a senha atual.
+
+A opção altera somente a conta marcada como administradora, preserva a senha quando solicitado e impede o uso de um Gmail já cadastrado em outra conta.

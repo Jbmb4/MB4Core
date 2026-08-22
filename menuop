@@ -72,6 +72,7 @@ show_menu() {
     CURRENT_PORT=$(grep "^PORT=" "$ENV_FILE" 2>/dev/null | cut -d'=' -f2 | tr -d ' ')
     [ -z "$CURRENT_PORT" ] && CURRENT_PORT="3000"
     echo -e "${CYAN}7.${NC} Configurar porta do painel ${YELLOW}(Atual: $CURRENT_PORT)${NC}"
+    echo -e "${CYAN}8.${NC} Mudar Gmail e senha do administrador"
     echo -e "${CYAN}0.${NC} Sair"
     echo ""
     echo -n -e "${GREEN}Escolha uma opcao: ${NC}"
@@ -295,6 +296,11 @@ PY
             else
                 echo -e "${RED}Porta invalida! Use numeros entre 1 e 65535.${NC}"
             fi
+            sleep 3
+            ;;
+        8)
+            echo -e "${CYAN}--- ALTERAR CREDENCIAIS DO ADMINISTRADOR ---${NC}"
+            cd "$PANEL_DIR" && pnpm exec tsx scripts/update-admin-credentials.ts
             sleep 3
             ;;
         0)
