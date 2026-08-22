@@ -91,6 +91,12 @@ O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincr
 cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma migrate deploy && pnpm exec prisma generate --schema=./prisma/schema.prisma && pnpm build && pm2 restart DTunnel --update-env
 ```
 
+### Atualizações do aplicativo
+
+O arquivo `dtunnelmod.json` do APK contém somente a URL de bootstrap do painel. Os campos `credits`, `channel` e `group` não participam da atualização. O aplicativo consulta as versões por meio das APIs `/api/dtunnelmod/version` e `/api/dtunnelmod/update`, que entregam separadamente as configurações, textos e layout publicados no painel.
+
+Para disponibilizar uma nova versão do APK, gere o aplicativo com uma nova versão/código e informe a URL pública do APK no campo `APP_DOWNLOAD_URL` da configuração do aplicativo. A versão exibida usa `APP_CURRENT_VERSION`; esses campos já ficam separados do manifesto social.
+
 ### Preservar o administrador existente
 
 O seed não cria credenciais administrativas fixas e não altera a senha ou o Gmail de uma conta administradora existente. Em uma instalação sem administrador, use a opção 8 do `menuop` para criar o Super ADM diretamente no VPS.

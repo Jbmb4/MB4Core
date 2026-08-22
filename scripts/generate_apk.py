@@ -126,12 +126,12 @@ def update_dtunnelmod_json(work_dir: Path, new_domain: str) -> None:
     if not dtunnelmod_json.is_file():
         return
     try:
-        data = json.loads(dtunnelmod_json.read_text(encoding="utf-8"))
-        new_url = f"https://{new_domain}"
-        data["url"] = new_url
+        # O manifesto é usado somente para descobrir o painel. A atualização
+        # de configuração/texto/versão acontece pelas APIs version/update.
+        data = {"url": f"https://{new_domain}"}
         dtunnelmod_json.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    except Exception as e:
-        print(f"Aviso: erro ao atualizar dtunnelmod.json: {e}")
+    except OSError as error:
+        print(f"Aviso: erro ao atualizar dtunnelmod.json: {error}")
 
 def update_app_name(work_dir: Path, new_name: str) -> None:
     clean_name = new_name.strip()
