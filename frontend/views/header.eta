@@ -3,26 +3,9 @@
     <i class="bi bi-list-nested"></i>
   </button>
   <div class="d-flex align-items-center">
-    <div class="theme-picker-wrap">
-      <button id="toggle-theme-btn" class="btn btn-sm btn-dark rounded-circle" type="button" aria-label="Abrir seletor de cores" aria-expanded="false" aria-controls="theme-color-picker" style="height: 35px; width: 35px">
-        <i id="toggle-theme-icon" class="fs-6 bi bi-palette-fill"></i>
-      </button>
-      <div id="theme-color-picker" class="theme-color-picker" role="group" aria-label="Escolha a cor do painel" hidden>
-        <div class="theme-color-picker-title">Cor do painel</div>
-        <div class="theme-color-grid">
-          <button class="theme-color-option theme-color-option-default" type="button" data-theme-color="default" aria-label="Padrão do painel" title="Padrão"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#2f6fed" style="--swatch: #2f6fed" aria-label="Azul" title="Azul"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#14b887" style="--swatch: #14b887" aria-label="Verde" title="Verde"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#8457e6" style="--swatch: #8457e6" aria-label="Roxo" title="Roxo"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#f0783c" style="--swatch: #f0783c" aria-label="Laranja" title="Laranja"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#6daeff" style="--swatch: #6daeff" aria-label="Azul claro" title="Azul claro"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#ed3f5b" style="--swatch: #ed3f5b" aria-label="Vermelho" title="Vermelho"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#10a8c4" style="--swatch: #10a8c4" aria-label="Ciano" title="Ciano"></button>
-          <button class="theme-color-option" type="button" data-theme-color="#f2bd08" style="--swatch: #f2bd08" aria-label="Amarelo" title="Amarelo"></button>
-          <button class="theme-color-option theme-color-option-white" type="button" data-theme-color="#ffffff" style="--swatch: #ffffff" aria-label="Branco" title="Branco"></button>
-        </div>
-      </div>
-    </div>
+    <button id="toggle-theme-btn" class="btn btn-sm btn-dark rounded-circle" style="height: 35px; width: 35px">
+      <i id="toggle-theme-icon" class="fs-6 bi bi-moon-stars-fill"></i>
+    </button>
     <a href="/profile" target="_self">
       <%= it.user.username %>
       <img src="../static/img/icon.jpg?v=20260815-nexus-2" width="30" height="30" class="d-inline-block ms-2 img-rounded">

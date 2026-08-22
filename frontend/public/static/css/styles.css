@@ -96,17 +96,13 @@ main.d-flex > .container-fluid,
     --panel-muted: #94a5bf;
     --panel-accent: #6daeff;
     --panel-accent-strong: #7b70ef;
-    --panel-accent-contrast: #0b1220;
-    --panel-accent-soft: rgba(109, 174, 255, 0.18);
-    --panel-accent-fade: rgba(109, 174, 255, 0.08);
-    --panel-accent-border: rgba(109, 174, 255, 0.22);
 }
 
 body {
     color: var(--panel-text);
     background:
-        radial-gradient(circle at 12% 0%, var(--panel-accent-fade), transparent 28%),
-        radial-gradient(circle at 92% 100%, var(--panel-accent-soft), transparent 32%),
+        radial-gradient(circle at 12% 0%, rgba(63, 118, 226, 0.1), transparent 28%),
+        radial-gradient(circle at 92% 100%, rgba(112, 79, 210, 0.1), transparent 32%),
         var(--panel-bg);
 }
 
@@ -117,8 +113,8 @@ main.d-flex {
 
 .content > .card,
 .content > .card .card-body {
-    border-color: var(--panel-accent-border) !important;
-    background: linear-gradient(145deg, #14233a, #101d31) !important;
+    border-color: var(--panel-border) !important;
+    background: linear-gradient(145deg, rgba(20, 31, 50, 0.94), rgba(13, 21, 35, 0.94)) !important;
 }
 
 .content > .card {
@@ -161,16 +157,16 @@ input::placeholder {
 .form-select:focus,
 textarea:focus,
 input:focus {
-    border-color: var(--panel-accent) !important;
-    box-shadow: 0 0 0 4px var(--panel-accent-soft) !important;
+    border-color: rgba(111, 173, 255, 0.75) !important;
+    box-shadow: 0 0 0 4px rgba(83, 145, 232, 0.12) !important;
 }
 
 .btn-dark,
 .btn-custom-dark {
-    border: 1px solid var(--panel-accent-border) !important;
+    border: 1px solid rgba(132, 170, 230, 0.13) !important;
     border-radius: 12px !important;
     color: #eef5ff !important;
-    background: linear-gradient(135deg, var(--panel-accent-fade), #18263d) !important;
+    background: linear-gradient(135deg, #1e304c, #18263d) !important;
     transition: transform 160ms ease, filter 160ms ease, border-color 160ms ease;
 }
 
@@ -709,105 +705,4 @@ select optgroup {
         width: 32px;
         height: 31px;
     }
-}
-
-
-/* Accent color selected from the header palette */
-.text-primary {
-    color: var(--panel-accent) !important;
-}
-
-.btn-primary {
-    border-color: var(--panel-accent) !important;
-    color: var(--panel-accent-contrast) !important;
-    background: var(--panel-accent) !important;
-}
-
-.btn-primary:hover,
-.btn-primary:focus-visible {
-    border-color: var(--panel-accent-strong) !important;
-    color: var(--panel-accent-contrast) !important;
-    filter: brightness(1.08);
-}
-
-.btn-outline-primary {
-    border-color: var(--panel-accent) !important;
-    color: var(--panel-accent) !important;
-}
-
-.btn-outline-primary:hover,
-.btn-outline-primary:focus-visible {
-    border-color: var(--panel-accent) !important;
-    color: var(--panel-accent-contrast) !important;
-    background-color: var(--panel-accent) !important;
-}
-
-.border-primary {
-    border-color: var(--panel-accent) !important;
-}
-
-.spinner-border.text-primary {
-    color: var(--panel-accent) !important;
-}
-
-.nav-link.active {
-    box-shadow: inset 3px 0 0 var(--panel-accent) !important;
-}
-
-.nav-link.active,
-.nav-link:hover,
-.nav-link:focus {
-    background: linear-gradient(90deg, var(--panel-accent-soft), rgba(87, 76, 171, 0.18)) !important;
-}
-
-
-/* Global panel tint driven by the header palette; header identity text stays fixed. */
-.content > .card,
-.content > .card .card-body,
-.card {
-    border-color: var(--panel-accent-border) !important;
-}
-
-.content > .card,
-.card {
-    background: linear-gradient(145deg, #14233a, #101d31) !important;
-}
-
-.form-control,
-.form-select,
-textarea,
-input[type='text'],
-input[type='number'],
-input[type='search'],
-input[type='password'] {
-    border-color: var(--panel-accent-border) !important;
-    background-color: color-mix(in srgb, #1a2941 86%, var(--panel-accent) 14%) !important;
-}
-
-.summary-card,
-.stat-card {
-    border-color: var(--panel-accent-border) !important;
-}
-
-.summary-icon,
-.stat-icon-glyph,
-.stat-card .bi-arrow-right-circle,
-.stat-icon {
-    color: var(--panel-accent) !important;
-}
-
-.stat-icon {
-    background: var(--panel-accent-fade) !important;
-}
-
-.form-check-input:checked {
-    border-color: var(--panel-accent) !important;
-    background-color: var(--panel-accent) !important;
-}
-
-.pagination .page-item.active .page-link,
-.progress-bar {
-    border-color: var(--panel-accent) !important;
-    background-color: var(--panel-accent) !important;
-    color: var(--panel-accent-contrast) !important;
 }
