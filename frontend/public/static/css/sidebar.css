@@ -172,11 +172,11 @@
 .nav-link:hover,
 .nav-link:focus {
   color: #f2f7ff !important;
-  background: linear-gradient(90deg, rgba(83, 139, 222, 0.25), rgba(87, 76, 171, 0.18)) !important;
+  background: linear-gradient(90deg, var(--panel-accent-soft), rgba(87, 76, 171, 0.18)) !important;
 }
 
 .nav-link.active {
-  box-shadow: inset 3px 0 0 #72b0ff;
+  box-shadow: inset 3px 0 0 var(--panel-accent);
 }
 
 .nav-link:hover {

@@ -96,6 +96,8 @@ main.d-flex > .container-fluid,
     --panel-muted: #94a5bf;
     --panel-accent: #6daeff;
     --panel-accent-strong: #7b70ef;
+    --panel-accent-contrast: #0b1220;
+    --panel-accent-soft: rgba(109, 174, 255, 0.18);
 }
 
 body {
@@ -157,8 +159,8 @@ input::placeholder {
 .form-select:focus,
 textarea:focus,
 input:focus {
-    border-color: rgba(111, 173, 255, 0.75) !important;
-    box-shadow: 0 0 0 4px rgba(83, 145, 232, 0.12) !important;
+    border-color: var(--panel-accent) !important;
+    box-shadow: 0 0 0 4px var(--panel-accent-soft) !important;
 }
 
 .btn-dark,
@@ -705,4 +707,54 @@ select optgroup {
         width: 32px;
         height: 31px;
     }
+}
+
+
+/* Accent color selected from the header palette */
+a,
+.text-primary {
+    color: var(--panel-accent) !important;
+}
+
+.btn-primary {
+    border-color: var(--panel-accent) !important;
+    color: var(--panel-accent-contrast) !important;
+    background: var(--panel-accent) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+    border-color: var(--panel-accent-strong) !important;
+    color: var(--panel-accent-contrast) !important;
+    filter: brightness(1.08);
+}
+
+.btn-outline-primary {
+    border-color: var(--panel-accent) !important;
+    color: var(--panel-accent) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus-visible {
+    border-color: var(--panel-accent) !important;
+    color: var(--panel-accent-contrast) !important;
+    background-color: var(--panel-accent) !important;
+}
+
+.border-primary {
+    border-color: var(--panel-accent) !important;
+}
+
+.spinner-border.text-primary {
+    color: var(--panel-accent) !important;
+}
+
+.nav-link.active {
+    box-shadow: inset 3px 0 0 var(--panel-accent) !important;
+}
+
+.nav-link.active,
+.nav-link:hover,
+.nav-link:focus {
+    background: linear-gradient(90deg, var(--panel-accent-soft), rgba(87, 76, 171, 0.18)) !important;
 }
