@@ -99,7 +99,7 @@ while true; do
                 tar -xzf "$backup_path" -C "$(dirname "$PANEL_DIR")"
                 echo -e "${GREEN}Backup restaurado com sucesso!${NC}"
                 cd "$PANEL_DIR"
-                npx prisma db push
+                pnpm exec prisma db push
                 "$PANEL_DIR/pon"
             else
                 echo -e "${RED}Arquivo de backup nao encontrado!${NC}"

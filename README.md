@@ -85,10 +85,10 @@ pnpm start
 
 ### Atualização do painel no VPS
 
-O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincroniza exatamente com `origin/main`, instala as dependências, aplica a migration da validade, regenera o Prisma Client, compila o projeto e reinicia o processo correto do PM2:
+O comando oficial de atualização do VPS fica na pasta `/root/Dtmod`. Ele sincroniza exatamente com `origin/main`, instala as dependências, regenera o Prisma Client, compila o projeto e reinicia o processo correto do PM2:
 
 ```bash
-cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma migrate deploy && pnpm exec prisma generate --schema=./prisma/schema.prisma && pnpm build && pm2 restart DTunnel --update-env
+cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm install && pnpm exec prisma generate && pnpm build && pm2 restart DTunnel --update-env
 ```
 
 ### Atualizações do aplicativo
@@ -97,13 +97,11 @@ O arquivo `dtunnelmod.json` do APK contém somente a URL de bootstrap do painel.
 
 Para disponibilizar uma nova versão do APK, gere o aplicativo com uma nova versão/código e informe a URL pública do APK no campo `APP_DOWNLOAD_URL` da configuração do aplicativo. A versão exibida usa `APP_CURRENT_VERSION`; esses campos já ficam separados do manifesto social.
 
-### Preservar o administrador existente
+### Criar ou preservar o administrador
 
-O seed não cria credenciais administrativas fixas e não altera a senha ou o Gmail de uma conta administradora existente. Em uma instalação sem administrador, use a opção 8 do `menuop` para criar o Super ADM diretamente no VPS.
+O instalador não executa seed e não cria credenciais administrativas fixas. O arquivo `prisma/seed.ts` é apenas informativo e não cria nem altera contas administrativas. Em uma instalação sem administrador, use a opção 8 do `menuop` para criar o Super ADM diretamente no VPS; não é necessário executar `prisma db seed`.
 
-```bash
-cd /root/Dtmod && pnpm exec prisma db seed
-```
+Na primeira criação, a opção 8 solicita o nome interno, o Gmail, a senha e a confirmação da senha. Se já existir um administrador no banco, a opção 8 solicita a senha atual antes de permitir a troca do Gmail e da senha.
 
 ### Configurar Colaboradores e Pix
 
@@ -127,8 +125,8 @@ cd /root/Dtmod && git fetch origin && git reset --hard origin/main && pnpm insta
 
 <br />
 
-### Alterar Gmail e senha pelo menuop
+### Criar ou alterar o Super ADM pelo menuop
 
-No menu do terminal, escolha a opção **8. Criar ou mudar Super ADM**. O menu solicitará a senha atual, o novo Gmail e, opcionalmente, a nova senha. Pressione Enter no campo de nova senha para manter a senha atual.
+No menu do terminal, escolha a opção **8. Criar ou mudar Super ADM**. Se não houver administrador no banco, o menu solicitará o nome interno, o Gmail, a senha e a confirmação da senha. Se já existir administrador, solicitará a senha atual, o novo Gmail e, opcionalmente, a nova senha. Pressione Enter no campo de nova senha para manter a senha atual.
 
 A opção altera somente a conta marcada como administradora, preserva a senha quando solicitado e impede o uso de um Gmail já cadastrado em outra conta.

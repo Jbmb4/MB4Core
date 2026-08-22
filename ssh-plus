@@ -88,13 +88,12 @@ if [ ! -f .env ]; then cp .env.example .env; fi
 echo -e "${CYAN}[8/10]${NC} Instalando dependencias do projeto..."
 pnpm install --no-frozen-lockfile
 
-echo -e "${CYAN}[9/10]${NC} Configurando banco de dados..."
-npx prisma generate
-npx prisma db push
-npx prisma db seed
+echo -e "${CYAN}[9/10]${NC} Configurando banco de dados (sem seed e sem credenciais fixas)..."
+pnpm exec prisma generate
+pnpm exec prisma db push
 
 echo -e "${CYAN}[10/10]${NC} Compilando projeto..."
-npx tsc --build
+pnpm exec tsc --build
 
 # Firewall
 PORT=$(grep "^PORT=" .env | cut -d'=' -f2 | tr -d ' ' || echo "3000")
@@ -119,3 +118,5 @@ echo -e "${GREEN}==============================================${NC}"
 echo -e "${GREEN}  INSTALACAO CONCLUIDA COM SUCESSO!            ${NC}"
 echo -e "${GREEN}==============================================${NC}"
 echo -e "${CYAN}Use 'menuop' para gerenciar e gerar seu APK.${NC}"
+echo -e "${YELLOW}Primeira instalação: execute 'menuop', escolha a opção 8 e crie o Super ADM com seu Gmail e sua senha.${NC}"
+echo -e "${YELLOW}Nenhuma credencial administrativa é criada automaticamente pelo instalador.${NC}"
