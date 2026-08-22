@@ -43,8 +43,9 @@
 }
 
 .page-item.active .page-link {
-    background-color: #212529 !important;
-    border-color: #212529 !important;
+    background-color: var(--panel-accent) !important;
+    border-color: var(--panel-accent) !important;
+    color: var(--panel-accent-contrast) !important;
 }
 
 .btn-custom-dark {
@@ -91,7 +92,7 @@ body {
     --bs-card-color: #f3f7ff !important;
     --bs-tertiary-bg: #121e31 !important;
     --bs-secondary-bg: #18263c !important;
-    --bs-border-color: rgba(129, 169, 231, 0.2) !important;
+    --bs-border-color: var(--panel-accent-border) !important;
     background-color: #0b1220 !important;
     color: #f3f7ff !important;
 }
@@ -104,7 +105,7 @@ body {
 .bg-light {
     color: #f3f7ff !important;
     background: #121e31 !important;
-    border-color: rgba(129, 169, 231, 0.2) !important;
+    border-color: var(--panel-accent-border) !important;
 }
 
 .card {
@@ -176,5 +177,5 @@ input::placeholder {
 .list-group-item {
     color: #f3f7ff !important;
     background: #121e31 !important;
-    border-color: rgba(129, 169, 231, 0.2) !important;
+    border-color: var(--panel-accent-border) !important;
 }

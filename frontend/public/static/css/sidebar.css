@@ -114,10 +114,13 @@
 
 @media (max-width: 991px) {
   .sidebar {
+    top: 64px;
+    left: 0;
     margin-left: -260px;
     position: fixed;
-    min-height: 100vh;
-    z-index: 999;
+    height: calc(100vh - 64px);
+    min-height: calc(100vh - 64px);
+    z-index: 1990;
     width: unset;
   }
 
@@ -128,6 +131,11 @@
 
   .sidebar.active {
     margin-left: 0;
+  }
+
+  .sidebar-header a {
+    opacity: 1;
+    visibility: visible;
   }
 
   .sidebar-header a span,

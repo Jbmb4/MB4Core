@@ -49,6 +49,8 @@ const applyAccentColor = (color) => {
   const selectedColor = isDefault ? DEFAULT_COLOR : normalizedColor;
   const root = document.documentElement;
 
+  const browserThemeColor = document.querySelector('meta[name="theme-color"]');
+
   if (isDefault) {
     root.style.removeProperty('--panel-accent');
     root.style.removeProperty('--panel-accent-strong');
@@ -57,6 +59,7 @@ const applyAccentColor = (color) => {
     root.style.removeProperty('--panel-accent-fade');
     root.style.removeProperty('--panel-accent-border');
     localStorage.removeItem(COLOR_STORAGE_KEY);
+    browserThemeColor?.setAttribute('content', '#0a1020');
   } else {
     const contrastColor = COLOR_CONTRAST[selectedColor];
     root.style.setProperty('--panel-accent', selectedColor);
@@ -65,6 +68,7 @@ const applyAccentColor = (color) => {
     root.style.setProperty('--panel-accent-soft', `${selectedColor}2e`);
     root.style.setProperty('--panel-accent-fade', `${selectedColor}14`);
     root.style.setProperty('--panel-accent-border', `${selectedColor}38`);
+    browserThemeColor?.setAttribute('content', selectedColor);
     localStorage.setItem(COLOR_STORAGE_KEY, selectedColor);
   }
 
