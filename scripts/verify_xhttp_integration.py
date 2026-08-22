@@ -49,6 +49,13 @@ SOURCE_ASSERTIONS = {
         "Le4/g;->o:Le4/g;",
         "Le4/g;->p:Le4/g;",
     ),
+    ROOT / "scripts/patch_vpn_stability.py": (
+        "isRoutingHealthy",
+        "VPN routing unhealthy",
+        "vpn-watchdog",
+        "mRoutingThroughTunnel",
+        "mTun2Socks",
+    ),
     ROOT / "scripts/stage_xhttp_core.py": (
         "DYNAMIC_ROOTS",
         "CryptoUpcalls",
@@ -112,6 +119,9 @@ DEX_MARKERS = (
     b"com/dtunnel/xhttp/XHttpPanelState",
     b"com/dtunnel/xhttp/XHttpHostBridge",
     b"com/dtunnel/xhttp/XHttpStopReceiver",
+    b"VPN routing unhealthy",
+    b"vpn-watchdog",
+    b"isRoutingHealthy",
 )
 
 APK_TEXT_MARKERS = (

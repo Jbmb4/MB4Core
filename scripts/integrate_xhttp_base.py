@@ -529,6 +529,10 @@ def patch_manifest(base: Path) -> None:
     require(manifest)
     text = manifest.read_text(encoding="utf-8")
 
+    # Android 14+ rejects the legacy numeric/specialUse flag in this base.
+    text = text.replace('android:foregroundServiceType="specialUse"', 'android:foregroundServiceType=""')
+    text = text.replace('android:foregroundServiceType="0x40000000"', 'android:foregroundServiceType=""')
+
     permission = '<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>'
     if permission not in text:
         marker = '<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>'
@@ -795,6 +799,8 @@ def main() -> None:
     normalize_apktool_metadata(args.base)
     stage_runtime(args.reference, args.base)
     patch_xhttp_session_header(args.base)
+    from patch_vpn_stability import patch_vpn_stability
+    patch_vpn_stability(args.base)
     install_obfuscated_dependency_aliases(args.reference, args.base)
     
     # Fix Conscrypt NPE crash in OkHttp

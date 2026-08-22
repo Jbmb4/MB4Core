@@ -486,6 +486,26 @@
     return-void
 .end method
 
+
+.method public isRoutingHealthy()Z
+    .locals 1
+
+    iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_tunnel:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;
+
+    if-eqz v0, :cond_manager_health_false
+
+    invoke-virtual {v0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->isRoutingHealthy()Z
+
+    move-result v0
+
+    return v0
+
+    :cond_manager_health_false
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
 .method public onStartCommand(Landroid/content/Intent;II)I
     .locals 2
 
@@ -696,58 +716,96 @@
     return-void
 .end method
 
-.method public restartTunnel(Ljava/lang/String;)V
-    .locals 2
 
-    .line 150
+.method public restartTunnel(Ljava/lang/String;)V
+    .locals 4
+
     const-string v0, "TunnelManager"
 
     const-string v1, "Restarting tunnel."
 
     invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    const/4 v0, 0x1
+    const/4 v2, 0x1
 
-    if-eqz p1, :cond_1
+    if-eqz p1, :cond_restart_same_server
 
-    .line 151
     iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->mSettings:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;
 
     iget-object v1, v1, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;->mSocksServer:Ljava/lang/String;
 
-    .line 152
     invoke-virtual {p1, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_0
+    if-nez v1, :cond_restart_same_server
 
-    goto :goto_0
-
-    .line 158
-    :cond_0
     iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->mSettings:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;
 
     iput-object p1, v1, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;->mSocksServer:Ljava/lang/String;
 
-    .line 159
-    iget-object p1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_isReconnecting:Ljava/util/concurrent/atomic/AtomicBoolean;
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_isReconnecting:Ljava/util/concurrent/atomic/AtomicBoolean;
 
-    invoke-virtual {p1, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+    invoke-virtual {v1, v2}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
 
-    .line 165
     invoke-virtual {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->signalStopService()V
 
     return-void
 
-    .line 155
-    :cond_1
-    :goto_0
-    iget-object p1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_parentService:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnService;
+    :cond_restart_same_server
+    invoke-virtual {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->isRoutingHealthy()Z
 
-    invoke-virtual {p1, v0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnService;->broadcastVpnStart(Z)V
+    move-result v1
+
+    if-eqz v1, :cond_restart_unhealthy
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_parentService:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnService;
+
+    invoke-virtual {v1, v2}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnService;->broadcastVpnStart(Z)V
 
     return-void
+
+    :cond_restart_unhealthy
+    const-string v1, "VPN routing unhealthy; restarting TUN"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_isReconnecting:Ljava/util/concurrent/atomic/AtomicBoolean;
+
+    invoke-virtual {v1, v2}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
+    invoke-virtual {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->signalStopService()V
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->m_tunnelThread:Ljava/lang/Thread;
+
+    if-eqz v1, :cond_restart_start
+
+    invoke-virtual {v1}, Ljava/lang/Thread;->isAlive()Z
+
+    move-result v3
+
+    if-eqz v3, :cond_restart_start
+
+    const-wide/16 v2, 0x3e8
+
+    :try_start_restart_join
+    invoke-virtual {v1, v2, v3}, Ljava/lang/Thread;->join(J)V
+    :try_end_restart_join
+    .catch Ljava/lang/InterruptedException; {:try_start_restart_join .. :try_end_restart_join} :catch_restart_join
+
+    :cond_restart_start
+    invoke-direct {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnManager;->startTunnel()V
+
+    return-void
+
+    :catch_restart_join
+    invoke-static {}, Ljava/lang/Thread;->currentThread()Ljava/lang/Thread;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/Thread;->interrupt()V
+
+    goto :cond_restart_start
 .end method
 
 .method public signalStopService()V

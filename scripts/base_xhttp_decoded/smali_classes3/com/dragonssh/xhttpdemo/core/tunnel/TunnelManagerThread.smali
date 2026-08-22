@@ -189,6 +189,15 @@
     return-void
 .end method
 
+
+.method static bridge synthetic -$$Nest$fgetmVpnWatchdogRunning(Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;)Z
+    .locals 0
+
+    iget-boolean p0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mVpnWatchdogRunning:Z
+
+    return p0
+.end method
+
 .method static bridge synthetic -$$Nest$fputmVpnReconnectRequested(Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;Z)V
     .locals 0
 
@@ -1062,28 +1071,53 @@
 .end method
 
 .method private declared-synchronized startVpnWatchdog()V
-    .locals 1
+    .locals 3
 
     monitor-enter p0
 
-    .line 990
-    :try_start_0
+    :try_start_watchdog
     invoke-direct {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->stopVpnWatchdog()V
-    :try_end_0
-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 991
+    iget-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mStopping:Z
+
+    if-nez v0, :cond_watchdog_done
+
+    iget-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mConnected:Z
+
+    if-eqz v0, :cond_watchdog_done
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mVpnWatchdogRunning:Z
+
+    new-instance v1, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread$7;
+
+    invoke-direct {v1, p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread$7;-><init>(Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;)V
+
+    new-instance v0, Ljava/lang/Thread;
+
+    const-string v2, "vpn-watchdog"
+
+    invoke-direct {v0, v1, v2}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Ljava/lang/Thread;->setDaemon(Z)V
+
+    iput-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mVpnWatchdogThread:Ljava/lang/Thread;
+
+    invoke-virtual {v0}, Ljava/lang/Thread;->start()V
+
+    :cond_watchdog_done
+    :try_end_watchdog
     monitor-exit p0
 
     return-void
 
-    :catchall_0
+    :catchall_watchdog
     move-exception v0
 
-    :try_start_1
     monitor-exit p0
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
     throw v0
 .end method

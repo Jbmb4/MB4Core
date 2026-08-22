@@ -1120,6 +1120,12 @@
 .method private stopRoutingThroughTunnel()V
     .locals 2
 
+    const/4 v0, 0x0
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->mRoutingThroughTunnel:Ljava/util/concurrent/atomic/AtomicBoolean;
+
+    invoke-virtual {v1, v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->set(Z)V
+
     .line 448
     iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->mTun2Socks:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tun2Socks;
 
@@ -1227,6 +1233,46 @@
     invoke-direct {v0}, Ljava/lang/CloneNotSupportedException;-><init>()V
 
     throw v0
+.end method
+
+
+.method public isRoutingHealthy()Z
+    .locals 2
+
+    iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->mRoutingThroughTunnel:Ljava/util/concurrent/atomic/AtomicBoolean;
+
+    invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicBoolean;->get()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_health_false
+
+    iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->mTun2Socks:Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tun2Socks;
+
+    if-eqz v0, :cond_health_false
+
+    invoke-virtual {v0}, Ljava/lang/Thread;->isAlive()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_health_false
+
+    iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/Tunnel;->mTunFd:Ljava/util/concurrent/atomic/AtomicReference;
+
+    invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicReference;->get()Ljava/lang/Object;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_health_false
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_health_false
+    const/4 v0, 0x0
+
+    return v0
 .end method
 
 .method public declared-synchronized startRouting(Lcom/dragonssh/xhttpdemo/core/tunnel/vpn/TunnelVpnSettings;)Z

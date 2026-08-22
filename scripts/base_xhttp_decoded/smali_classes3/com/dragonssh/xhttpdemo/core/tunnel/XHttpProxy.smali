@@ -28,6 +28,8 @@
 # instance fields
 .field private volatile bridge:Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpBridgeSocket;
 
+.field private volatile sessionId:Ljava/lang/String;
+
 .field private final host:Ljava/lang/String;
 
 .field private final mContext:Landroid/content/Context;
@@ -628,6 +630,8 @@
 
     move-result-object p4
 
+    iput-object p4, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
     .line 94
     iget-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->useTls:Z
 
@@ -743,6 +747,14 @@
 
     move-result-object v0
 
+    const-string v2, "X-Session-ID"
+
+    iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
+    invoke-virtual {v0, v2, v1}, Lokhttp3/Request$Builder;->header(Ljava/lang/String;Ljava/lang/String;)Lokhttp3/Request$Builder;
+
+    move-result-object v0
+
     const-string v2, "User-Agent"
 
     const-string v3, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
@@ -829,7 +841,9 @@
     .line 173
     new-instance p1, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;
 
-    invoke-direct {p1, p3, p4, v1}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;-><init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;)V
+    iget-object v3, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy;->sessionId:Ljava/lang/String;
+
+    invoke-direct {p1, p3, p4, v1, v3}, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$PacketUpOutputStream;-><init>(Lokhttp3/OkHttpClient;Lokhttp3/HttpUrl;Ljava/lang/String;Ljava/lang/String;)V
 
     .line 176
     new-instance p2, Lcom/dragonssh/xhttpdemo/core/tunnel/XHttpProxy$2;

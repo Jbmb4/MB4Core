@@ -44,17 +44,17 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
         </provider>
         <meta-data android:name="preloaded_fonts" android:resource="@array/preloaded_fonts"/>
-        <service android:enabled="true" android:exported="false" android:foregroundServiceType="specialUse" android:name="com.ssh.service.SshVpnService" android:permission="android.permission.BIND_VPN_SERVICE">
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="" android:name="com.ssh.service.SshVpnService" android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService"/>
             </intent-filter>
         </service>
-        <service android:enabled="true" android:exported="false" android:foregroundServiceType="specialUse" android:name="com.v2ray.ang.service.V2RayVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:process=":RunSoLibV2RayDaemon">
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="" android:name="com.v2ray.ang.service.V2RayVpnService" android:permission="android.permission.BIND_VPN_SERVICE" android:process=":RunSoLibV2RayDaemon">
             <intent-filter>
                 <action android:name="android.net.VpnService"/>
             </intent-filter>
         </service>
-        <service android:enabled="true" android:exported="false" android:foregroundServiceType="specialUse" android:name="com.hysteria.service.HysteriaService" android:permission="android.permission.BIND_VPN_SERVICE">
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="" android:name="com.hysteria.service.HysteriaService" android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
                 <action android:name="android.net.VpnService"/>
             </intent-filter>
@@ -66,7 +66,7 @@
             </intent-filter>
         </service>
         <service android:enabled="true" android:exported="true" android:name="com.common.service.DtInteractionSessionService" android:permission="android.permission.BIND_VOICE_INTERACTION"/>
-        <service android:enabled="true" android:exported="false" android:foregroundServiceType="specialUse" android:name="com.hotspot.service.HotSpotService"/>
+        <service android:enabled="true" android:exported="false" android:foregroundServiceType="" android:name="com.hotspot.service.HotSpotService"/>
         <receiver android:exported="true" android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver" android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
