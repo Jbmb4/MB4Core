@@ -40,8 +40,12 @@
 
 
 .header {
-    min-height: 64px;
-    padding: 9px 14px;
+  position: relative;
+  z-index: 2000;
+  isolation: isolate;
+  min-height: 64px;
+  padding: 9px 14px;
+  overflow: visible;
   border-bottom: 1px solid var(--panel-accent-border);
   background: linear-gradient(180deg, var(--panel-accent-fade), rgba(11, 18, 32, 0.82));
     backdrop-filter: blur(16px);
@@ -66,6 +70,7 @@
 
 .theme-picker-wrap {
   position: relative;
+  z-index: 2100;
   display: inline-flex;
   align-items: center;
 }
@@ -82,8 +87,9 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 50%;
-  z-index: 1100;
+  z-index: 2200;
   display: block;
+  pointer-events: auto;
   width: max-content;
   max-width: calc(100vw - 24px);
   padding: 13px 15px 15px;

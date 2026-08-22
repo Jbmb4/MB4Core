@@ -15,10 +15,10 @@ const COLOR_CONTRAST = {
   '#ffffff': '#0b1220',
 };
 
-const updateThemeIcon = (theme) => {
+const updateThemeIcon = () => {
   const iconElement = document.querySelector('#toggle-theme-icon');
   if (iconElement) {
-    iconElement.className = theme === 'light' ? 'fs-6 bi bi-sun-fill' : 'fs-6 bi bi-moon-stars-fill';
+    iconElement.className = 'fs-6 bi bi-palette-fill';
   }
 };
 
@@ -26,7 +26,7 @@ const setTheme = (theme = 'dark') => {
   const selectedTheme = theme === 'light' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-bs-theme', selectedTheme);
   localStorage.setItem('bs-theme', selectedTheme);
-  updateThemeIcon(selectedTheme);
+  updateThemeIcon();
 };
 
 const setDarkMode = () => setTheme('dark');
