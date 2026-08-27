@@ -148,15 +148,13 @@ def patch_xhttp_update_runtime(work_dir: Path) -> None:
         raise RuntimeError("Launcher XHTTP ausente na base integrada.")
     launcher_text = launcher.read_text(encoding="utf-8")
     if "sshPassword" not in launcher_text:
-        marker = """    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+        marker = """    const-string v2, "sshUser"
+
+    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
-
-    iget-object v1, p1, Lg4/e;->m:Lg4/b;"""
-        replacement = """    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v0
-
+"""
+        password_block = """
     # Persist the credential so a live config update can reload it.
     iget-object v1, p1, Lg4/e;->p:Lg4/a;
 
@@ -175,11 +173,10 @@ def patch_xhttp_update_runtime(work_dir: Path) -> None:
     invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
-
-    iget-object v1, p1, Lg4/e;->m:Lg4/b;"""
+"""
         if marker not in launcher_text:
             raise RuntimeError("Marcador de usuário do launcher XHTTP não encontrado.")
-        launcher.write_text(launcher_text.replace(marker, replacement, 1), encoding="utf-8")
+        launcher.write_text(launcher_text.replace(marker, marker + password_block, 1), encoding="utf-8")
 
     service = work_dir / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
     if not service.is_file():
