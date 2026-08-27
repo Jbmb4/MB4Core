@@ -171,6 +171,10 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
 
     :panel_sync_done
+    # d.t below must receive the original null sentinel in v1; otherwise the
+    # Context/MainActivity is wrapped in La5/f and z4/n casts it to Void.
+    const/4 v1, 0x0
+
     .line 72
     goto :goto_0"""
         binding.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
@@ -204,9 +208,29 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
 
     :panel_sync_done_land
+    # Restore the null sentinel consumed by d.t before returning to the observer.
+    const/4 v1, 0x0
+
     .line 72
     goto :goto_0"""
         landscape.write_text(landscape_content.replace(landscape_marker, landscape_replacement, 1), encoding="utf-8")
+
+
+def patch_z4_observer_cast_guard(work_dir: Path) -> None:
+    """Remove an unused Void cast from the profile dialog observer."""
+    observer = work_dir / "smali/z4/n.smali"
+    if not observer.is_file():
+        raise RuntimeError("Observer z4/n ausente na APK.")
+    content = observer.read_text(encoding="utf-8")
+    marker = "    check-cast p1, Ljava/lang/Void;"
+    count = content.count(marker)
+    if count == 0:
+        raise RuntimeError("Cast z4/n para Void não encontrado.")
+    content = content.replace(
+        marker,
+        "    # Event payload is unused; do not cast an arbitrary observer value to Void.",
+    )
+    observer.write_text(content, encoding="utf-8")
 
 
 def patch_xhttp_update_runtime(work_dir: Path) -> None:
@@ -216,6 +240,7 @@ def patch_xhttp_update_runtime(work_dir: Path) -> None:
     patch_xhttp_config_reload(work_dir)
     patch_config_catalog_refresh(work_dir)
     patch_panel_catalog_http_sync(work_dir)
+    patch_z4_observer_cast_guard(work_dir)
 
     receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
     if not receiver.is_file():

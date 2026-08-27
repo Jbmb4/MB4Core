@@ -26,6 +26,9 @@ SOURCE_ASSERTIONS = {
         "XHttpLauncher;->start",
         "patch_config_catalog_refresh",
         "patch_panel_catalog_http_sync",
+        "patch_z4_observer_cast_guard",
+        "Event payload is unused; do not cast an arbitrary observer value to Void.",
+        "Restore the null sentinel consumed by d.t",
     ),
     ROOT / "scripts/xhttp-smali/PanelCatalogSync.smali": (
         "painel.mb4net.shop/api/dtunnelmod/update",
