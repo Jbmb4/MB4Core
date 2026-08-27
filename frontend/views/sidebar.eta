@@ -58,6 +58,12 @@
         <span>Mudar Gmail e senha</span>
       </a>
     </li>
+    <li class="nav-item">
+      <a href="/admin/backup" target="_self" class="nav-link text-white <%~ it.active === 'admin-backup' ? 'active' : '' %>">
+        <i class="bi bi-cloud-arrow-up"></i>
+        <span>Gerenciar backup</span>
+      </a>
+    </li>
     <% } %>
     <li class="nav-item">
       <a href="/texts" target="_self" class="nav-link text-white <%~ it.active === 'texts' ? 'active' : '' %>">

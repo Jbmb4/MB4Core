@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" translate="no" data-bs-theme="dark">
+<head>
+  <base href="/" target="_blank">
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>MB4Nexus - Gerenciar backup</title>
+  <link rel="shortcut icon" href="/static/img/favicon.svg?v=20260815-nexus-2" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <link rel="stylesheet" href="../static/css/styles.css">
+  <link rel="stylesheet" href="../static/css/bootstrap.css">
+  <link rel="stylesheet" href="../static/css/sidebar.css">
+  <link rel="stylesheet" href="../static/css/header.css">
+  <meta name="csrf-token" content="<%= it.csrfToken %>">
+</head>
+<body>
+  <main class="d-flex">
+    <%~ include("./sidebar", it) %>
+    <div class="container-fluid p-0">
+      <%~ include("./header", it) %>
+      <div class="content pt-1 overflow-auto">
+        <div class="container-fluid d-flex w-100 align-items-center justify-content-center">
+          <div class="card shadow-lg p-3 mb-5 rounded border border-0" style="width: 50rem;">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-cloud-arrow-up fs-3"></i>
+                <h4 class="mb-0">Gerenciar backup</h4>
+              </div>
+              <p class="text-muted">Configure o bot para receber uma cópia dos dados do painel a cada 2 horas. O token é criptografado antes de ser salvo e nunca é exibido novamente.</p>
+              <div class="alert alert-secondary" id="backupStatus">Carregando status...</div>
+              <form id="backupSettingsForm">
+                <div class="mb-3">
+                  <label for="telegramToken" class="form-label">Token do Bot do Telegram</label>
+                  <input type="password" class="form-control" id="telegramToken" autocomplete="new-password" placeholder="Cole o token fornecido pelo BotFather">
+                  <div class="form-text">Deixe vazio para manter o token já salvo.</div>
+                </div>
+                <div class="mb-3">
+                  <label for="telegramChatId" class="form-label">ID do administrador no Telegram</label>
+                  <input type="text" class="form-control" id="telegramChatId" maxlength="100" placeholder="Ex.: 123456789" required>
+                </div>
+                <div class="form-check form-switch mb-4">
+                  <input class="form-check-input" type="checkbox" role="switch" id="backupEnabled">
+                  <label class="form-check-label" for="backupEnabled">Ativar backup automático a cada 2 horas</label>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <button type="submit" class="btn btn-primary flex-grow-1" id="saveBackupSettings"><i class="bi bi-save me-1"></i>Salvar configuração</button>
+                  <button type="button" class="btn btn-outline-info flex-grow-1" id="sendBackup"><i class="bi bi-send me-1"></i>Enviar backup agora</button>
+                </div>
+              </form>
+              <hr class="my-4">
+              <h5><i class="bi bi-database-up me-1"></i>Importar backup</h5>
+              <p class="text-muted">A importação substitui os dados atuais do painel pelos dados contidos no arquivo selecionado. Faça um backup atual antes de continuar.</p>
+              <form id="importBackupForm">
+                <input type="file" class="form-control mb-3" id="backupFile" accept="application/json,.json" required>
+                <button type="submit" class="btn btn-warning w-100" id="importBackup"><i class="bi bi-upload me-1"></i>Importar backup selecionado</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="../static/js/sidebar.js"></script>
+  <script src="../static/js/utils.js"></script>
+  <script>
+    let csrfToken = getCsrfTokenHead();
+    const status = document.getElementById('backupStatus');
+    const form = document.getElementById('backupSettingsForm');
+    const setBusy = (id, busy) => { document.getElementById(id).disabled = busy; };
+    const refreshStatus = async () => {
+      const response = await fetch('/admin/backup/status');
+      const data = await response.json();
+      document.getElementById('telegramChatId').value = data.telegram_chat_id || '';
+      document.getElementById('backupEnabled').checked = Boolean(data.enabled);
+      status.className = data.configured ? 'alert alert-success' : 'alert alert-warning';
+      status.textContent = data.configured
+        ? `Bot configurado. Último backup: ${data.last_backup_at ? new Date(data.last_backup_at).toLocaleString('pt-BR') : 'ainda não enviado'}.`
+        : 'Configure o token e o ID do administrador para ativar os backups.';
+    };
+    refreshStatus().catch(() => { status.textContent = 'Não foi possível carregar o status do backup.'; });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault(); setBusy('saveBackupSettings', true);
+      try {
+        const response = await fetch('/admin/backup', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'csrf-token': csrfToken }, body: JSON.stringify({ telegram_token: document.getElementById('telegramToken').value, telegram_chat_id: document.getElementById('telegramChatId').value, enabled: document.getElementById('backupEnabled').checked }) });
+        const refreshed = getCsrfTokenRefresh(response); if (refreshed) csrfToken = refreshed;
+        const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.message || data.error || 'Não foi possível salvar a configuração.');
+        document.getElementById('telegramToken').value = ''; showToastSuccess(data.message); await refreshStatus();
+      } catch (error) { showToastError(error.message); } finally { setBusy('saveBackupSettings', false); }
+    });
+    document.getElementById('sendBackup').addEventListener('click', async () => {
+      setBusy('sendBackup', true);
+      try { const response = await fetch('/admin/backup/send', { method: 'POST', headers: { 'csrf-token': csrfToken } }); const refreshed = getCsrfTokenRefresh(response); if (refreshed) csrfToken = refreshed; const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.message || data.error || 'Não foi possível enviar o backup.'); showToastSuccess(data.message); await refreshStatus(); } catch (error) { showToastError(error.message); } finally { setBusy('sendBackup', false); }
+    });
+    document.getElementById('importBackupForm').addEventListener('submit', async (event) => {
+      event.preventDefault(); if (!confirm('A importação substituirá os dados atuais. Deseja continuar?')) return; setBusy('importBackup', true);
+      try { const body = new FormData(); body.append('backup', document.getElementById('backupFile').files[0]); const response = await fetch('/admin/backup/import', { method: 'POST', headers: { 'csrf-token': csrfToken }, body }); const refreshed = getCsrfTokenRefresh(response); if (refreshed) csrfToken = refreshed; const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.message || data.error || 'Não foi possível importar o backup.'); showToastSuccess(data.message); document.getElementById('backupFile').value = ''; } catch (error) { showToastError(error.message); } finally { setBusy('importBackup', false); }
+    });
+  </script>
+  <script src="../static/js/dark_light.js"></script>
+</body>
+</html>
