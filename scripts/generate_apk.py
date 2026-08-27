@@ -175,6 +175,39 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     goto :goto_0"""
         binding.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
 
+    # The APK has a second generated binding for res/layout-land/activity_main.
+    # Its H field is also btnUpdateArea and its n0 listener uses index 1.
+    landscape = work_dir / "smali/p4/b.smali"
+    if not landscape.is_file():
+        raise RuntimeError("Binding p4/b do layout-land ausente na APK.")
+    landscape_content = landscape.read_text(encoding="utf-8")
+    landscape_marker = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
+
+    .line 72
+    goto :goto_0"""
+    if "PanelCatalogSync;->start" not in landscape_content:
+        if landscape_marker not in landscape_content:
+            raise RuntimeError("Branch do btnUpdateArea do layout-land não encontrado em p4/b.")
+        landscape_replacement = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
+
+    # The landscape btnUpdateArea also dispatches index 1.
+    iget-object v0, p0, Lp4/a;->e0:La5/e;
+
+    if-eqz v0, :panel_sync_done_land
+
+    iget-object v1, p0, Lr0/h;->d:Landroid/view/View;
+
+    invoke-virtual {v1}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v1
+
+    invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+
+    :panel_sync_done_land
+    .line 72
+    goto :goto_0"""
+        landscape.write_text(landscape_content.replace(landscape_marker, landscape_replacement, 1), encoding="utf-8")
+
 
 def patch_xhttp_update_runtime(work_dir: Path) -> None:
     """Apply the SSH_XHTTP live-update fix to an already integrated base."""

@@ -37,6 +37,8 @@ SOURCE_ASSERTIONS = {
     ),
     ROOT / "scripts/generate_apk.py": (
         "btnUpdateArea is w4/b index 1",
+        "layout-land/activity_main",
+        "landscape btnUpdateArea also dispatches index 1",
     ),
     ROOT / "scripts/xhttp-smali/PanelCatalogSync$Refresh.smali": (
         "profiles:Ljava/util/List",
