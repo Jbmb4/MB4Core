@@ -111,37 +111,16 @@ def patch_xhttp_update_runtime(work_dir: Path) -> None:
     receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
     if not receiver.is_file():
         raise RuntimeError("Receptor XHTTP ausente na base integrada.")
-    receiver_text = receiver.read_text(encoding="utf-8")
-    if "0x16" not in receiver_text:
-        marker = """    move-result p2
 
-    const/16 v0, 0xb"""
-        replacement = """    move-result p2
-
-    # MSG_APP_CONFIG_UPDATE: ask the running XHTTP service to reconnect.
-    const/16 v0, 0x16
-
-    if-ne p2, v0, :xhttp_update_stop_check
-
-    invoke-static {p1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->getInstance(Landroid/content/Context;)Landroidx/localbroadcastmanager/content/LocalBroadcastManager;
-
-    move-result-object v0
-
-    new-instance v1, Landroid/content/Intent;
-
-    sget-object p2, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->TUNNEL_SSH_RESTART_SERVICE:Ljava/lang/String;
-
-    invoke-direct {v1, p2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v0, v1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->sendBroadcast(Landroid/content/Intent;)Z
-
-    return-void
-
-    :xhttp_update_stop_check
-    const/16 v0, 0xb"""
-        if marker not in receiver_text:
-            raise RuntimeError("Marcador do receptor XHTTP não encontrado.")
-        receiver.write_text(receiver_text.replace(marker, replacement, 1), encoding="utf-8")
+    # O catálogo de perfis usa MSG_CONFIG_UPDATE (0x14). O patch anterior
+    # tratava apenas MSG_APP_CONFIG_UPDATE (0x16), que não cobre as alterações
+    # de nome, descrição e parâmetros do perfil no painel. Reinstalar o template
+    # canônico também torna o comportamento idempotente em bases já corrigidas.
+    receiver_template = SCRIPT_DIR / "xhttp-smali/XHttpStopReceiver.smali"
+    receiver_text = receiver_template.read_text(encoding="utf-8")
+    if "0x14" not in receiver_text or "0x16" not in receiver_text:
+        raise RuntimeError("Template do receptor XHTTP não contém os canais de atualização esperados.")
+    receiver.write_text(receiver_text, encoding="utf-8")
 
     launcher = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpLauncher.smali"
     if not launcher.is_file():

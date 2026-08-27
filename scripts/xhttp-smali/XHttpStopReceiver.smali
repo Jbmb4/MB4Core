@@ -25,12 +25,18 @@
 
     move-result p2
 
-    # MSG_APP_CONFIG_UPDATE: o catálogo já foi salvo pelo processo host.
-    # Recarrega as preferências e reconecta o thread XHTTP sem derrubar a VPN.
+    # MSG_CONFIG_UPDATE: o catálogo de perfis foi atualizado no painel.
+    # MSG_APP_CONFIG_UPDATE: configurações internas do aplicativo atualizadas.
+    # Nos dois casos, uma sessão XHTTP ativa precisa reler o perfil.
+    const/16 v0, 0x14
+
+    if-eq p2, v0, :xhttp_profile_update
+
     const/16 v0, 0x16
 
     if-ne p2, v0, :cond_stop
 
+    :xhttp_profile_update
     invoke-static {p1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->getInstance(Landroid/content/Context;)Landroidx/localbroadcastmanager/content/LocalBroadcastManager;
 
     move-result-object v0

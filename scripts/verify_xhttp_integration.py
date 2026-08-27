@@ -45,6 +45,7 @@ SOURCE_ASSERTIONS = {
     ROOT / "scripts/xhttp-smali/XHttpStopReceiver.smali": (
         "TunnelManagerHelper;->stopXHttpSsh",
         "TUNNEL_SSH_RESTART_SERVICE",
+        "0x14",
         "0x16",
         "PARANDO",
     ),
