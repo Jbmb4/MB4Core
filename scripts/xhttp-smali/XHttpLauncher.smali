@@ -93,6 +93,26 @@
 
     move-result-object v0
 
+    # Store the password in the same private preference file so the running
+    # XHTTP thread can apply a changed credential on the next reconnect.
+    iget-object v1, p1, Lg4/e;->p:Lg4/a;
+
+    if-eqz v1, :cond_password_pref_empty
+
+    iget-object v1, v1, Lg4/a;->m:Ljava/lang/String;
+
+    if-nez v1, :cond_password_pref_ready
+
+    :cond_password_pref_empty
+    const-string v1, ""
+
+    :cond_password_pref_ready
+    const-string v2, "sshPassword"
+
+    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
     # config_payload.sni is represented by the first payload field in the base APK.
     iget-object v1, p1, Lg4/e;->m:Lg4/b;
 
@@ -347,7 +367,8 @@
 
     move-result v0
 
-    # The password is deliberately passed only as a service extra, not written to disk.
+    # Keep the service extra for first start; the same value is also persisted
+    # above so an active session can reload it after a panel update.
     new-instance v0, Landroid/content/Intent;
 
     const-class v1, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;

@@ -102,6 +102,117 @@ def verify_xhttp_runtime(work_dir: Path) -> None:
         details = ", ".join(f"{name}: recurso={values[0]}, campo={values[1]}" for name, values in expected.items())
         raise RuntimeError(f"IDs de recursos XHTTP inconsistentes; regenere a base-xhttp.apk ({details}).")
 
+def patch_xhttp_update_runtime(work_dir: Path) -> None:
+    """Apply the SSH_XHTTP live-update fix to an already integrated base."""
+    from integrate_xhttp_base import patch_xhttp_config_reload
+
+    patch_xhttp_config_reload(work_dir)
+
+    receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
+    if not receiver.is_file():
+        raise RuntimeError("Receptor XHTTP ausente na base integrada.")
+    receiver_text = receiver.read_text(encoding="utf-8")
+    if "0x16" not in receiver_text:
+        marker = """    move-result p2
+
+    const/16 v0, 0xb"""
+        replacement = """    move-result p2
+
+    # MSG_APP_CONFIG_UPDATE: ask the running XHTTP service to reconnect.
+    const/16 v0, 0x16
+
+    if-ne p2, v0, :xhttp_update_stop_check
+
+    invoke-static {p1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->getInstance(Landroid/content/Context;)Landroidx/localbroadcastmanager/content/LocalBroadcastManager;
+
+    move-result-object v0
+
+    new-instance v1, Landroid/content/Intent;
+
+    sget-object p2, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->TUNNEL_SSH_RESTART_SERVICE:Ljava/lang/String;
+
+    invoke-direct {v1, p2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v0, v1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->sendBroadcast(Landroid/content/Intent;)Z
+
+    return-void
+
+    :xhttp_update_stop_check
+    const/16 v0, 0xb"""
+        if marker not in receiver_text:
+            raise RuntimeError("Marcador do receptor XHTTP não encontrado.")
+        receiver.write_text(receiver_text.replace(marker, replacement, 1), encoding="utf-8")
+
+    launcher = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpLauncher.smali"
+    if not launcher.is_file():
+        raise RuntimeError("Launcher XHTTP ausente na base integrada.")
+    launcher_text = launcher.read_text(encoding="utf-8")
+    if "sshPassword" not in launcher_text:
+        marker = """    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    iget-object v1, p1, Lg4/e;->m:Lg4/b;"""
+        replacement = """    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    # Persist the credential so a live config update can reload it.
+    iget-object v1, p1, Lg4/e;->p:Lg4/a;
+
+    if-eqz v1, :xhttp_password_empty
+
+    iget-object v1, v1, Lg4/a;->m:Ljava/lang/String;
+
+    if-nez v1, :xhttp_password_ready
+
+    :xhttp_password_empty
+    const-string v1, ""
+
+    :xhttp_password_ready
+    const-string v2, "sshPassword"
+
+    invoke-interface {v0, v2, v1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    iget-object v1, p1, Lg4/e;->m:Lg4/b;"""
+        if marker not in launcher_text:
+            raise RuntimeError("Marcador de usuário do launcher XHTTP não encontrado.")
+        launcher.write_text(launcher_text.replace(marker, replacement, 1), encoding="utf-8")
+
+    service = work_dir / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
+    if not service.is_file():
+        raise RuntimeError("Serviço XHTTP ausente na base integrada.")
+    service_text = service.read_text(encoding="utf-8")
+    if 'const-string v1, "DT_ACTION_ACTIVITY"' not in service_text:
+        marker = """    const-string v1, "DT_ACTION_SERVICE"
+
+    invoke-direct {v0, v1}, Landroid/content/IntentFilter;-><init>(Ljava/lang/String;)V"""
+        replacement = marker + """
+
+    const-string v1, "DT_ACTION_ACTIVITY"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V"""
+        if marker not in service_text:
+            raise RuntimeError("IntentFilter do receptor XHTTP não encontrado.")
+        service.write_text(service_text.replace(marker, replacement, 1), encoding="utf-8")
+
+
+def ensure_xhttp_runtime_notice(work_dir: Path) -> None:
+    """Keep the embedded runtime attribution in generated XHTTP APKs."""
+    notice = work_dir / "assets" / "xhttp-runtime-notice.txt"
+    notice.parent.mkdir(parents=True, exist_ok=True)
+    notice.write_text(
+        "This APK embeds the XHTTP runtime derived from SocksRevive-XHTTP-DEMO.\n"
+        "Source: https://git.dr2.site/penguinehis/SocksRevive-XHTTP-DEMO\n"
+        "License: GNU General Public License v3.0 or later.\n"
+        "The runtime is installed in the :xhttp process and its integration source is\n"
+        "distributed with the panel repository under scripts/.\n",
+        encoding="utf-8",
+    )
+
+
 def replace_domains(work_dir: Path, new_domain: str) -> int:
     new_host = new_domain.split(":")[0]
     replacements = 0
@@ -456,6 +567,8 @@ def generate_apk(args: argparse.Namespace) -> Path:
         run_command([*APKTOOL_CMD, "d", "-f", str(apk_path), "-o", str(work_dir)])
         if getattr(args, "xhttp", False):
             verify_xhttp_runtime(work_dir)
+            patch_xhttp_update_runtime(work_dir)
+            ensure_xhttp_runtime_notice(work_dir)
 
         replace_domains(work_dir, args.domain)
         update_user_id(work_dir, args.user_id)

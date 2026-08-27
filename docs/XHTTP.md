@@ -46,3 +46,9 @@ Após atualizar `scripts/base.apk`, execute a validação estática abaixo. Ela 
 ```bash
 python3 scripts/verify_xhttp_integration.py
 ```
+
+## Atualização em sessão ativa
+
+Quando o painel publica uma nova configuração, o cliente recebe `MSG_APP_CONFIG_UPDATE` através de `DT_ACTION_ACTIVITY`. O receptor do runtime XHTTP converte esse evento em `TUNNEL_SSH_RESTART_SERVICE`; antes de reconectar, `TunnelManagerThread` relê de `xhttp_demo_private` o servidor, a porta, o usuário, a senha, o SNI, o host, o caminho e a opção TLS. Assim, alterações de perfil feitas no painel passam a ser aplicadas sem exigir que o usuário encerre manualmente a conexão.
+
+A senha continua sendo enviada no `Intent` durante a primeira inicialização e também fica no arquivo privado de preferências do runtime, sem ser exposta em logs ou no payload de estado. Essa persistência é necessária para que a autenticação alterada seja aplicada quando uma sessão já existente for reconectada após a atualização.

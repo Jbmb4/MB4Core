@@ -25,6 +25,27 @@
 
     move-result p2
 
+    # MSG_APP_CONFIG_UPDATE: o catálogo já foi salvo pelo processo host.
+    # Recarrega as preferências e reconecta o thread XHTTP sem derrubar a VPN.
+    const/16 v0, 0x16
+
+    if-ne p2, v0, :cond_stop
+
+    invoke-static {p1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->getInstance(Landroid/content/Context;)Landroidx/localbroadcastmanager/content/LocalBroadcastManager;
+
+    move-result-object v0
+
+    new-instance v1, Landroid/content/Intent;
+
+    sget-object p2, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->TUNNEL_SSH_RESTART_SERVICE:Ljava/lang/String;
+
+    invoke-direct {v1, p2}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
+
+    invoke-virtual {v0, v1}, Landroidx/localbroadcastmanager/content/LocalBroadcastManager;->sendBroadcast(Landroid/content/Intent;)Z
+
+    return-void
+
+    :cond_stop
     const/16 v0, 0xb
 
     if-ne p2, v0, :cond_0

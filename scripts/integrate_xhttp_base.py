@@ -66,6 +66,140 @@ def install_launcher(base: Path) -> None:
         shutil.copy2(SCRIPT_DIR / "xhttp-smali" / name, target_dir / name)
 
 
+def patch_xhttp_config_reload(base: Path) -> None:
+    """Reload XHTTP session fields from SharedPreferences before reconnecting."""
+    thread = base / "smali_classes3/com/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread.smali"
+    require(thread)
+    content = thread.read_text(encoding="utf-8")
+
+    for old, new in (
+        (".field private final mSessionPassword:Ljava/lang/String;", ".field private volatile mSessionPassword:Ljava/lang/String;"),
+        (".field private final mSessionUsername:Ljava/lang/String;", ".field private volatile mSessionUsername:Ljava/lang/String;"),
+        (".field private final mSessionXhttpEndpoint:Ljava/lang/String;", ".field private volatile mSessionXhttpEndpoint:Ljava/lang/String;"),
+        (".field private final mSessionXhttpHost:Ljava/lang/String;", ".field private volatile mSessionXhttpHost:Ljava/lang/String;"),
+        (".field private final mSessionXhttpPath:Ljava/lang/String;", ".field private volatile mSessionXhttpPath:Ljava/lang/String;"),
+        (".field private final mSessionXhttpPort:Ljava/lang/String;", ".field private volatile mSessionXhttpPort:Ljava/lang/String;"),
+        (".field private final mSessionXhttpSni:Ljava/lang/String;", ".field private volatile mSessionXhttpSni:Ljava/lang/String;"),
+        (".field private final mSessionXhttpTls:Z", ".field private volatile mSessionXhttpTls:Z"),
+    ):
+        if old in content:
+            content = content.replace(old, new, 1)
+
+    reload_method = '''.method private reloadSessionConfig()V
+    .locals 3
+
+    iget-object v0, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mConfig:Lcom/dragonssh/xhttpdemo/core/config/Settings;
+
+    if-eqz v0, :reload_config_done
+
+    const-string v1, "sshPassword"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    if-eqz v1, :reload_password_done
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionPassword:Ljava/lang/String;
+
+    :reload_password_done
+    const-string v1, "sshServer"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpEndpoint:Ljava/lang/String;
+
+    const-string v1, "sshPort"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpPort:Ljava/lang/String;
+
+    const-string v1, "sshUser"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionUsername:Ljava/lang/String;
+
+    const-string v1, "xhttpSni"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpSni:Ljava/lang/String;
+
+    const-string v1, "xhttpHost"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpHost:Ljava/lang/String;
+
+    const-string v1, "xhttpPath"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    if-eqz v1, :reload_path_default
+
+    invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
+
+    move-result v2
+
+    if-eqz v2, :reload_path_ready
+
+    :reload_path_default
+    const-string v1, "/xhttp"
+
+    :reload_path_ready
+    iput-object v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpPath:Ljava/lang/String;
+
+    const-string v1, "xhttpTls"
+
+    invoke-virtual {v0, v1}, Lcom/dragonssh/xhttpdemo/core/config/Settings;->getPrivString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "0"
+
+    invoke-virtual {v2, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    xor-int/lit8 v1, v1, 0x1
+
+    iput-boolean v1, p0, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->mSessionXhttpTls:Z
+
+    :reload_config_done
+    return-void
+.end method
+
+'''
+    if "->reloadSessionConfig()V" not in content:
+        marker = ".method private closeDynamicForwarderOnly()V"
+        if marker not in content:
+            raise RuntimeError("XHTTP closeDynamicForwarderOnly marker not found")
+        content = content.replace(marker, reload_method + marker, 1)
+
+    reconnect_marker = ".method public reconnectSSH()V\n    .locals 5\n\n    .line 703"
+    reconnect_call = "    invoke-direct {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->reloadSessionConfig()V\n\n    .line 703"
+    if "invoke-direct {p0}, Lcom/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread;->reloadSessionConfig()V" not in content:
+        if reconnect_marker not in content:
+            raise RuntimeError("XHTTP reconnectSSH marker not found")
+        content = content.replace(reconnect_marker, reconnect_marker.replace("    .line 703", reconnect_call), 1)
+
+    thread.write_text(content, encoding="utf-8")
+
+
 def patch_panel_status_bridge(base: Path) -> None:
     """Bridge XHTTP state and runtime logs into the host UI and Registro."""
     service = base / "smali_classes3/com/dragonssh/xhttpdemo/core/XHttpSshService.smali"
@@ -135,6 +269,10 @@ def patch_panel_status_bridge(base: Path) -> None:
 
     invoke-direct {v0, v1}, Landroid/content/IntentFilter;-><init>(Ljava/lang/String;)V
 
+    const-string v1, "DT_ACTION_ACTIVITY"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V
+
     iget-object v1, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiver:Landroid/content/BroadcastReceiver;
 
     const/4 v2, 0x4
@@ -145,6 +283,22 @@ def patch_panel_status_bridge(base: Path) -> None:
 
     iput-boolean v0, p0, Lcom/dragonssh/xhttpdemo/core/XHttpSshService;->hostStopReceiverRegistered:Z'''
         content = content.replace(registration_marker, registration, 1)
+
+    # Existing integrated bases already have the receiver registration; ensure
+    # the update broadcast is added there as well.
+    activity_action = '    const-string v1, "DT_ACTION_ACTIVITY"'
+    if activity_action not in content:
+        activity_marker = '''    const-string v1, "DT_ACTION_SERVICE"
+
+    invoke-direct {v0, v1}, Landroid/content/IntentFilter;-><init>(Ljava/lang/String;)V'''
+        activity_registration = activity_marker + '''
+
+    const-string v1, "DT_ACTION_ACTIVITY"
+
+    invoke-virtual {v0, v1}, Landroid/content/IntentFilter;->addAction(Ljava/lang/String;)V'''
+        if activity_marker not in content:
+            raise RuntimeError("XHTTP host receiver IntentFilter marker not found")
+        content = content.replace(activity_marker, activity_registration, 1)
 
     remove_state = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->removeStateListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$StateListener;)V"
     remove_log = "invoke-static {p0}, Lcom/dragonssh/xhttpdemo/core/logger/SkStatus;->removeLogListener(Lcom/dragonssh/xhttpdemo/core/logger/SkStatus$LogListener;)V"
@@ -833,6 +987,7 @@ def main() -> None:
     fix_conscrypt_npe(args.base / "smali_classes3")
     
     install_launcher(args.base)
+    patch_xhttp_config_reload(args.base)
     patch_panel_status_bridge(args.base)
     patch_service_manager(args.base)
     patch_manifest(args.base)

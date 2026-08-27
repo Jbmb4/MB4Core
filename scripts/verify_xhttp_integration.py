@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_APK = ROOT / "scripts/base_xhttp.apk"
+BASE_APK = Path(os.environ.get("XHTTP_BASE_APK", ROOT / "scripts/base_xhttp.apk"))
 
 SOURCE_ASSERTIONS = {
     ROOT / "frontend/public/static/js/config/components/form.js": (
@@ -28,6 +29,7 @@ SOURCE_ASSERTIONS = {
         "xhttpPath",
         "xhttpHost",
         "xhttpTls",
+        "sshPassword",
         "XHttpSshService",
         "SharedPreferences$Editor;->commit()Z",
         "catch_xhttp_service_start",
@@ -42,6 +44,8 @@ SOURCE_ASSERTIONS = {
     ),
     ROOT / "scripts/xhttp-smali/XHttpStopReceiver.smali": (
         "TunnelManagerHelper;->stopXHttpSsh",
+        "TUNNEL_SSH_RESTART_SERVICE",
+        "0x16",
         "PARANDO",
     ),
     ROOT / "scripts/xhttp-smali/XHttpPanelState.smali": (
@@ -77,6 +81,9 @@ SOURCE_ASSERTIONS = {
         "XHttpHostBridge",
         "XHttpStopReceiver",
         "hostStopReceiverRegistered",
+        "patch_xhttp_config_reload",
+        "DT_ACTION_ACTIVITY",
+        "reloadSessionConfig",
         "SSH_XHTTP",
     ),
     ROOT / "scripts/xhttp-res/strings.xml": (
