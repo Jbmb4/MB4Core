@@ -102,11 +102,43 @@ def verify_xhttp_runtime(work_dir: Path) -> None:
         details = ", ".join(f"{name}: recurso={values[0]}, campo={values[1]}" for name, values in expected.items())
         raise RuntimeError(f"IDs de recursos XHTTP inconsistentes; regenere a base-xhttp.apk ({details}).")
 
+def patch_config_catalog_refresh(work_dir: Path) -> None:
+    """Avoid the one-shot lazy snapshot that keeps the old profile list in memory."""
+    catalog_view_model = work_dir / "smali/a5/n.smali"
+    if not catalog_view_model.is_file():
+        return
+
+    content = catalog_view_model.read_text(encoding="utf-8")
+    method_pattern = re.compile(
+        r"\.method public final d\(\)Lq4/b;.*?\.end method",
+        re.DOTALL,
+    )
+    replacement = """.method public final d()Lq4/b;
+    .locals 1
+
+    # Read the repository on every access. The old implementation returned
+    # R.getValue(), a lazy snapshot created before the panel sync completed.
+    iget-object v0, p0, La5/n;->e:Lc5/c;
+
+    invoke-virtual {v0}, Lc5/c;->b()Lq4/b;
+
+    move-result-object v0
+
+    return-object v0
+.end method"""
+    updated, count = method_pattern.subn(replacement, content, count=1)
+    if count == 0:
+        raise RuntimeError("Método a5/n.d() do catálogo não encontrado na APK.")
+    if updated != content:
+        catalog_view_model.write_text(updated, encoding="utf-8")
+
+
 def patch_xhttp_update_runtime(work_dir: Path) -> None:
     """Apply the SSH_XHTTP live-update fix to an already integrated base."""
     from integrate_xhttp_base import patch_xhttp_config_reload
 
     patch_xhttp_config_reload(work_dir)
+    patch_config_catalog_refresh(work_dir)
 
     receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
     if not receiver.is_file():

@@ -24,6 +24,7 @@ SOURCE_ASSERTIONS = {
     ROOT / "scripts/generate_apk.py": (
         "verify_xhttp_runtime",
         "XHttpLauncher;->start",
+        "patch_config_catalog_refresh",
     ),
     ROOT / "scripts/xhttp-smali/XHttpLauncher.smali": (
         "xhttpPath",
