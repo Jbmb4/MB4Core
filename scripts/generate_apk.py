@@ -133,12 +133,52 @@ def patch_config_catalog_refresh(work_dir: Path) -> None:
         catalog_view_model.write_text(updated, encoding="utf-8")
 
 
+def patch_panel_catalog_http_sync(work_dir: Path) -> None:
+    """Fetch the panel app_config and refresh the profile LiveData used by the selector."""
+    helper_dir = work_dir / "smali_classes3/com/dtunnel/xhttp"
+    helper_dir.mkdir(parents=True, exist_ok=True)
+    for name in ("PanelCatalogSync.smali", "PanelCatalogSync$Refresh.smali"):
+        source = SCRIPT_DIR / "xhttp-smali" / name
+        if not source.is_file():
+            raise RuntimeError(f"Helper de catálogo ausente: {source}")
+        shutil.copy2(source, helper_dir / name)
+
+    binding = work_dir / "smali/p4/c.smali"
+    if not binding.is_file():
+        raise RuntimeError("Binding p4/c da tela principal ausente na APK.")
+    content = binding.read_text(encoding="utf-8")
+    marker = """    invoke-static {p1}, Lcom/dtunnel/xhttp/PanelUpdateWatchdog;->schedule(La5/e;)V
+
+    .line 25
+    return-void"""
+    if "PanelCatalogSync;->start" not in content:
+        if marker not in content:
+            raise RuntimeError("Ponto do botão de atualização não encontrado em p4/c.")
+        replacement = """    invoke-static {p1}, Lcom/dtunnel/xhttp/PanelUpdateWatchdog;->schedule(La5/e;)V
+
+    # The visible profile catalog comes from config.dtunnel.com.br in the original
+    # native code. Fetch the panel's authoritative app_config as a fallback/update
+    # path, then repopulate a5/e.j on the main thread.
+    iget-object v0, p0, Lr0/h;->d:Landroid/view/View;
+
+    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+
+    .line 25
+    return-void"""
+        binding.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
+
+
 def patch_xhttp_update_runtime(work_dir: Path) -> None:
     """Apply the SSH_XHTTP live-update fix to an already integrated base."""
     from integrate_xhttp_base import patch_xhttp_config_reload
 
     patch_xhttp_config_reload(work_dir)
     patch_config_catalog_refresh(work_dir)
+    patch_panel_catalog_http_sync(work_dir)
 
     receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
     if not receiver.is_file():

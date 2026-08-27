@@ -25,6 +25,18 @@ SOURCE_ASSERTIONS = {
         "verify_xhttp_runtime",
         "XHttpLauncher;->start",
         "patch_config_catalog_refresh",
+        "patch_panel_catalog_http_sync",
+    ),
+    ROOT / "scripts/xhttp-smali/PanelCatalogSync.smali": (
+        "painel.mb4net.shop/api/dtunnelmod/update",
+        "config_encoded",
+        "1174887c-dddc-4256-ab77-15312615ff50",
+        "PanelCatalogSync$Refresh",
+        "La5/e;->j:Landroidx/lifecycle/c0",
+    ),
+    ROOT / "scripts/xhttp-smali/PanelCatalogSync$Refresh.smali": (
+        "Lf5/g;->b()Ljava/util/List;",
+        "La5/e;->j:Landroidx/lifecycle/c0",
     ),
     ROOT / "scripts/xhttp-smali/XHttpLauncher.smali": (
         "xhttpPath",
@@ -130,6 +142,9 @@ DEX_MARKERS = (
     b"VPN routing unhealthy",
     b"vpn-watchdog",
     b"isRoutingHealthy",
+    b"com/dtunnel/xhttp/PanelCatalogSync",
+    b"painel.mb4net.shop/api/dtunnelmod/update",
+    b"config_encoded",
 )
 
 APK_TEXT_MARKERS = (
