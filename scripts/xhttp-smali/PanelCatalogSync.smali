@@ -459,6 +459,16 @@
 
     invoke-virtual {v6, v7}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
+    # The original native updater may finish later and publish its stale cache.
+    # Re-apply the authoritative panel list after its usual completion window.
+    const-wide/16 v9, 0x7d0
+
+    invoke-virtual {v6, v7, v9, v10}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    const-wide/16 v9, 0x1388
+
+    invoke-virtual {v6, v7, v9, v10}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
     goto :done
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
