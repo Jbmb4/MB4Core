@@ -33,13 +33,15 @@ SOURCE_ASSERTIONS = {
         "1174887c-dddc-4256-ab77-15312615ff50",
         "PanelCatalogSync$Refresh",
         "La5/e;->j:Landroidx/lifecycle/c0",
+        "Lq4/k;-><init>(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ZZZ)V",
     ),
     ROOT / "scripts/generate_apk.py": (
         "btnUpdateArea is w4/b index 1",
     ),
     ROOT / "scripts/xhttp-smali/PanelCatalogSync$Refresh.smali": (
-        "Lf5/g;->b()Ljava/util/List;",
+        "profiles:Ljava/util/List",
         "La5/e;->j:Landroidx/lifecycle/c0",
+        "Landroidx/lifecycle/c0;->i(Ljava/lang/Object;)V",
     ),
     ROOT / "scripts/xhttp-smali/XHttpLauncher.smali": (
         "xhttpPath",

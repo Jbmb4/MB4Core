@@ -233,6 +233,98 @@
     return-void
 .end method
 
+.method private static parseProfiles(Ljava/lang/String;)Ljava/util/ArrayList;
+    .locals 15
+
+    new-instance v0, Lorg/json/JSONArray;
+
+    invoke-direct {v0, p0}, Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
+
+    new-instance v1, Ljava/util/ArrayList;
+
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0}, Lorg/json/JSONArray;->length()I
+
+    move-result v3
+
+    :profile_loop
+    if-ge v2, v3, :profile_done
+
+    invoke-virtual {v0, v2}, Lorg/json/JSONArray;->getJSONObject(I)Lorg/json/JSONObject;
+
+    move-result-object v4
+
+    const-string v5, "category_id"
+
+    invoke-virtual {v4, v5}, Lorg/json/JSONObject;->getInt(Ljava/lang/String;)I
+
+    move-result v5
+
+    const-string v6, "id"
+
+    invoke-virtual {v4, v6}, Lorg/json/JSONObject;->getInt(Ljava/lang/String;)I
+
+    move-result v6
+
+    const-string v7, "name"
+
+    invoke-virtual {v4, v7}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v7
+
+    const-string v8, "description"
+
+    const-string v9, ""
+
+    invoke-virtual {v4, v8, v9}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v8
+
+    const-string v9, "mode"
+
+    invoke-virtual {v4, v9}, Lorg/json/JSONObject;->getString(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
+    const-string v10, "sorter"
+
+    invoke-virtual {v4, v10}, Lorg/json/JSONObject;->getInt(Ljava/lang/String;)I
+
+    move-result v10
+
+    const-string v11, "icon"
+
+    const-string v12, ""
+
+    invoke-virtual {v4, v11, v12}, Lorg/json/JSONObject;->optString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v11
+
+    new-instance v4, Lq4/k;
+
+    const/4 v12, 0x0
+
+    const/4 v13, 0x0
+
+    const/4 v14, 0x0
+
+    invoke-direct/range {v4 .. v14}, Lq4/k;-><init>(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ZZZ)V
+
+    invoke-virtual {v1, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    move-result v14
+
+    add-int/lit8 v2, v2, 0x1
+
+    goto :profile_loop
+
+    :profile_done
+    return-object v1
+.end method
+
 .method public final run()V
     .locals 15
 
@@ -287,11 +379,11 @@
 
     invoke-virtual {v2}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    new-instance v4, Lorg/json/JSONArray;
+    invoke-static {v3}, Lcom/dtunnel/xhttp/PanelCatalogSync;->parseProfiles(Ljava/lang/String;)Ljava/util/ArrayList;
 
-    invoke-direct {v4, v3}, Lorg/json/JSONArray;-><init>(Ljava/lang/String;)V
+    move-result-object v4
 
-    invoke-virtual {v4}, Lorg/json/JSONArray;->length()I
+    invoke-virtual {v4}, Ljava/util/ArrayList;->size()I
 
     move-result v5
 
@@ -363,7 +455,7 @@
 
     iget-object v8, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->viewModel:La5/e;
 
-    invoke-direct {v7, v8}, Lcom/dtunnel/xhttp/PanelCatalogSync$Refresh;-><init>(La5/e;)V
+    invoke-direct {v7, v8, v4}, Lcom/dtunnel/xhttp/PanelCatalogSync$Refresh;-><init>(La5/e;Ljava/util/List;)V
 
     invoke-virtual {v6, v7}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
