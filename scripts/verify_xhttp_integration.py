@@ -34,6 +34,9 @@ SOURCE_ASSERTIONS = {
         "PanelCatalogSync$Refresh",
         "La5/e;->j:Landroidx/lifecycle/c0",
     ),
+    ROOT / "scripts/generate_apk.py": (
+        "btnUpdateArea is w4/b index 1",
+    ),
     ROOT / "scripts/xhttp-smali/PanelCatalogSync$Refresh.smali": (
         "Lf5/g;->b()Ljava/util/List;",
         "La5/e;->j:Landroidx/lifecycle/c0",

@@ -147,28 +147,32 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     if not binding.is_file():
         raise RuntimeError("Binding p4/c da tela principal ausente na APK.")
     content = binding.read_text(encoding="utf-8")
-    marker = """    invoke-static {p1}, Lcom/dtunnel/xhttp/PanelUpdateWatchdog;->schedule(La5/e;)V
+    marker = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
 
-    .line 25
-    return-void"""
+    .line 72
+    goto :goto_0"""
     if "PanelCatalogSync;->start" not in content:
         if marker not in content:
-            raise RuntimeError("Ponto do botão de atualização não encontrado em p4/c.")
-        replacement = """    invoke-static {p1}, Lcom/dtunnel/xhttp/PanelUpdateWatchdog;->schedule(La5/e;)V
+            raise RuntimeError("Branch do btnUpdateArea (índice 1) não encontrado em p4/c.")
+        replacement = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
 
-    # The visible profile catalog comes from config.dtunnel.com.br in the original
-    # native code. Fetch the panel's authoritative app_config as a fallback/update
-    # path, then repopulate a5/e.j on the main thread.
-    iget-object v0, p0, Lr0/h;->d:Landroid/view/View;
+    # btnUpdateArea is w4/b index 1. The old patch targeted index 0, which is
+    # an observer branch and is not reached by the visible sync button.
+    iget-object v0, p0, Lp4/a;->e0:La5/e;
 
-    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+    if-eqz v0, :panel_sync_done
 
-    move-result-object v0
+    iget-object v1, p0, Lr0/h;->d:Landroid/view/View;
 
-    invoke-static {v0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+    invoke-virtual {v1}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    .line 25
-    return-void"""
+    move-result-object v1
+
+    invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+
+    :panel_sync_done
+    .line 72
+    goto :goto_0"""
         binding.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
 
 
