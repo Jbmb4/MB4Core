@@ -34,6 +34,25 @@
 
     if-eqz p1, :done
 
+    if-eqz p2, :skip_progress_card
+
+    new-instance v4, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v5
+
+    invoke-direct {v4, v5}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    new-instance v5, Lcom/dtunnel/xhttp/PanelCatalogSync$Notify;
+
+    const-string v0, "Procurando Atualizações"
+
+    invoke-direct {v5, p2, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync$Notify;-><init>(La5/n;Ljava/lang/String;)V
+
+    invoke-virtual {v4, v5}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    :skip_progress_card
     new-instance v0, Lcom/dtunnel/xhttp/PanelCatalogSync;
 
     invoke-direct {v0, p0, p1, p2}, Lcom/dtunnel/xhttp/PanelCatalogSync;-><init>(Landroid/content/Context;La5/e;La5/n;)V
@@ -575,6 +594,19 @@
 
     invoke-virtual {v6, v7}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
+    iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->mainViewModel:La5/n;
+
+    if-eqz v0, :skip_success_card
+
+    new-instance v1, Lcom/dtunnel/xhttp/PanelCatalogSync$Notify;
+
+    const-string v2, "Configurações Atualizada com sucesso"
+
+    invoke-direct {v1, v0, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync$Notify;-><init>(La5/n;Ljava/lang/String;)V
+
+    invoke-virtual {v6, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    :skip_success_card
     # The original native updater may finish later and publish its stale cache.
     # Re-apply the authoritative panel list after its usual completion window.
     const-wide/16 v9, 0x7d0

@@ -137,7 +137,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     """Fetch the panel app_config and refresh the profile LiveData used by the selector."""
     helper_dir = work_dir / "smali_classes3/com/dtunnel/xhttp"
     helper_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("PanelCatalogSync.smali", "PanelCatalogSync$Refresh.smali", "PanelCatalogSync$Status.smali", "PanelCatalogSync$Retry.smali", "PanelCatalogSync$Verifier.smali"):
+    for name in ("PanelCatalogSync.smali", "PanelCatalogSync$Refresh.smali", "PanelCatalogSync$Status.smali", "PanelCatalogSync$Retry.smali", "PanelCatalogSync$Verifier.smali", "PanelCatalogSync$Notify.smali"):
         source = SCRIPT_DIR / "xhttp-smali" / name
         if not source.is_file():
             raise RuntimeError(f"Helper de catálogo ausente: {source}")
