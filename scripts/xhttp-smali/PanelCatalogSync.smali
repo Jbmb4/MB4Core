@@ -90,14 +90,8 @@
 
     move-result v6
 
-    if-eqz v6, :open_physical
+    if-nez v6, :network_next
 
-    :network_next
-    add-int/lit8 v3, v3, 0x1
-
-    goto :network_loop
-
-    :open_physical
     invoke-virtual {v4, p1}, Landroid/net/Network;->openConnection(Ljava/net/URL;)Ljava/net/URLConnection;
 
     move-result-object v6
@@ -105,6 +99,11 @@
     check-cast v6, Ljava/net/HttpURLConnection;
 
     return-object v6
+
+    :network_next
+    add-int/lit8 v3, v3, 0x1
+
+    goto :network_loop
 
     :fallback
     invoke-virtual {p1}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
