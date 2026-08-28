@@ -420,26 +420,6 @@
     return-object v1
 .end method
 
-.method private static postStatus(Landroid/content/Context;Ljava/lang/String;)V
-    .locals 3
-
-    new-instance v0, Landroid/os/Handler;
-
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-
-    move-result-object v1
-
-    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-
-    new-instance v1, Lcom/dtunnel/xhttp/PanelCatalogSync$Status;
-
-    invoke-direct {v1, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Status;-><init>(Landroid/content/Context;Ljava/lang/String;)V
-
-    invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    return-void
-.end method
-
 .method public final run()V
     .locals 15
 
@@ -452,7 +432,7 @@
 
     new-instance v2, Ljava/net/URL;
 
-    const-string v3, "https://painel.mb4net.shop/api/dtunnelmod/update"
+    const-string v3, "https://104.21.13.147/api/dtunnelmod/update"
 
     invoke-direct {v2, v3}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
@@ -460,6 +440,25 @@
 
     move-result-object v2
 
+    const-string v3, "Host"
+
+    const-string v4, "painel.mb4net.shop"
+
+    invoke-virtual {v2, v3, v4}, Ljava/net/URLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
+
+    instance-of v3, v2, Ljavax/net/ssl/HttpsURLConnection;
+
+    if-eqz v3, :tls_done
+
+    check-cast v2, Ljavax/net/ssl/HttpsURLConnection;
+
+    new-instance v3, Lcom/dtunnel/xhttp/PanelCatalogSync$Verifier;
+
+    invoke-direct {v3}, Lcom/dtunnel/xhttp/PanelCatalogSync$Verifier;-><init>()V
+
+    invoke-virtual {v2, v3}, Ljavax/net/ssl/HttpsURLConnection;->setHostnameVerifier(Ljavax/net/ssl/HostnameVerifier;)V
+
+    :tls_done
     const/16 v3, 0x3a98
 
     invoke-virtual {v2, v3}, Ljava/net/URLConnection;->setConnectTimeout(I)V
@@ -495,12 +494,6 @@
     invoke-static {v3}, Lcom/dtunnel/xhttp/PanelCatalogSync;->parseProfiles(Ljava/lang/String;)Ljava/util/ArrayList;
 
     move-result-object v4
-
-    iget-object v6, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
-
-    const-string v7, "XHTTP: catálogo recebido"
-
-    invoke-static {v6, v7}, Lcom/dtunnel/xhttp/PanelCatalogSync;->postStatus(Landroid/content/Context;Ljava/lang/String;)V
 
     invoke-virtual {v4}, Ljava/util/ArrayList;->size()I
 
@@ -596,40 +589,6 @@
     move-exception v0
 
     invoke-virtual {v0}, Ljava/lang/Throwable;->printStackTrace()V
-
-    iget-object v1, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
-
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    const-string v3, "XHTTP erro: "
-
-    invoke-direct {v2, v3}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    invoke-virtual {v0}, Ljava/lang/Throwable;->getClass()Ljava/lang/Class;
-
-    move-result-object v3
-
-    invoke-virtual {v3}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v3, ": "
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0}, Ljava/lang/Throwable;->getMessage()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-static {v1, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync;->postStatus(Landroid/content/Context;Ljava/lang/String;)V
 
     :done
     return-void
