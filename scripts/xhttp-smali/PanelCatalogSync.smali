@@ -72,31 +72,6 @@
     return-void
 .end method
 
-.method private final showCard(Ljava/lang/String;)V
-    .locals 4
-
-    iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->mainViewModel:La5/n;
-
-    if-eqz v0, :done_card
-
-    new-instance v1, Landroid/os/Handler;
-
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-
-    move-result-object v2
-
-    invoke-direct {v1, v2}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-
-    new-instance v2, Lcom/dtunnel/xhttp/PanelCatalogSync$Card;
-
-    invoke-direct {v2, v0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Card;-><init>(La5/n;Ljava/lang/String;)V
-
-    invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    :done_card
-    return-void
-.end method
-
 .method private static openPanelConnection(Landroid/content/Context;Ljava/net/URL;)Ljava/net/HttpURLConnection;
     .locals 8
 
@@ -453,10 +428,6 @@
     .locals 15
 
     :try_start_0
-    const-string v14, "Procurando Atualizações"
-
-    invoke-direct {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
-
     iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
 
     invoke-static {v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->readUserId(Landroid/content/Context;)Ljava/lang/String;
@@ -603,10 +574,6 @@
     invoke-direct {v7, v8, v4}, Lcom/dtunnel/xhttp/PanelCatalogSync$Refresh;-><init>(La5/e;Ljava/util/List;)V
 
     invoke-virtual {v6, v7}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    const-string v14, "Configurações Atualizada com sucesso"
-
-    invoke-direct {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
 
     # The original native updater may finish later and publish its stale cache.
     # Re-apply the authoritative panel list after its usual completion window.
