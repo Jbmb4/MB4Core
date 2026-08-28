@@ -400,9 +400,14 @@ const main = async () => {
             // showToastInfo('Salvando configuração...');
 
             const data = config.toJson();
-            const url = config.id ? `/app_config/store/update/${config.id}` : '';
+            const url = config.id ? `/config/${config.id}` : '';
 
-            const response = await fetch('/app_layout/update', {
+            if (!url) {
+                showToastError('Configuração inválida para atualização!');
+                return;
+            }
+
+            const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
