@@ -137,7 +137,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     """Fetch the panel app_config and refresh the profile LiveData used by the selector."""
     helper_dir = work_dir / "smali_classes3/com/dtunnel/xhttp"
     helper_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("PanelCatalogSync.smali", "PanelCatalogSync$Refresh.smali", "PanelCatalogSync$Status.smali", "PanelCatalogSync$Retry.smali", "PanelCatalogSync$Verifier.smali"):
+    for name in ("PanelCatalogSync.smali", "PanelCatalogSync$Refresh.smali", "PanelCatalogSync$Status.smali", "PanelCatalogSync$Retry.smali", "PanelCatalogSync$Verifier.smali", "PanelCatalogSync$Card.smali"):
         source = SCRIPT_DIR / "xhttp-smali" / name
         if not source.is_file():
             raise RuntimeError(f"Helper de catálogo ausente: {source}")
@@ -147,6 +147,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     if not binding.is_file():
         raise RuntimeError("Binding p4/c da tela principal ausente na APK.")
     content = binding.read_text(encoding="utf-8")
+    content = content.replace(".method public final a(I)V\n    .locals 2", ".method public final a(I)V\n    .locals 3", 1)
     marker = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
 
     .line 72
@@ -160,6 +161,8 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     # an observer branch and is not reached by the visible sync button.
     iget-object v0, p0, Lp4/a;->e0:La5/e;
 
+    iget-object v2, p0, Lp4/a;->d0:La5/n;
+
     if-eqz v0, :panel_sync_done
 
     iget-object v1, p0, Lr0/h;->d:Landroid/view/View;
@@ -168,7 +171,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
 
     move-result-object v1
 
-    invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+    invoke-static {v1, v0, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;La5/n;)V
 
     :panel_sync_done
     # d.t below must receive the original null sentinel in v1; otherwise the
@@ -185,6 +188,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     if not landscape.is_file():
         raise RuntimeError("Binding p4/b do layout-land ausente na APK.")
     landscape_content = landscape.read_text(encoding="utf-8")
+    landscape_content = landscape_content.replace(".method public final a(I)V\n    .locals 2", ".method public final a(I)V\n    .locals 3", 1)
     landscape_marker = """    iget-object p1, p1, La5/e;->n:Landroidx/lifecycle/c0;
 
     .line 72
@@ -197,6 +201,8 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
     # The landscape btnUpdateArea also dispatches index 1.
     iget-object v0, p0, Lp4/a;->e0:La5/e;
 
+    iget-object v2, p0, Lp4/a;->d0:La5/n;
+
     if-eqz v0, :panel_sync_done_land
 
     iget-object v1, p0, Lr0/h;->d:Landroid/view/View;
@@ -205,7 +211,7 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
 
     move-result-object v1
 
-    invoke-static {v1, v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+    invoke-static {v1, v0, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;La5/n;)V
 
     :panel_sync_done_land
     # Restore the null sentinel consumed by d.t before returning to the observer.
@@ -261,7 +267,15 @@ def patch_selector_catalog_sync(work_dir: Path) -> None:
 
     check-cast v5, La5/e;
 
-    invoke-static {v4, v5}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+    iget-object v3, p0, Lz4/q;->k0:Ljava/lang/Object;
+
+    invoke-interface {v3}, Lab/c;->getValue()Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, La5/n;
+
+    invoke-static {v4, v5, v3}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;La5/n;)V
 
     .line 6
     iget-object p1, p0, Lz4/q;->f0:Lp4/g;"""

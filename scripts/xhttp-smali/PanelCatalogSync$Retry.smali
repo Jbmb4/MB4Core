@@ -10,8 +10,10 @@
 
 .field private final viewModel:La5/e;
 
+.field private final mainViewModel:La5/n;
+
 # direct methods
-.method public constructor <init>(Landroid/content/Context;La5/e;)V
+.method public constructor <init>(Landroid/content/Context;La5/e;La5/n;)V
     .locals 0
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -19,6 +21,8 @@
     iput-object p1, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->context:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->viewModel:La5/e;
+
+    iput-object p3, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->mainViewModel:La5/n;
 
     return-void
 .end method
@@ -31,9 +35,11 @@
 
     iget-object v1, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->context:Landroid/content/Context;
 
-    iget-object p0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->viewModel:La5/e;
+    iget-object v2, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->viewModel:La5/e;
 
-    invoke-direct {v0, v1, p0}, Lcom/dtunnel/xhttp/PanelCatalogSync;-><init>(Landroid/content/Context;La5/e;)V
+    iget-object p0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;->mainViewModel:La5/n;
+
+    invoke-direct {v0, v1, v2, p0}, Lcom/dtunnel/xhttp/PanelCatalogSync;-><init>(Landroid/content/Context;La5/e;La5/n;)V
 
     new-instance p0, Ljava/lang/Thread;
 

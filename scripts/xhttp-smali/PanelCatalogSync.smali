@@ -10,8 +10,10 @@
 
 .field private final viewModel:La5/e;
 
+.field private final mainViewModel:La5/n;
+
 # direct methods
-.method public constructor <init>(Landroid/content/Context;La5/e;)V
+.method public constructor <init>(Landroid/content/Context;La5/e;La5/n;)V
     .locals 0
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -20,10 +22,12 @@
 
     iput-object p2, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->viewModel:La5/e;
 
+    iput-object p3, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->mainViewModel:La5/n;
+
     return-void
 .end method
 
-.method public static start(Landroid/content/Context;La5/e;)V
+.method public static start(Landroid/content/Context;La5/e;La5/n;)V
     .locals 6
 
     if-eqz p0, :done
@@ -32,7 +36,7 @@
 
     new-instance v0, Lcom/dtunnel/xhttp/PanelCatalogSync;
 
-    invoke-direct {v0, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync;-><init>(Landroid/content/Context;La5/e;)V
+    invoke-direct {v0, p0, p1, p2}, Lcom/dtunnel/xhttp/PanelCatalogSync;-><init>(Landroid/content/Context;La5/e;La5/n;)V
 
     new-instance v1, Ljava/lang/Thread;
 
@@ -50,7 +54,7 @@
 
     new-instance v3, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;
 
-    invoke-direct {v3, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;)V
+    invoke-direct {v3, p0, p1, p2}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;La5/n;)V
 
     const-wide/16 v4, 0x1f40
 
@@ -58,13 +62,38 @@
 
     new-instance v3, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;
 
-    invoke-direct {v3, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;)V
+    invoke-direct {v3, p0, p1, p2}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;La5/n;)V
 
     const-wide/16 v4, 0x2ee0
 
     invoke-virtual {v2, v3, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     :done
+    return-void
+.end method
+
+.method private final showCard(Ljava/lang/String;)V
+    .locals 4
+
+    iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->mainViewModel:La5/n;
+
+    if-eqz v0, :done_card
+
+    new-instance v1, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v2
+
+    invoke-direct {v1, v2}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    new-instance v2, Lcom/dtunnel/xhttp/PanelCatalogSync$Card;
+
+    invoke-direct {v2, v0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Card;-><init>(La5/n;Ljava/lang/String;)V
+
+    invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    :done_card
     return-void
 .end method
 
@@ -424,6 +453,10 @@
     .locals 15
 
     :try_start_0
+    const-string v14, "Procurando Atualizações"
+
+    invoke-virtual {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
+
     iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
 
     invoke-static {v0}, Lcom/dtunnel/xhttp/PanelCatalogSync;->readUserId(Landroid/content/Context;)Ljava/lang/String;
@@ -570,6 +603,10 @@
     invoke-direct {v7, v8, v4}, Lcom/dtunnel/xhttp/PanelCatalogSync$Refresh;-><init>(La5/e;Ljava/util/List;)V
 
     invoke-virtual {v6, v7}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    const-string v14, "Configurações Atualizada com sucesso"
+
+    invoke-virtual {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
 
     # The original native updater may finish later and publish its stale cache.
     # Re-apply the authoritative panel list after its usual completion window.
