@@ -455,7 +455,7 @@
     :try_start_0
     const-string v14, "Procurando Atualizações"
 
-    invoke-virtual {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
+    invoke-direct {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
 
     iget-object v0, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
 
@@ -606,7 +606,7 @@
 
     const-string v14, "Configurações Atualizada com sucesso"
 
-    invoke-virtual {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
+    invoke-direct {p0, v14}, Lcom/dtunnel/xhttp/PanelCatalogSync;->showCard(Ljava/lang/String;)V
 
     # The original native updater may finish later and publish its stale cache.
     # Re-apply the authoritative panel list after its usual completion window.
