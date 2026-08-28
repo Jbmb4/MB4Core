@@ -396,6 +396,26 @@
     return-object v1
 .end method
 
+.method private static postStatus(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 3
+
+    new-instance v0, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v1
+
+    invoke-direct {v0, v1}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    new-instance v1, Lcom/dtunnel/xhttp/PanelCatalogSync$Status;
+
+    invoke-direct {v1, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Status;-><init>(Landroid/content/Context;Ljava/lang/String;)V
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+
+    return-void
+.end method
+
 .method public final run()V
     .locals 15
 
@@ -451,6 +471,12 @@
     invoke-static {v3}, Lcom/dtunnel/xhttp/PanelCatalogSync;->parseProfiles(Ljava/lang/String;)Ljava/util/ArrayList;
 
     move-result-object v4
+
+    iget-object v6, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
+
+    const-string v7, "XHTTP: catálogo recebido"
+
+    invoke-static {v6, v7}, Lcom/dtunnel/xhttp/PanelCatalogSync;->postStatus(Landroid/content/Context;Ljava/lang/String;)V
 
     invoke-virtual {v4}, Ljava/util/ArrayList;->size()I
 
@@ -540,12 +566,18 @@
 
     goto :done
     :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_all
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    :catch_all
+    :catch_0
     move-exception v0
 
     invoke-virtual {v0}, Ljava/lang/Throwable;->printStackTrace()V
+
+    iget-object v1, p0, Lcom/dtunnel/xhttp/PanelCatalogSync;->context:Landroid/content/Context;
+
+    const-string v2, "XHTTP: erro ao atualizar catálogo"
+
+    invoke-static {v1, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync;->postStatus(Landroid/content/Context;Ljava/lang/String;)V
 
     :done
     return-void
