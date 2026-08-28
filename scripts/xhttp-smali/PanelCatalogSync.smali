@@ -44,6 +44,78 @@
     return-void
 .end method
 
+.method private static openPanelConnection(Landroid/content/Context;Ljava/net/URL;)Ljava/net/HttpURLConnection;
+    .locals 8
+
+    if-eqz p0, :fallback
+
+    const-string v0, "connectivity"
+
+    invoke-virtual {p0, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    instance-of v1, v0, Landroid/net/ConnectivityManager;
+
+    if-eqz v1, :fallback
+
+    check-cast v0, Landroid/net/ConnectivityManager;
+
+    invoke-virtual {v0}, Landroid/net/ConnectivityManager;->getAllNetworks()[Landroid/net/Network;
+
+    move-result-object v1
+
+    if-eqz v1, :fallback
+
+    array-length v2, v1
+
+    const/4 v3, 0x0
+
+    :network_loop
+    if-ge v3, v2, :fallback
+
+    aget-object v4, v1, v3
+
+    if-eqz v4, :network_next
+
+    invoke-virtual {v0, v4}, Landroid/net/ConnectivityManager;->getNetworkCapabilities(Landroid/net/Network;)Landroid/net/NetworkCapabilities;
+
+    move-result-object v5
+
+    if-eqz v5, :network_next
+
+    const/4 v6, 0x4
+
+    invoke-virtual {v5, v6}, Landroid/net/NetworkCapabilities;->hasTransport(I)Z
+
+    move-result v6
+
+    if-eqz v6, :open_physical
+
+    :network_next
+    add-int/lit8 v3, v3, 0x1
+
+    goto :network_loop
+
+    :open_physical
+    invoke-virtual {v4, p1}, Landroid/net/Network;->openConnection(Ljava/net/URL;)Ljava/net/URLConnection;
+
+    move-result-object v6
+
+    check-cast v6, Ljava/net/HttpURLConnection;
+
+    return-object v6
+
+    :fallback
+    invoke-virtual {p1}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/net/HttpURLConnection;
+
+    return-object v0
+.end method
+
 .method private static readUserId(Landroid/content/Context;)Ljava/lang/String;
     .locals 4
 
@@ -341,11 +413,9 @@
 
     invoke-direct {v2, v3}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
-    invoke-virtual {v2}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
+    invoke-static {v0, v2}, Lcom/dtunnel/xhttp/PanelCatalogSync;->openPanelConnection(Landroid/content/Context;Ljava/net/URL;)Ljava/net/HttpURLConnection;
 
     move-result-object v2
-
-    check-cast v2, Ljava/net/HttpURLConnection;
 
     const/16 v3, 0x3a98
 

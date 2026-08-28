@@ -216,6 +216,58 @@ def patch_panel_catalog_http_sync(work_dir: Path) -> None:
         landscape.write_text(landscape_content.replace(landscape_marker, landscape_replacement, 1), encoding="utf-8")
 
 
+def patch_xhttp_ping_refresh(work_dir: Path) -> None:
+    """Publish every successful SSH_XHTTP ping instead of only the first one."""
+    relative = Path("smali_classes3/com/dragonssh/xhttpdemo/core/tunnel/TunnelManagerThread$4.smali")
+    target = work_dir / relative
+    source = SCRIPT_DIR / "xhttp-smali/TunnelManagerThread$4.smali"
+    if not target.is_file():
+        raise RuntimeError("Pinger TunnelManagerThread$4 ausente no runtime XHTTP.")
+    if not source.is_file():
+        raise RuntimeError(f"Template do pinger ausente: {source}")
+    template = source.read_text(encoding="utf-8")
+    if "Publish every successful ping" not in template or "fgetlastPingLatency" in template:
+        raise RuntimeError("Template do pinger não contém a correção de publicação contínua.")
+    target.write_text(template, encoding="utf-8")
+
+
+def patch_selector_catalog_sync(work_dir: Path) -> None:
+    """Refresh the panel catalog when the profile selector is actually opened."""
+    selector = work_dir / "smali/z4/q.smali"
+    if not selector.is_file():
+        raise RuntimeError("Fragmento z4/q do seletor ausente na APK.")
+    content = selector.read_text(encoding="utf-8")
+    if "PanelCatalogSync;->start" in content:
+        return
+    marker = """    invoke-static {v0, p1}, Lpb/j;->e(Ljava/lang/String;Ljava/lang/Object;)V
+
+    .line 6
+    iget-object p1, p0, Lz4/q;->f0:Lp4/g;"""
+    if marker not in content:
+        raise RuntimeError("Ponto de abertura do seletor z4/q.H não encontrado.")
+    replacement = """    invoke-static {v0, p1}, Lpb/j;->e(Ljava/lang/String;Ljava/lang/Object;)V
+
+    # Re-fetch immediately before the dialog is built. This covers active
+    # SSH_XHTTP sessions where the native updater can publish stale data later.
+    invoke-virtual {p0}, Le1/w;->M()Landroid/content/Context;
+
+    move-result-object v4
+
+    iget-object v5, p0, Lz4/q;->h0:Ljava/lang/Object;
+
+    invoke-interface {v5}, Lab/c;->getValue()Ljava/lang/Object;
+
+    move-result-object v5
+
+    check-cast v5, La5/e;
+
+    invoke-static {v4, v5}, Lcom/dtunnel/xhttp/PanelCatalogSync;->start(Landroid/content/Context;La5/e;)V
+
+    .line 6
+    iget-object p1, p0, Lz4/q;->f0:Lp4/g;"""
+    selector.write_text(content.replace(marker, replacement, 1), encoding="utf-8")
+
+
 def patch_z4_observer_cast_guard(work_dir: Path) -> None:
     """Remove an unused Void cast from the profile dialog observer."""
     observer = work_dir / "smali/z4/n.smali"
@@ -240,6 +292,8 @@ def patch_xhttp_update_runtime(work_dir: Path) -> None:
     patch_xhttp_config_reload(work_dir)
     patch_config_catalog_refresh(work_dir)
     patch_panel_catalog_http_sync(work_dir)
+    patch_xhttp_ping_refresh(work_dir)
+    patch_selector_catalog_sync(work_dir)
     patch_z4_observer_cast_guard(work_dir)
 
     receiver = work_dir / "smali_classes3/com/dtunnel/xhttp/XHttpStopReceiver.smali"
