@@ -48,13 +48,21 @@
 
     invoke-direct {v2, v3}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
 
+    new-instance v3, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;
+
+    invoke-direct {v3, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;)V
+
     const-wide/16 v4, 0x1f40
 
-    invoke-virtual {v2, v0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v2, v3, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    new-instance v3, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;
+
+    invoke-direct {v3, p0, p1}, Lcom/dtunnel/xhttp/PanelCatalogSync$Retry;-><init>(Landroid/content/Context;La5/e;)V
 
     const-wide/16 v4, 0x2ee0
 
-    invoke-virtual {v2, v0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v2, v3, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     :done
     return-void
