@@ -24,7 +24,7 @@
 .end method
 
 .method public static start(Landroid/content/Context;La5/e;)V
-    .locals 2
+    .locals 6
 
     if-eqz p0, :done
 
@@ -39,6 +39,22 @@
     invoke-direct {v1, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
+
+    new-instance v2, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v3
+
+    invoke-direct {v2, v3}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    const-wide/16 v4, 0x1f40
+
+    invoke-virtual {v2, v0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    const-wide/16 v4, 0x2ee0
+
+    invoke-virtual {v2, v0, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     :done
     return-void
